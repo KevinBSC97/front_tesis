@@ -1,0 +1,131 @@
+<app-navbar></app-navbar>
+<div class="container mt-4">
+    <h2 class="text-center mb-3">Panel de Administrador</h2>
+    <button type="button" class="btn btn-success mb-3" (click)="displayModal = true">
+        <i class="pi pi-plus"></i> Registrar Nuevo Usuario
+    </button>
+
+    <!-- Tabla de usuarios -->
+    <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <!-- Cabezales de tabla -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Id</th>
+                <th>Identificacion</th>
+                <th>Nombre de Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Especialidad</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <!-- Cuerpo de tabla -->
+        <ng-template pTemplate="body" let-usuario>
+            <tr>
+                <td>{{ usuario.usuarioId }}</td>
+                <td>{{ usuario.identificacion }}</td>
+                <td>{{ usuario.nombreUsuario }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.apellido }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.rolId === 1 ? 'Admin' : (usuario.rolId === 2 ? 'Cliente' : 'Abogado') }}</td>
+                <td>{{ getEspecialidadDescripcion(usuario.especialidadId) }}</td>
+                <td>{{ usuario.estado }}</td>
+                <td>
+                    <button class="btn btn-primary btn-circle" (click)="editUser(usuario.usuarioId)" title="Editar Usuario">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-toast></p-toast>
+<!-- Modal de registro usando PrimeNG -->
+<p-dialog header="Registro de Usuario" [(visible)]="displayModal" [style]="{width: '50vw'}" [modal]="true">
+    <!-- <div class="form-group mb-3">
+        <label for="nombreUsuario">Identificacion</label>
+        <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10">
+    </div> -->
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Identificación</label>
+        <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10" (keypress)="validateNumber($event)">
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" pInputText [(ngModel)]="newUser.nombreUsuario" required class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombre">Nombre</label>
+        <input type="text" pInputText [(ngModel)]="newUser.nombre" required class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="apellido">Apellido</label>
+        <input type="text" pInputText [(ngModel)]="newUser.apellido" required class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input type="email" pInputText [(ngModel)]="newUser.email" required class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="rol">Rol</label>
+        <p-dropdown [options]="roles" [(ngModel)]="newUser.rolId" placeholder="Selecciona un rol" optionLabel="label" optionValue="value" class="form-control"></p-dropdown>
+    </div>
+    <div class="form-group mb-3">
+        <label for="especialidad">Especialidad</label>
+        <p-dropdown [options]="especialidades" [(ngModel)]="newUser.especialidadId" placeholder="Selecciona una especialidad" optionLabel="label" optionValue="value" class="form-control"></p-dropdown>
+    </div>
+    <div class="form-group mb-3">
+        <label for="password">Contraseña</label>
+        <input type="password" pInputText [(ngModel)]="newUser.password" required class="form-control">
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Registrar" icon="pi pi-check" 
+        [disabled]="!canRegister()"
+        (click)="register()" class="btn btn-success">
+</button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Editar Estado del Usuario" [(visible)]="displayEditModal" [style]="{width: '50vw'}" [modal]="true">
+    <div class="form-group mb-3">
+        <label for="identificacion">Identificación</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.identificacion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombreUsuario" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombre">Nombre</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombre" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="apellido">Apellido</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.apellido" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input type="email" pInputText [(ngModel)]="selectedUser.email" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="rol">Rol</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.rolDescripcion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="especialidad">Especialidad</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.especialidadDescripcion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="estado">Estado</label>
+        <p-dropdown [options]="estados" [(ngModel)]="selectedUser.estado" optionLabel="label" optionValue="value" placeholder="Selecciona un estado"></p-dropdown>
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUser()" class="btn btn-success"></button>
+    </div>
+</p-dialog>

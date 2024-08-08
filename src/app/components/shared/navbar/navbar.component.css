@@ -1,0 +1,24 @@
+.navbar {
+  background-color: rgb(98, 107, 236); /* Cambia el color aquí por el gris que prefieras */
+}
+
+.navbar-brand img {
+  height: 40px; /* Ajusta según tus necesidades */
+}
+
+.btn-outline-danger {
+  margin-right: 15px; /* Asegura margen a la derecha para alinear el botón */
+}
+
+.ui-sidebar-sm {
+  width: 250px; /* Ajusta según tus necesidades */
+}
+
+.dropdown-menu {
+  min-width: 200px;  /* Ajusta esto según tus necesidades */
+}
+
+.dropdown-item {
+  white-space: nowrap;  /* Evita que los textos dentro del dropdown se rompan en líneas */
+}
+  

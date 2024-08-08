@@ -1,0 +1,39 @@
+<div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
+    <div class="row shadow p-5 rounded">
+      <!-- Sección del formulario de login -->
+      <div class="col-md-6 d-flex flex-column justify-content-center align-items-center bg-white">
+        <div class="login-form w-75">
+          <div class="text-center mb-4">
+            <img src="assets/image/logo.png" alt="Logo" class="mb-3" style="height: 60px;">
+            <h2>Login</h2>
+          </div>
+          <form #form="ngForm">
+            <div class="form-group mb-3">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">
+                  <i class="pi pi-user"></i>
+                </span>
+                <input id="username" type="text" pInputText placeholder="Usuario" [(ngModel)]="username" name="username" class="form-control" required/>
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">
+                  <i class="pi pi-lock"></i>
+                </span>
+                <input id="password" type="password" pInputText placeholder="Contraseña" [(ngModel)]="password" name="password" class="form-control" required/>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center mb-3">
+              <button type="button" pButton class="p-button-danger p-button-block" label="Ingresar" (click)="onLogin(form)"></button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Sección de la imagen o contenido adicional -->
+      <div class="col-md-6 d-none d-md-flex justify-content-center align-items-center login-bg">
+        <img src="assets/image/logo.png" alt="Logo" class="img-fluid centered-image">
+      </div>
+    </div>
+  </div>
+  

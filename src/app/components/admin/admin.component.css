@@ -1,0 +1,8 @@
+.container {
+    padding-top: 20px; /* Añade espacio en la parte superior del contenedor */
+}
+
+.btn-success {
+    width: auto; /* Ajusta esto según necesites */
+    padding: 10px 20px; /* Más relleno para un botón más grande */
+}

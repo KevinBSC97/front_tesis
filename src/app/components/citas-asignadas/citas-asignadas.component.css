@@ -1,0 +1,57 @@
+.container {
+    /*background-color: #f8f9fa; Fondo claro para el contenedor */
+    padding: 20px;
+    border-radius: 8px; /* Bordes redondeados */
+}
+
+h3 {
+    /* background-color: #ffffff;
+    color: white; */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+table {
+    background-color: #ffffff; /* Fondo blanco para las tablas */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra ligera */
+    border-radius: 5px;
+    margin-top: 20px; /* Espacio entre tabla y texto */
+}
+
+th {
+    background-color: #007bff; /* Azul Bootstrap */
+    color: white;
+}
+
+td {
+    padding: 8px; /* Espaciado dentro de las celdas */
+}
+
+.btn-success {
+    margin-top: 10px; /* Espacio sobre el botón */
+}
+
+.btn-secondary {
+    margin-bottom: 20px; /* Espacio debajo del botón regresar */
+}
+
+.card-custom {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px; /* Espacio entre tarjetas */
+    padding: 15px;
+}
+
+.card-header-custom {
+    background-color: #007bff;
+    color: white;
+    border-radius: 6px 6px 0 0;
+    padding: 10px 15px;
+    font-size: 18px;
+}
+
+.card-body-custom {
+    padding: 15px;
+}

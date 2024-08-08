@@ -1,0 +1,45 @@
+<app-navbar></app-navbar>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Panel de Abogado</h2>
+    <div class="row justify-content-center">
+        <!-- Citas Asignadas -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-calendar-check mr-2"></i> Citas Asignadas
+                    </h5>
+                    <p class="card-text">Accede a la lista de citas que te han sido asignadas.</p>
+                    <button class="btn btn-primary" routerLink="/citas-asignadas">Administrar Citas</button>
+                </div>
+            </div>
+        </div>
+  
+        <!-- Casos Realizados -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-briefcase mr-2"></i> Casos Realizados
+                    </h5>
+                    <p class="card-text">Revisa los casos que has manejado hasta ahora.</p>
+                    <button class="btn btn-primary" routerLink="/casos-realizados">Ver Casos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <!-- Crear Caso -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-plus-circle mr-2"></i> Crear Caso
+                    </h5>
+                    <p class="card-text">Inicia un nuevo caso para tu gestión.</p>
+                    <button class="btn btn-primary" routerLink="/crear-caso">Crear Caso</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

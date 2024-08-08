@@ -1,0 +1,83 @@
+<app-navbar></app-navbar>
+<div class="container mt-4">
+    <div class="mb-3">
+        <button class="btn btn-secondary" (click)="navigateToPanel()">Regresar</button>
+    </div>
+    <!-- Citas Asignadas Pendientes -->
+    <h3>Citas Asignadas Pendientes</h3>
+    <table class="table" *ngIf="citasPendientes.length > 0; else noCitasPendientes">
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Descripción</th>
+                <th>Nombre del Cliente</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let cita of citasPendientes">
+                <td>
+                    <input type="datetime-local" class="form-control" [(ngModel)]="cita.fechaHora" [min]="minDate" [max]="maxDate">
+                </td>
+                <td>{{ cita.descripcion }}</td>
+                <td>{{ cita.nombreCliente }} {{ cita.apellidoCliente }}</td>
+                <td>
+                    <select class="form-select" [(ngModel)]="cita.estado">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aceptado">Aceptar</option>
+                        <option value="Rechazado">Rechazar</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-success" (click)="updateEstado(cita.citaId, cita.estado)">Actualizar Estado</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-template #noCitasPendientes><p>No hay citas asignadas pendientes.</p></ng-template>
+
+    <!-- Citas Asignadas Aceptadas -->
+    <h3>Citas Asignadas Aceptadas</h3>
+    <table class="table" *ngIf="citasAceptadas.length > 0; else noCitasAceptadas">
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Descripción</th>
+                <th>Nombre del Cliente</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let cita of citasAceptadas">
+                <td>{{ cita.fechaHora | date:'medium' }}</td>
+                <td>{{ cita.descripcion }}</td>
+                <td>{{ cita.nombreCliente }} {{ cita.apellidoCliente }}</td>
+                <td>{{ cita.estado }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-template #noCitasAceptadas><p>No hay citas asignadas aceptadas.</p></ng-template>
+
+    <!-- Citas Asignadas Rechazadas -->
+    <h3>Citas Asignadas Rechazadas</h3>
+    <table class="table" *ngIf="citasRechazadas.length > 0; else noCitasRechazadas">
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Descripción</th>
+                <th>Nombre del Cliente</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let cita of citasRechazadas">
+                <td>{{ cita.fechaHora | date:'medium' }}</td>
+                <td>{{ cita.descripcion }}</td>
+                <td>{{ cita.nombreCliente }} {{ cita.apellidoCliente }}</td>
+                <td>{{ cita.estado }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ng-template #noCitasRechazadas><p>No hay citas asignadas rechazadas.</p></ng-template>
+</div>
