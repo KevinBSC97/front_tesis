@@ -16,7 +16,6 @@ import { SidebarModule } from 'primeng/sidebar';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,6 +27,11 @@ import { CrearCasoComponent } from './components/crear-caso/crear-caso.component
 import { CasosRealizadosComponent } from './components/casos-realizados/casos-realizados.component';
 import { MessageService } from 'primeng/api';
 import { GestionCasosComponent } from './components/gestion-casos/gestion-casos.component';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { CalendarComponent } from './shared/calendar/calendar.component';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SpinnerComponent } from './shared/spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +45,9 @@ import { GestionCasosComponent } from './components/gestion-casos/gestion-casos.
     CitasAsignadasComponent,
     CrearCasoComponent,
     CasosRealizadosComponent,
-    GestionCasosComponent
+    GestionCasosComponent,
+    CalendarComponent,
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,
@@ -57,9 +63,15 @@ import { GestionCasosComponent } from './components/gestion-casos/gestion-casos.
     DialogModule,
     CalendarModule,
     ReactiveFormsModule,
-    ToastModule
+    ToastModule,
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory,
+    }),
+    ProgressSpinnerModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

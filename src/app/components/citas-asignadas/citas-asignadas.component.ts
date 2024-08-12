@@ -17,6 +17,7 @@ export class CitasAsignadasComponent {
   citasRechazadas: CitaDTO[] = [];
   minDate: string = new Date().toISOString().slice(0, 16); // Ajusta según necesidades
   maxDate: string = new Date().toISOString().slice(0, 16); // Ajusta según necesidades
+  showLoading: boolean = false;
 
   constructor(private citaService: CitasService, private router: Router, private authService: AuthService, private messageService: MessageService) {}
 
@@ -34,18 +35,23 @@ export class CitasAsignadasComponent {
     maxDate.setHours(17, 0, 0, 0);  // La hora máxima del día actual
     this.maxDate = maxDate.toISOString().slice(0, 16);
   }
-  
+
   loadCitas(): void {
+    this.showLoading = true;
     const userId = this.authService.getCurrentUser()?.usuarioId;
     if (userId) {
       this.citaService.getCitasAsignadas(userId).subscribe({
         next: (citas) => {
+
           this.citasPendientes = citas.filter(c => c.estado === 'Pendiente');
           this.citasAceptadas = citas.filter(c => c.estado === 'Aceptado');
           this.citasRechazadas = citas.filter(c => c.estado === 'Rechazado');
         },
         error: (error) => {
           console.error('Error al cargar las citas:', error);
+        },
+        complete: () => {
+          this.showLoading = false;
         }
       });
     } else {
@@ -55,7 +61,7 @@ export class CitasAsignadasComponent {
 
   // updateEstado(citaId: number, fechaHora: string, nuevoEstado: string): void {
   //   let updatedDate = new Date(fechaHora);
-  
+
   //   // Verifica que updatedDate sea un objeto Date válido antes de llamar a getHours()
   //   if (!(updatedDate instanceof Date && !isNaN(updatedDate.getTime()))) {
   //     this.messageService.add({
@@ -63,14 +69,14 @@ export class CitasAsignadasComponent {
   //     });
   //     return;
   //   }
-  
+
   //   if (updatedDate < new Date() || updatedDate.getHours() < 9 || updatedDate.getHours() > 17) {
   //     this.messageService.add({
   //       severity: 'error', summary: 'Error', detail: 'La fecha y hora seleccionadas no son válidas. Elija un horario entre las 9:00 AM y las 5:00 PM.'
   //     });
   //     return;
   //   }
-  
+
   //   const citaToUpdate = this.citasPendientes.find(c => c.citaId === citaId);
   //   if (citaToUpdate) {
   //     citaToUpdate.estado = nuevoEstado;
@@ -96,6 +102,8 @@ export class CitasAsignadasComponent {
   // }
 
   updateEstado(citaId: number, nuevoEstado: string): void {
+    this.showLoading = true;
+
     const citaToUpdate = this.citasPendientes.find(c => c.citaId === citaId);  // Ensure this searches the correct array
     if (citaToUpdate) {
       citaToUpdate.estado = nuevoEstado;  // Modify the local copy
@@ -106,6 +114,9 @@ export class CitasAsignadasComponent {
         },
         error: (error) => {
           console.error('Error al actualizar el estado de la cita', error);
+        },
+        complete: () =>{
+          this.showLoading = false;
         }
       });
     } else {

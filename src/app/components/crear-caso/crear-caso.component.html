@@ -1,9 +1,11 @@
 <app-navbar></app-navbar>
+<shared-spinner *ngIf="showLoading"></shared-spinner>
+
 <div class="container mt-4 mb-3">
   <div class="mb-3">
     <button class="btn btn-secondary" (click)="navigateToPanel()">Regresar</button>
   </div>
-  
+
   <div class="card shadow-sm p-4">
     <h3 class="text-center mb-4">Crear Caso</h3>
     <form [formGroup]="form">
@@ -26,25 +28,25 @@
         <label for="nombreCliente" class="form-label">Nombre del Cliente</label>
         <input type="text" class="form-control" formControlName="nombreCliente" readonly>
       </div>
-    
+
       <!-- Fecha de la Cita -->
       <div class="mb-3">
         <label for="fechaCita" class="form-label">Fecha de la Cita</label>
         <input type="date" class="form-control" formControlName="fechaCita" readonly>
       </div>
-    
+
       <!-- Descripción del Caso -->
       <div class="mb-3">
         <label for="descripcionCaso" class="form-label">Descripción del Caso</label>
         <textarea class="form-control" formControlName="descripcionCaso" rows="3" required></textarea>
       </div>
-      
+
       <!-- Especialidad del Caso -->
       <div class="mb-3">
         <label for="especialidad" class="form-label">Especialidad</label>
         <input type="text" class="form-control" formControlName="especialidad" readonly>
       </div>
-    
+
       <!-- Responsable del Caso -->
       <div class="mb-3">
         <label for="responsable" class="form-label">Responsable del Caso</label>
@@ -60,7 +62,7 @@
           <option value="cerrado">Cerrado</option>
         </select>
       </div>
-  
+
       <div class="text-center">
         <button type="submit" class="btn btn-primary" [disabled]="!form.valid" (click)="guardarCaso()">Guardar Caso</button>
       </div>

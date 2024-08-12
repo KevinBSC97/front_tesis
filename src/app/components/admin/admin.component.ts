@@ -13,7 +13,7 @@ export class AdminComponent implements OnInit {
   usuarios: any[] = [];
   displayModal: boolean = false;
   displayEditModal: boolean = false;
-
+  showLoading: boolean = false;
   estados = [
     { label: 'Activo', value: 'A' },
     { label: 'Inactivo', value: 'I' }
@@ -90,6 +90,8 @@ export class AdminComponent implements OnInit {
   }
 
   loadEspecialidades() {
+    this.showLoading = true;
+
     this.authService.getEspecialidades().subscribe({
       next: (data) => {
         this.especialidades = data.map(especialidad => ({
@@ -97,11 +99,16 @@ export class AdminComponent implements OnInit {
           value: especialidad.especialidadId
         }));
       },
-      error: (error) => console.error('Error fetching especialidades:', error)
+      error: (error) => console.error('Error fetching especialidades:', error),
+      complete: () => {
+        this.showLoading = false;
+      }
     });
   }
 
   loadUsers() {
+
+    this.showLoading = true;
     this.authService.getUsers().subscribe({
       next: (data) => {
         this.usuarios = data;
@@ -109,6 +116,9 @@ export class AdminComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching users:', error);
+      },
+      complete: () => {
+        this.showLoading = false;
       }
     });
   }
@@ -118,7 +128,9 @@ export class AdminComponent implements OnInit {
       this.messageService.add({severity:'warn', summary: 'Validación fallida', detail: 'Por favor, revisa los campos. Algunos datos son inválidos.'});
       return;
     }
-  
+
+    this.showLoading = true;
+
     this.authService.register(this.newUser).subscribe({
       next: (data) => {
         console.log("Registro exitoso", data);
@@ -131,6 +143,9 @@ export class AdminComponent implements OnInit {
         console.error("Error en el registro", error);
         // Asume que el servidor devuelve un mensaje de error en la respuesta del error
         this.messageService.add({severity:'error', summary: 'Error en el Registro', detail: error.error.message || 'Error desconocido al registrar el usuario'});
+      },
+      complete: ()=>{
+        this.showLoading = false;
       }
     });
   }
@@ -181,6 +196,7 @@ export class AdminComponent implements OnInit {
   }
 
   editUser(usuarioId: number) {
+    this.showLoading = true;
     this.authService.getUsuarioById(usuarioId).subscribe({
       next: (usuario) => {
         this.selectedUser = usuario;
@@ -189,11 +205,15 @@ export class AdminComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar el usuario:', error);
         this.selectedUser = this.defaultUser; // Usar defaultUser en lugar de null
+      },
+      complete: ()=>{
+        this.showLoading = false;
       }
     });
   }
 
   updateUser() {
+    this.showLoading = true;
     this.authService.updateUsuario(this.selectedUser.usuarioId, this.selectedUser).subscribe({
       next: () => {
         console.log('Usuario actualizado con éxito');
@@ -204,6 +224,9 @@ export class AdminComponent implements OnInit {
       error: (error) => {
         console.error('Error al actualizar el usuario:', error);
         this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al actualizar el usuario'});
+      },
+      complete: () => {
+        this.showLoading = false;
       }
     });
   }

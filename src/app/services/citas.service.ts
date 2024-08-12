@@ -7,7 +7,7 @@ import { catchError, Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class CitasService {
-  private baseUrl = 'https://localhost:7060/api';
+  private baseUrl = 'http://localhost:5277/api';
 
   constructor(private http: HttpClient) { }
 

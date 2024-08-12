@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+<shared-spinner *ngIf="showLoading"></shared-spinner>
 <div class="container mt-4">
     <h2 class="text-center mb-3">Panel de Administrador</h2>
     <button type="button" class="btn btn-success mb-3" (click)="displayModal = true">
@@ -84,7 +85,7 @@
         <input type="password" pInputText [(ngModel)]="newUser.password" required class="form-control">
     </div>
     <div class="d-flex justify-content-end">
-        <button type="button" pButton label="Registrar" icon="pi pi-check" 
+        <button type="button" pButton label="Registrar" icon="pi pi-check"
         [disabled]="!canRegister()"
         (click)="register()" class="btn btn-success">
 </button>

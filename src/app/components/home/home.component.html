@@ -3,7 +3,7 @@
     <h2 class="text-center mb-4">Panel de Cliente</h2>
     <div class="row">
         <div class="col-md-6">
-            <a href="/gestion-casos" class="card shadow-lg text-decoration-none text-dark">
+            <a [routerLink]="['/gestion-casos']" class="card shadow-lg text-decoration-none text-dark">
                 <div class="card-body text-center">
                     <i class="pi pi-folder-open" style="font-size: 2em;"></i>
                     <h4 class="card-title">Casos</h4>
@@ -12,7 +12,7 @@
             </a>
         </div>
         <div class="col-md-6">
-            <a href="/citas" class="card shadow-lg text-decoration-none text-dark">
+            <a  [routerLink]="['/citas']" class="card shadow-lg text-decoration-none text-dark">
                 <div class="card-body text-center">
                     <i class="pi pi-calendar" style="font-size: 2em;"></i>
                     <h4 class="card-title">Citas</h4>
@@ -22,4 +22,4 @@
         </div>
     </div>
 </div>
-  
+

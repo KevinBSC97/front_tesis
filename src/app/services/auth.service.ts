@@ -9,7 +9,7 @@ import { CitaDTO } from '../interfaces/citas';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'https://localhost:7060/api';
+  private baseUrl = 'http://localhost:5277/api';
 
   private currentUserSubject: BehaviorSubject<UsuarioDTO | null>;
 

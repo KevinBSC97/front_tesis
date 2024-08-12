@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { CitaDTO } from 'src/app/interfaces/citas';
+import { CitaDTO, IDuracionCita } from 'src/app/interfaces/citas';
 import { EspecialidadDTO, UsuarioDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
+import { CitasService } from 'src/app/services/citas.service';
 
 @Component({
   selector: 'app-citas',
@@ -12,9 +13,12 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./citas.component.css']
 })
 export class CitasComponent {
+
+  showLoading: boolean = false;
   especialidadesDTO: EspecialidadDTO[] = [];
   abogadosDTO: UsuarioDTO[] = [];
   selectedEspecialidad: number | null = null;
+  selectedDuracion!: number;
   selectedAbogado: number | null = null;
   newCita: CitaDTO = {
     citaId: 0,
@@ -23,13 +27,26 @@ export class CitasComponent {
     clienteId: 0,
     estado: 'Pendiente',
     especialidad: '',
-    nombreAbogado: ''
+    nombreAbogado: '',
+    duracion: 0
   };
   minDate!: string;
+  abogadoDisabled: boolean = true;
+  visible: boolean = false;
+  citasAsignadasPendientes: CitaDTO[] = [];
 
-  constructor(private authService: AuthService, private router: Router, private messageService: MessageService) {
+  showDialog() {
+      this.visible = true;
+  }
+  constructor(private citaService: CitasService, private authService: AuthService, private router: Router, private messageService: MessageService) {
     this.setMinDate();
   }
+
+  listaDuracion: IDuracionCita[] =[
+    {label: '30 minutos', value: 30},
+    {label: '60 minutos', value: 60},
+    {label: '90 minutos', value: 90},
+  ]
 
   setMinDate() {
     const currentDate = new Date();
@@ -50,9 +67,17 @@ export class CitasComponent {
   }
 
   loadEspecialidades(): void {
-    this.authService.getEspecialidades().subscribe(data => {
-      this.especialidadesDTO = data;
+    this.showLoading = true;
+
+    this.authService.getEspecialidades().subscribe({
+      next: (data)=>{
+        this.especialidadesDTO = data;
+      },
+      complete: () => {
+        this.showLoading = false;
+      }
     });
+
   }
 
   onEspecialidadChange(event: any): void {
@@ -61,6 +86,7 @@ export class CitasComponent {
 
     if (especialidadId === 1) {  // Si la especialidad es 'Ninguna'
       this.abogadosDTO = [];
+      this.abogadoDisabled = true;
     } else {
       this.authService.getAbogadosByEspecialidad(especialidadId).subscribe({
         next: (abogados) => {
@@ -70,15 +96,18 @@ export class CitasComponent {
 
           if (abogadosActivos.length > 0) {
             this.selectedAbogado = abogadosActivos[0].usuarioId; // Selecciona automáticamente el primer abogado activo
+            this.abogadoDisabled = false; // Habilita el select de abogados
           } else {
             // Mostrar mensaje de no disponibilidad
             alert('No hay un abogado disponible para esta especialidad');
+            this.abogadoDisabled = true;
             this.selectedAbogado = null; // Asegura que no se seleccione un abogado
           }
         },
         error: (error) => {
           console.error('Error al cargar abogados:', error);
           this.abogadosDTO = [];
+          this.abogadoDisabled = true;
         }
       });
     }
@@ -107,18 +136,18 @@ export class CitasComponent {
   //     });
   //   }
   // }
-  
+
   canCreateCita(): boolean {
     // Asegúrate de que todos los campos necesarios están completos
     if (!this.newCita.descripcion || !this.newCita.fechaHora || this.selectedEspecialidad === null || this.selectedAbogado === null) {
       return false;
     }
-  
+
     // Condiciones específicas para la creación de la cita
     if (this.selectedEspecialidad === 1) {
       return false;  // No permitir crear citas con 'Ninguna' especialidad
     }
-  
+
     return true;
   }
 
@@ -139,8 +168,12 @@ export class CitasComponent {
       this.messageService.add({severity:'error', summary: 'Error', detail: 'No se puede crear una cita con la especialidad "Ninguna"'});
       return;
     }
+
+    console.log("ssss",this.selectedDuracion)
     if (this.selectedAbogado) {
+      this.showLoading = true;
       this.newCita.abogadoId = this.selectedAbogado;
+      this.newCita.duracion = Number(this.selectedDuracion);
       this.newCita.nombreCliente = "Nombre del Cliente"; // Asegúrate de asignar este valor correctamente
       this.authService.createCita(this.newCita).subscribe({
         next: (response) => {
@@ -149,8 +182,12 @@ export class CitasComponent {
           this.resetForm(); // Llamar a función para resetear el formulario
         },
         error: (error) => {
-          this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al crear la cita'});
+          this.messageService.add({severity:'error', summary: 'Error', detail: error.error});
           console.error('Error creando la cita', error);
+          this.showLoading = false;
+        },
+        complete: () => {
+          this.showLoading = false;
         }
       });
     } else {
@@ -167,10 +204,12 @@ export class CitasComponent {
       clienteId: this.newCita.clienteId,
       estado: 'Pendiente',
       especialidad: '',
-      nombreAbogado: ''
+      nombreAbogado: '',
+      duracion: 0
     };
     this.selectedEspecialidad = null;
     this.selectedAbogado = null;
+    this.abogadoDisabled = true;
   }
 
   // createCita(): void {
@@ -203,5 +242,27 @@ export class CitasComponent {
 
   navigateHome() {
     this.router.navigate(['/home']); // Asegúrate de cambiar '/home' por la ruta correcta
+  }
+
+  loadCitas(): void {
+    this.showLoading = true;
+    const userId = this.authService.getCurrentUser()?.usuarioId;
+    if (userId) {
+      this.citaService.getCitasAsignadas(userId).subscribe({
+        next: (citas) => {
+
+          this.citasAsignadasPendientes = citas.filter(c => c.estado === 'Pendiente') && citas.filter(c => c.estado === 'Aceptado')
+
+        },
+        error: (error) => {
+          console.error('Error al cargar las citas:', error);
+        },
+        complete: ()=> {
+          this.showLoading = false;
+        }
+      });
+    } else {
+      console.error('No user id found');
+    }
   }
 }

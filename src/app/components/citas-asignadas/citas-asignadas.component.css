@@ -24,12 +24,10 @@ th {
 }
 
 td {
-    padding: 8px; /* Espaciado dentro de las celdas */
+    margin-top: 1rem;
+    padding: 8px;
 }
 
-.btn-success {
-    margin-top: 10px; /* Espacio sobre el botón */
-}
 
 .btn-secondary {
     margin-bottom: 20px; /* Espacio debajo del botón regresar */

@@ -9,4 +9,10 @@ export interface CitaDTO {
   estado: string;
   especialidad: string;
   nombreAbogado: string;
+  duracion: number;
+}
+
+export interface IDuracionCita{
+  label: string;
+  value: number;
 }

@@ -13,6 +13,7 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
 
+  showLoading: boolean = false;
   constructor(private router: Router, private authService: AuthService) {}
 
   onLogin(form: NgForm) {
@@ -26,9 +27,13 @@ export class LoginComponent {
       Contraseña: this.password
     };
 
+    this.showLoading = true;
     this.authService.login(loginData).subscribe({
       next: (response) => this.handleLoginSuccess(response),
-      error: (error) => this.handleLoginError(error)
+      error: (error) => this.handleLoginError(error),
+      complete:() => {
+        this.showLoading = false;
+      }
     });
   }
 
@@ -49,7 +54,7 @@ export class LoginComponent {
       Cliente: '/home',
       Abogado: '/abogados'
     };
-    
+
     const route = routes[role];
     if (route) {
       this.router.navigate([route], { replaceUrl: true });

@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+<shared-spinner *ngIf="showLoading"></shared-spinner>
 <div class="container mt-4">
     <div class="mb-3">
         <button class="btn btn-secondary" (click)="navigateToPanel()">Regresar</button>
@@ -11,7 +12,6 @@
                 <th>Fecha y Hora</th>
                 <th>Descripción</th>
                 <th>Nombre del Cliente</th>
-                <th>Estado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -22,15 +22,11 @@
                 </td>
                 <td>{{ cita.descripcion }}</td>
                 <td>{{ cita.nombreCliente }} {{ cita.apellidoCliente }}</td>
-                <td>
-                    <select class="form-select" [(ngModel)]="cita.estado">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Aceptado">Aceptar</option>
-                        <option value="Rechazado">Rechazar</option>
-                    </select>
-                </td>
-                <td>
-                    <button class="btn btn-success" (click)="updateEstado(cita.citaId, cita.estado)">Actualizar Estado</button>
+                <td >
+                    <div class="d-flex align-content-center gap-3">
+                        <button class="btn btn-success" (click)="updateEstado(cita.citaId, 'Aceptado')">Aceptar</button>
+                    <button class="btn btn-danger" (click)="updateEstado(cita.citaId, 'Rechazado')">Rechazar</button>
+                    </div>
                 </td>
             </tr>
         </tbody>

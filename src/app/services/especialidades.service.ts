@@ -11,6 +11,6 @@ export class EspecialidadService {
   constructor(private http: HttpClient) {}
 
   getEspecialidades(): Observable<EspecialidadDTO[]> {
-    return this.http.get<EspecialidadDTO[]>('https://localhost:7060/api/especialidades');
+    return this.http.get<EspecialidadDTO[]>('http://localhost:5277/api/especialidades');
   }
 }

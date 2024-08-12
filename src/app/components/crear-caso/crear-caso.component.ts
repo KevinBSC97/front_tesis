@@ -18,6 +18,7 @@ export class CrearCasoComponent {
   form: FormGroup;
   citas: CitaDTO[] = [];
   selectedCita: CitaDTO | null = null;
+  showLoading: boolean = false;
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -49,7 +50,7 @@ export class CrearCasoComponent {
       console.error('Error: No se pudo obtener el ID del abogado logueado');
       return;
     }
-  
+
     this.casosService.getCitasAceptadas(abogadoId).subscribe(citas => {
       this.citas = citas;
       console.log(citas);  // Agrega esto para ver qué datos estás recibiendo realmente
@@ -89,6 +90,7 @@ export class CrearCasoComponent {
   }
 
   guardarCaso(): void {
+    this.showLoading = true;
     if (this.form.valid && this.selectedCita) {
       const casoData: CasoDTO = {
         abogadoId: this.selectedCita.abogadoId ?? 0,
@@ -104,13 +106,16 @@ export class CrearCasoComponent {
       };
 
       console.log('Datos del formulario:', casoData);
-
+      this.showLoading = true;
       this.casosService.crearCaso(casoData).subscribe({
         next: (response) => {
           console.log("Caso creado con éxito", response);
           this.router.navigate(['/casos']);
         },
-        error: (error) => console.error("Error al crear caso", error)
+        error: (error) => console.error("Error al crear caso", error),
+        complete: () => {
+          this.showLoading = false;
+        }
       });
     } else {
       console.error('Formulario no es válido', this.form.errors);

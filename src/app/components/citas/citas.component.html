@@ -1,6 +1,7 @@
 <app-navbar></app-navbar>
 <p-toast></p-toast>
 <div class="container mt-4">
+  <shared-spinner *ngIf="showLoading"></shared-spinner>
   <h2>Crear Cita</h2>
   <form (ngSubmit)="createCita()">
     <div class="form-group">
@@ -11,26 +12,52 @@
       <label for="fechaHora">Fecha y Hora</label>
       <input type="datetime-local" class="form-control" id="fechaHora" [(ngModel)]="newCita.fechaHora" name="fechaHora" required>
     </div> -->
-    <div class="form-group">
-      <label for="fechaHora">Fecha y Hora</label>
-      <input type="datetime-local" class="form-control" id="fechaHora" [(ngModel)]="newCita.fechaHora"
-             [min]="minDate" name="fechaHora" required>
-    </div>
     <div class="form-group mt-3">
       <label for="especialidad">Especialidad</label>
-      <select class="form-control" id="especialidad" [(ngModel)]="selectedEspecialidad" (change)="onEspecialidadChange($event)" name="especialidad" required>
+      <select class="form-select" id="especialidad" [(ngModel)]="selectedEspecialidad" (change)="onEspecialidadChange($event)" name="especialidad" required>
         <option *ngFor="let especialidad of especialidadesDTO" [value]="especialidad.especialidadId">{{ especialidad.descripcion }}</option>
       </select>
     </div>
     <div class="form-group mt-3">
       <label for="abogado">Abogado</label>
-      <select class="form-control" id="abogado" [(ngModel)]="selectedAbogado" name="abogado" required>
+      <select class="form-select" id="abogado" [(ngModel)]="selectedAbogado" name="abogado" required [disabled]="abogadoDisabled">
         <option *ngFor="let abogado of abogadosDTO" [value]="abogado.usuarioId">{{ abogado.nombre }} {{ abogado.apellido }}</option>
       </select>
     </div>
+    <div class="form-group mt-3 ">
+      <label for="fechaHora">Fecha y Hora</label>
+
+      <div class="d-flex align-items-center">
+        <input type="datetime-local" class="form-control" id="fechaHora" [(ngModel)]="newCita.fechaHora"
+               [min]="minDate" name="fechaHora" required>
+
+        <button class="btn btn-primary flex-shrink-0 ms-4" type="button" (click)="showDialog()">Ver disponibilidad</button>
+      </div>
+      <p-dialog
+      header="Header"
+      [modal]="true"
+      [(visible)]="visible"
+      [style]="{ width: '50rem' }"
+      [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+      [maximizable]="true">
+          <app-calendar></app-calendar>
+      </p-dialog>
+
+    </div>
+
+
     <div class="form-group mt-3">
-      <button type="submit" class="btn btn-success mt-5" [disabled]="!canCreateCita()">Crear Cita</button>
-      <button type="button" class="btn btn-secondary mt-5 btn-margin-left" (click)="navigateHome()">Regresar</button>
+      <label for="abogado">Duración</label>
+      <select class="form-select" id="abogado" name="abogado" required [(ngModel)]="selectedDuracion">
+        <option *ngFor="let duracion of listaDuracion" [value]="duracion.value">{{ duracion.label }}</option>
+      </select>
+    </div>
+
+
+    <div class="form-group  mt-4">
+      <button type="submit" class="btn btn-success" [disabled]="!canCreateCita()">Crear Cita</button>
+      <button type="button" class="btn btn-secondary btn-margin-left" (click)="navigateHome()">Regresar</button>
     </div>
   </form>
 </div>
+
