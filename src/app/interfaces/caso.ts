@@ -10,4 +10,5 @@ export interface CasoDTO{
     nombreCliente: string;
     fechaCita: Date;
     nombreAbogado: string;
+    imagenes: string[];
 }

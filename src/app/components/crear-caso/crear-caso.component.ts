@@ -19,6 +19,10 @@ export class CrearCasoComponent {
   citas: CitaDTO[] = [];
   selectedCita: CitaDTO | null = null;
   showLoading: boolean = false;
+  b64Img: string = "";
+  isLoading: boolean = false;
+  imagenes: string[]=[]
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -42,6 +46,14 @@ export class CrearCasoComponent {
   ngOnInit(): void {
     this.cargarCitasAceptadas();
     //this.loadEspecialidades();
+  }
+
+  setFile(listB64: string[]) {
+    this.imagenes = listB64;
+  }
+
+  resetFile(event: boolean){
+
   }
 
   cargarCitasAceptadas(): void {
@@ -102,15 +114,15 @@ export class CrearCasoComponent {
         asunto: this.form.get('asuntoCaso')!.value,
         nombreCliente: this.selectedCita.nombreCliente || '',
         nombreAbogado: this.selectedCita.nombreAbogado || '',
-        fechaCita: new Date(this.selectedCita.fechaHora)
+        fechaCita: new Date(this.selectedCita.fechaHora),
+        imagenes: this.imagenes
       };
 
-      console.log('Datos del formulario:', casoData);
       this.showLoading = true;
       this.casosService.crearCaso(casoData).subscribe({
         next: (response) => {
           console.log("Caso creado con éxito", response);
-          this.router.navigate(['/casos']);
+          this.router.navigate(['/casos-realizados']);
         },
         error: (error) => console.error("Error al crear caso", error),
         complete: () => {

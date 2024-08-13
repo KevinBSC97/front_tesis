@@ -1,0 +1,30 @@
+<div class="full-container">
+  <div
+    [ngClass]="{ 'disabled': disabled }"
+    class="clickable-container"
+    (click)="!disabled ? fileInput.click() : null"
+  >
+    <div class="centered-content">
+      <ng-container *ngIf="!loadImage && pictures.length === 0">
+        <div class="empty-state centered-content">
+          <i class="pi pi-upload icon"></i>
+          <span class="text-label" *ngIf="pictures.length === 0 && !urlPhoto">{{ label }}</span>
+          <span class="text-label description" *ngIf="pictures.length === 0 && !urlPhoto">{{bottomLabel}} ({{bottomLabelExtensionAllowed}})</span>
+        </div>
+      </ng-container>
+      <div *ngIf="pictures.length > 0" class="pictures-container">
+        <div *ngIf="!loadImage" class="pictures-wrapper">
+          <div class="overlay" *ngIf="pictures.length > 1" pTooltip="Eliminar todo" tooltipPosition="left" >
+            <i class="pi pi-trash trash-icon" (click)="deleteAllPictures($event)"></i>
+          </div>
+          <div *ngFor="let picture of pictures" class="picture-item">
+            <shared-image-loader class="picture" [width]="120" [height]="120" [image]="picture" [alt]="''">
+            </shared-image-loader>
+            <i class="pi pi-trash trash-icon" (click)="deletePicture($event,picture)"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input #fileInput class="form-control" type="file" style="display: none" [accept]="accept" [formControl]="pictureControl" (change)="selectPictures($event)" multiple />
+</div>

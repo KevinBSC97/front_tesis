@@ -32,7 +32,10 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { CalendarComponent } from './shared/calendar/calendar.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SpinnerComponent } from './shared/spinner/spinner.component';
-
+import { UploadImageComponent } from './shared/upload-image/upload-image.component';
+import { ImageLoaderComponent } from './shared/image-loader/image-loader.component';
+import { LazyLoadImageModule } from 'ng-lazyload-image';
+import { TooltipModule } from 'primeng/tooltip';
 @NgModule({
   declarations: [
     AppComponent,
@@ -47,7 +50,9 @@ import { SpinnerComponent } from './shared/spinner/spinner.component';
     CasosRealizadosComponent,
     GestionCasosComponent,
     CalendarComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    UploadImageComponent,
+    ImageLoaderComponent
   ],
   imports: [
     BrowserModule,
@@ -68,7 +73,9 @@ import { SpinnerComponent } from './shared/spinner/spinner.component';
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    LazyLoadImageModule,
+    TooltipModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]

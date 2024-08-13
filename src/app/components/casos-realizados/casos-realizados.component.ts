@@ -27,7 +27,8 @@ export class CasosRealizadosComponent {
     especialidadDescripcion: '',
     nombreCliente: '',
     fechaCita: new Date(),
-    nombreAbogado: ''
+    nombreAbogado: '',
+    imagenes: []
   };
 
   selectedCasoUser: CasoDTO = this.defaultCaso;
@@ -41,6 +42,7 @@ export class CasosRealizadosComponent {
   loadCasos() {
     this.casosService.getCasos().subscribe(
       data => {
+
         this.casos = data;
       },
       error => {
@@ -81,7 +83,7 @@ export class CasosRealizadosComponent {
       this.casosService.updateCaso(this.selectedCasoUser).subscribe(
         () => {
           this.displayEditModal = false;
-          this.loadCasos(); // Recargar la lista de casos después de la actualización
+          this.loadCasos();
         },
         error => {
           console.error('Error al actualizar el caso:', error);

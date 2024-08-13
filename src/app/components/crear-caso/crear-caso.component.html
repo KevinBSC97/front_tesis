@@ -3,7 +3,9 @@
 
 <div class="container mt-4 mb-3">
   <div class="mb-3">
-    <button class="btn btn-secondary" (click)="navigateToPanel()">Regresar</button>
+    <button class="btn btn-secondary" (click)="navigateToPanel()">
+      Regresar
+    </button>
   </div>
 
   <div class="card shadow-sm p-4">
@@ -12,45 +14,84 @@
       <!-- Cita Asignada -->
       <div class="mb-3">
         <label for="citaAsignada" class="form-label">Cita Asignada</label>
-        <select class="form-select" formControlName="citaAsignada" required (change)="onCitaSelected($event)">
-          <option *ngFor="let cita of citas" [value]="cita.citaId">{{ cita.descripcion }}</option>
+        <select
+          class="form-select"
+          formControlName="citaAsignada"
+          required
+          (change)="onCitaSelected($event)"
+        >
+          <option *ngFor="let cita of citas" [value]="cita.citaId">
+            {{ cita.descripcion }}
+          </option>
         </select>
       </div>
 
       <!-- Asunto del Caso -->
       <div class="mb-3">
         <label for="asuntoCaso" class="form-label">Asunto del Caso</label>
-        <input type="text" class="form-control" formControlName="asuntoCaso" required>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="asuntoCaso"
+          required
+        />
       </div>
 
       <!-- Nombre del Cliente -->
       <div class="mb-3">
         <label for="nombreCliente" class="form-label">Nombre del Cliente</label>
-        <input type="text" class="form-control" formControlName="nombreCliente" readonly>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="nombreCliente"
+          readonly
+        />
       </div>
 
       <!-- Fecha de la Cita -->
       <div class="mb-3">
         <label for="fechaCita" class="form-label">Fecha de la Cita</label>
-        <input type="date" class="form-control" formControlName="fechaCita" readonly>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="fechaCita"
+          readonly
+        />
       </div>
 
       <!-- Descripción del Caso -->
       <div class="mb-3">
-        <label for="descripcionCaso" class="form-label">Descripción del Caso</label>
-        <textarea class="form-control" formControlName="descripcionCaso" rows="3" required></textarea>
+        <label for="descripcionCaso" class="form-label"
+          >Descripción del Caso</label
+        >
+        <textarea
+          class="form-control"
+          formControlName="descripcionCaso"
+          rows="3"
+          required
+        ></textarea>
       </div>
 
       <!-- Especialidad del Caso -->
       <div class="mb-3">
         <label for="especialidad" class="form-label">Especialidad</label>
-        <input type="text" class="form-control" formControlName="especialidad" readonly>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="especialidad"
+          readonly
+        />
       </div>
 
       <!-- Responsable del Caso -->
       <div class="mb-3">
         <label for="responsable" class="form-label">Responsable del Caso</label>
-        <input type="text" class="form-control" formControlName="responsable" readonly>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="responsable"
+          readonly
+        />
       </div>
 
       <!-- Estado del Caso -->
@@ -63,8 +104,30 @@
         </select>
       </div>
 
+      <div class="my-4">
+        <shared-upload-image
+        [required]="true"
+        [disabled]="isLoading"
+        [label]="'Cargar imágenes'"
+        (deletePictureEvent)="resetFile($event)"
+        [bottomLabel]="'Formatos permitidos'"
+        [bottomLabelExtensionAllowed]="'png, jpeg, jpg'"
+        [accept]="'image/*'"
+        (eventUpload)="setFile($event)"
+        [urlPhoto]="b64Img"
+      >
+      </shared-upload-image>
+      </div>
+
       <div class="text-center">
-        <button type="submit" class="btn btn-primary" [disabled]="!form.valid" (click)="guardarCaso()">Guardar Caso</button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!form.valid"
+          (click)="guardarCaso()"
+        >
+          Guardar Caso
+        </button>
       </div>
     </form>
   </div>
