@@ -1,6 +1,6 @@
 export interface CitaDTO {
   citaId: number;
-  fechaHora: Date;
+  fechaHora: string;
   descripcion: string;
   clienteId: number;
   nombreCliente?: string;

@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   ViewChild,
   TemplateRef,
+  Input,
+  SimpleChanges,
 } from '@angular/core';
 import {
   startOfDay,
@@ -22,6 +24,7 @@ import {
   CalendarView,
 } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
+import { CitaDTO } from 'src/app/interfaces/citas';
 
 @Component({
   selector: 'app-calendar',
@@ -29,12 +32,22 @@ import { EventColor } from 'calendar-utils';
   styleUrls:['./calendar.component.css']
 })
 export class CalendarComponent {
-
+  @Input() dataCita!: CitaDTO[];
   view: CalendarView = CalendarView.Month;
-
+  events: CalendarEvent[] = [];
   CalendarView = CalendarView;
 
   viewDate: Date = new Date();
+
+  ngOnInit(){
+    this.loadCitas();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['dataCita']) {
+      this.loadCitas();
+    }
+  }
 
   actions: CalendarEventAction[] = [
     {
@@ -54,20 +67,44 @@ export class CalendarComponent {
     },
   ];
 
-  refresh = new Subject<void>();
+  loadCitas(){
 
-  events: CalendarEvent[] = [
-    {
-      start: new Date(),
-      end: new Date(),
-      title: (new Date()).toUTCString(),
-      color: {
-        primary: 'red',
-        secondary: '#FAE3E3',
-      },
-      allDay: true,
-    },
-  ];
+    this.events = []
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long', // Lunes
+      day: 'numeric',  // 12
+      month: 'long',   // Agosto
+      hour: 'numeric', // 15
+      minute: 'numeric', // 30
+      hour12: true     // Formato 12 horas (am/pm)
+    };
+
+
+
+
+    this.dataCita.map( cita => {
+
+      const citaDate = new Date(cita.fechaHora);
+      const formattedDate = citaDate.toLocaleDateString('es-ES', options);
+      const endDate = new Date(citaDate.getTime() + cita.duracion * 60000);
+      const formattedEndDate = endDate.toLocaleDateString('es-ES', options);
+
+      this.events.push(
+        {
+          start: new Date(cita.fechaHora),
+          end: new Date(cita.fechaHora),
+          title: `${formattedDate} <------> ${formattedEndDate}` ,
+          color: {
+            primary: 'red',
+            secondary: '#FAE3E3',
+          },
+          allDay: false,
+        }
+      )
+    })
+  }
+
+  refresh = new Subject<void>();
 
   activeDayIsOpen: boolean = true;
 

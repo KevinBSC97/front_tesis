@@ -22,7 +22,7 @@ export class CitasComponent {
   selectedAbogado: number | null = null;
   newCita: CitaDTO = {
     citaId: 0,
-    fechaHora: new Date(),
+    fechaHora: '',
     descripcion: '',
     clienteId: 0,
     estado: 'Pendiente',
@@ -36,6 +36,8 @@ export class CitasComponent {
   citasAsignadasPendientes: CitaDTO[] = [];
 
   showDialog() {
+
+    this.onAbogadoChange();
       this.visible = true;
   }
   constructor(private citaService: CitasService, private authService: AuthService, private router: Router, private messageService: MessageService) {
@@ -64,6 +66,7 @@ export class CitasComponent {
     if (currentUser) {
       this.newCita.clienteId = currentUser.usuarioId;
     }
+
   }
 
   loadEspecialidades(): void {
@@ -154,7 +157,7 @@ export class CitasComponent {
   createCita(): void {
     const selectedDate = new Date(this.newCita.fechaHora);
     const now = new Date();
-    now.setMinutes(0, 0, 0); // Elimina minutos y segundos para una comparación justa
+    now.setMinutes(0, 0, 0);
 
     if (selectedDate < now || selectedDate.getHours() < 9 || selectedDate.getHours() > 17) {
       alert('La fecha y hora seleccionadas no son válidas. Por favor seleccione un horario entre las 9:00 y las 17:00 en un día futuro.');
@@ -169,7 +172,6 @@ export class CitasComponent {
       return;
     }
 
-    console.log("ssss",this.selectedDuracion)
     if (this.selectedAbogado) {
       this.showLoading = true;
       this.newCita.abogadoId = this.selectedAbogado;
@@ -199,7 +201,7 @@ export class CitasComponent {
     // Resetea los valores del formulario a los valores iniciales
     this.newCita = {
       citaId: 0,
-      fechaHora: new Date(),
+      fechaHora: '',
       descripcion: '',
       clienteId: this.newCita.clienteId,
       estado: 'Pendiente',
@@ -244,15 +246,14 @@ export class CitasComponent {
     this.router.navigate(['/home']); // Asegúrate de cambiar '/home' por la ruta correcta
   }
 
-  loadCitas(): void {
+  onAbogadoChange(): void {
+
     this.showLoading = true;
-    const userId = this.authService.getCurrentUser()?.usuarioId;
-    if (userId) {
-      this.citaService.getCitasAsignadas(userId).subscribe({
+    if (this.selectedAbogado) {
+      this.citaService.getCitasAsignadas(this.selectedAbogado).subscribe({
         next: (citas) => {
-
-          this.citasAsignadasPendientes = citas.filter(c => c.estado === 'Pendiente') && citas.filter(c => c.estado === 'Aceptado')
-
+          this.citasAsignadasPendientes = []
+          this.citasAsignadasPendientes = [...citas.filter(c => c.estado === 'Aceptado'),...citas.filter(c => c.estado === 'Pendiente')  ]
         },
         error: (error) => {
           console.error('Error al cargar las citas:', error);
