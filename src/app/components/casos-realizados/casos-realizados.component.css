@@ -2,3 +2,13 @@
     background-color: #007bff;
     color: white;
 }
+
+
+.group-images{
+    display: flex;
+    gap: .5rem;
+}
+
+img {
+    width: 100px;
+}

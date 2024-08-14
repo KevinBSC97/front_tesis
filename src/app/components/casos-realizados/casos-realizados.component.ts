@@ -39,6 +39,15 @@ export class CasosRealizadosComponent {
     this.loadCasos();
   }
 
+  setFile(listB64: string[]) {
+    console.log("aqui si entra",listB64)
+    this.selectedCasoUser.imagenes = listB64;
+  }
+
+  resetFile(event: boolean){
+
+  }
+
   loadCasos() {
     this.casosService.getCasos().subscribe(
       data => {
@@ -74,6 +83,8 @@ export class CasosRealizadosComponent {
   }
 
   editCaso(caso: CasoDTO) {
+
+    console.log("edit",caso)
     this.selectedCasoUser = { ...caso }; // Crear una copia del caso para evitar modificaciones no intencionales
     this.displayEditModal = true;
   }

@@ -45,7 +45,7 @@ export class CitasAsignadasComponent {
 
           this.citasPendientes = citas.filter(c => c.estado === 'Pendiente');
           this.citasAceptadas = citas.filter(c => c.estado === 'Aceptado');
-          this.citasRechazadas = citas.filter(c => c.estado === 'Rechazado');
+          this.citasRechazadas = citas.filter(c => c.estado === 'Rechazada');
         },
         error: (error) => {
           console.error('Error al cargar las citas:', error);

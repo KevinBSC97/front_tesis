@@ -18,6 +18,7 @@ export class UploadImageComponent {
   @Input() urlPhoto!: string | null;
   @Input() disabled: boolean = false;
   @Input() required: boolean = false;
+  @Input() initialImages: string[] = [];
 
   public pictures: string[] = [];
   public loadImage: boolean = false;
@@ -27,13 +28,27 @@ export class UploadImageComponent {
 
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+    console.log("cambios",this.initialImages)
+
+    if (this.initialImages.length > 0) {
+      this.pictures = [...this.initialImages];
+      this.eventUpload.emit(this.pictures);
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["urlPhoto"]) {
       // Handle any changes to the urlPhoto if needed
     }
+
+    if (changes["initialImages"]) {
+      this.pictures = [...this.initialImages];
+      this.eventUpload.emit(this.pictures);
+    }
   }
+
   selectPictures(event: Event) {
     this.showError = false;
     const input = event.target as HTMLInputElement;
@@ -67,10 +82,13 @@ export class UploadImageComponent {
     }
   }
 
+  deletePicture(event: any, pictureToDelete: string) {
 
-  deletePicture(event: any,pictureToDelete: string) {
+    console.log("AQUI", event, pictureToDelete)
     event.stopPropagation();
     this.pictures = this.pictures.filter(picture => picture !== pictureToDelete);
+    this.eventUpload.emit(this.pictures);
+
     this.deletePictureEvent.emit(true);
   }
 
