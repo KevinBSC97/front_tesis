@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -11,9 +12,16 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class AdminComponent implements OnInit {
   usuarios: any[] = [];
-  displayModal: boolean = false;
+  displayModalAdmin: boolean = false;
   displayEditModal: boolean = false;
   showLoading: boolean = false;
+
+  displayAdminModal = false;
+  displayLawyerModal = false;
+  displayClientModal = false;
+
+  currentSection: string = 'inicio';
+
   estados = [
     { label: 'Activo', value: 'A' },
     { label: 'Inactivo', value: 'I' }
@@ -59,11 +67,15 @@ export class AdminComponent implements OnInit {
     { label: 'Derecho civil', value: 4}
   ];
 
-  constructor(private authService: AuthService, private messageService: MessageService) {}
+  constructor(private router: Router, private authService: AuthService, private messageService: MessageService) {}
 
   ngOnInit() {
     this.loadUsers();
     this.loadEspecialidades();
+  }
+
+  changeSection(section: string) {
+    this.currentSection = section;
   }
 
   getEspecialidadDescripcion(id: number): string {
@@ -135,7 +147,7 @@ export class AdminComponent implements OnInit {
       next: (data) => {
         console.log("Registro exitoso", data);
         this.resetNewUser();
-        this.displayModal = false;
+        this.displayModalAdmin = false;
         this.loadUsers(); // Recargar lista de usuarios
         this.messageService.add({severity:'success', summary: 'Registro Exitoso', detail: 'El usuario ha sido registrado con éxito'});
       },
@@ -243,5 +255,10 @@ export class AdminComponent implements OnInit {
       // invalid character, prevent input
       event.preventDefault();
     }
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

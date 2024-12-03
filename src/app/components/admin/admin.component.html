@@ -1,14 +1,215 @@
 <app-navbar></app-navbar>
-<shared-spinner *ngIf="showLoading"></shared-spinner>
-<div class="container mt-4">
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 text-white p-3 d-flex flex-column justify-content-between" id="sidebar">
+      <div>
+        <div class="text-center mb-4">
+          <img
+            src="assets/image/logo.png"
+            class="rounded-circle img-fluid"
+            alt="Usuario"
+            style="width: 100px; height: 100px;"
+          />
+        </div>
+        <ul class="list-group text-white sidebar-list">
+          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('inicio')">
+            <i class="pi pi-home mr-3"></i> Inicio
+          </li>
+          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('administradores')">
+            <i class="pi pi-users mr-3"></i> Administradores
+          </li>
+          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('abogados')">
+            <i class="pi pi-briefcase mr-3"></i> Abogados
+          </li>
+          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('clientes')">
+            <i class="pi pi-user mr-3"></i> Clientes
+          </li>
+        </ul>
+      </div>
+      <div class="text-center mt-4">
+        <button class="btn btn-danger w-100" (click)="logout()"><i class="pi pi-sign-out"></i> Cerrar Sesión</button>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="col mt-4">
+      <!-- Sección de Inicio -->
+      <div *ngIf="currentSection === 'inicio'">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de Administradores</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text">Cantidad de administradores</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de Abogados</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text">Cantidad de abogados</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de Clientes</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text">Cantidad de clientes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de Administradores -->
+      <div *ngIf="currentSection === 'administradores'">
+        <h2 class="mb-3">Gestión de Administradores</h2>
+        <button class="btn btn-success mb-3" (click)="displayModalAdmin = true">
+          <i class="pi pi-plus"></i> Registrar Administrador
+        </button>
+        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Id</th>
+                <th>Identificacion</th>
+                <th>Nombre de Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+          <ng-template pTemplate="body" let-admin>
+            <tr>
+              <td>{{ admin.id }}</td>
+              <td>{{ admin.identificacion }}</td>
+              <td>{{ admin.username }}</td>
+              <td>{{ admin.nombre }}</td>
+              <td>{{ admin.apellido }}</td>
+              <td>{{ admin.email }}</td>
+              <td>{{ admin.rol }}</td>
+              <td>{{ admin.estado }}</td>
+              <td>
+                <button class="btn btn-primary btn-sm me-2">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn btn-danger btn-sm">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Repite para Abogados y Clientes -->
+      <div *ngIf="currentSection === 'abogados'">
+        <h2 class="mb-3">Gestión de Abogados</h2>
+        <button class="btn btn-success mb-3">
+          <i class="pi pi-plus"></i> Registrar Abogado
+        </button>
+        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Id</th>
+                <th>Identificacion</th>
+                <th>Nombre de Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Especialidad</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+          <ng-template pTemplate="body" let-abogado>
+            <tr>
+              <td>{{ abogado.id }}</td>
+              <td>{{ abogado.identificacion }}</td>
+              <td>{{ abogado.username }}</td>
+              <td>{{ abogado.nombre }}</td>
+              <td>{{ abogado.apellido }}</td>
+              <td>{{ abogado.email }}</td>
+              <td>{{ abogado.rol }}</td>
+              <td>{{ abogado.especialidad }}</td>
+              <td>{{ abogado.estado }}</td>
+              <td>
+                <button class="btn btn-primary btn-sm me-2">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn btn-danger btn-sm">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="currentSection === 'clientes'">
+        <h2 class="mb-3">Gestión de Clientes</h2>
+        <button class="btn btn-success mb-3">
+          <i class="pi pi-plus"></i> Registrar Cliente
+        </button>
+        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Id</th>
+                <th>Identificacion</th>
+                <th>Nombre de Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+          <ng-template pTemplate="body" let-cliente>
+            <tr>
+              <td>{{ cliente.id }}</td>
+              <td>{{ cliente.identificacion }}</td>
+              <td>{{ cliente.username }}</td>
+              <td>{{ cliente.nombre }}</td>
+              <td>{{ cliente.aepllido }}</td>
+              <td>{{ cliente.email }}</td>
+              <td>{{ cliente.rol }}</td>
+              <td>{{ cliente.estado }}</td>
+              <td>
+                <button class="btn btn-primary btn-sm me-2">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn btn-danger btn-sm">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <shared-spinner *ngIf="showLoading"></shared-spinner> -->
+<!-- <div class="container mt-4">
     <h2 class="text-center mb-3">Panel de Administrador</h2>
     <button type="button" class="btn btn-success mb-3" (click)="displayModal = true">
         <i class="pi pi-plus"></i> Registrar Nuevo Usuario
     </button>
 
-    <!-- Tabla de usuarios -->
     <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll">
-        <!-- Cabezales de tabla -->
         <ng-template pTemplate="header">
             <tr>
                 <th>Id</th>
@@ -23,7 +224,6 @@
                 <th>Acciones</th>
             </tr>
         </ng-template>
-        <!-- Cuerpo de tabla -->
         <ng-template pTemplate="body" let-usuario>
             <tr>
                 <td>{{ usuario.usuarioId }}</td>
@@ -43,15 +243,14 @@
             </tr>
         </ng-template>
     </p-table>
-</div>
+</div> -->
 
 <p-toast></p-toast>
-<!-- Modal de registro usando PrimeNG -->
-<p-dialog header="Registro de Usuario" [(visible)]="displayModal" [style]="{width: '50vw'}" [modal]="true">
-    <!-- <div class="form-group mb-3">
+<p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true">
+    <div class="form-group mb-3">
         <label for="nombreUsuario">Identificacion</label>
         <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10">
-    </div> -->
+    </div>
     <div class="form-group mb-3">
         <label for="nombreUsuario">Identificación</label>
         <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10" (keypress)="validateNumber($event)">
@@ -73,14 +272,6 @@
         <input type="email" pInputText [(ngModel)]="newUser.email" required class="form-control">
     </div>
     <div class="form-group mb-3">
-        <label for="rol">Rol</label>
-        <p-dropdown [options]="roles" [(ngModel)]="newUser.rolId" placeholder="Selecciona un rol" optionLabel="label" optionValue="value" class="form-control"></p-dropdown>
-    </div>
-    <div class="form-group mb-3">
-        <label for="especialidad">Especialidad</label>
-        <p-dropdown [options]="especialidades" [(ngModel)]="newUser.especialidadId" placeholder="Selecciona una especialidad" optionLabel="label" optionValue="value" class="form-control"></p-dropdown>
-    </div>
-    <div class="form-group mb-3">
         <label for="password">Contraseña</label>
         <input type="password" pInputText [(ngModel)]="newUser.password" required class="form-control">
     </div>
@@ -88,11 +279,11 @@
         <button type="button" pButton label="Registrar" icon="pi pi-check"
         [disabled]="!canRegister()"
         (click)="register()" class="btn btn-success">
-</button>
+        </button>
     </div>
 </p-dialog>
 
-<p-toast></p-toast>
+<!-- <p-toast></p-toast>
 <p-dialog header="Editar Estado del Usuario" [(visible)]="displayEditModal" [style]="{width: '50vw'}" [modal]="true">
     <div class="form-group mb-3">
         <label for="identificacion">Identificación</label>
@@ -129,4 +320,4 @@
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUser()" class="btn btn-success"></button>
     </div>
-</p-dialog>
+</p-dialog> -->

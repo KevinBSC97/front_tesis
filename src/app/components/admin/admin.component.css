@@ -1,8 +1,46 @@
-.container {
-    padding-top: 20px; /* Añade espacio en la parte superior del contenedor */
+/* .container {
+    padding-top: 20px;
 }
 
 .btn-success {
-    width: auto; /* Ajusta esto según necesites */
-    padding: 10px 20px; /* Más relleno para un botón más grande */
+    width: auto;
+    padding: 10px 20px;
+} */
+
+#sidebar {
+  height: 93.5vh;
+  background-color: rgba(232, 233, 235, 0.842);  /* Evita la barra de desplazamiento */
+}
+
+.sidebar-list {
+  padding: 0;
+}
+
+.sidebar-list .list-group-item {
+  font-size: 1rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.sidebar-list .list-group-item:hover {
+  background-color: #c3c5c7; /* Oscurece el fondo al pasar el mouse */
+}
+
+.sidebar-list .pi {
+  font-size: 1.2rem;
+}
+
+/* Imágenes redondeadas */
+.rounded-circle {
+  display: block;
+  margin: 0 auto;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .btn-outline-light {
+  margin-right: 1rem;
 }
