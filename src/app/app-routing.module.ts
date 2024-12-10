@@ -12,27 +12,56 @@ import { CasosRealizadosComponent } from './components/casos-realizados/casos-re
 import { GestionCasosComponent } from './components/gestion-casos/gestion-casos.component';
 
 const routes: Routes = [
-  //Login
-  { path: '', redirectTo: '/login', pathMatch: 'full'},
-  { path: 'login', component: LoginComponent},
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard]},
+  // Ruta por defecto
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
 
-  //Home
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
+  // Rutas públicas
+  { path: 'login', component: LoginComponent, pathMatch: 'full'  },
 
-  //Citas
-  { path:'citas', component: CitasComponent, canActivate: [AuthGuard]},
+  // Rutas protegidas por AuthGuard
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'citas',
+    component: CitasComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'abogados',
+    component: AbogadosComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'citas-asignadas',
+    component: CitasAsignadasComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'crear-caso',
+    component: CrearCasoComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'casos-realizados',
+    component: CasosRealizadosComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'gestion-casos',
+    component: GestionCasosComponent,
+    canActivate: [AuthGuard]
+  },
 
-  //Abogado
-  { path: 'abogados', component: AbogadosComponent, canActivate: [AuthGuard] },
-
-  { path: 'citas-asignadas', component: CitasAsignadasComponent, canActivate: [AuthGuard]},
-
-  //Casos
-  { path: 'crear-caso', component:CrearCasoComponent, canActivate: [AuthGuard]},
-  { path: 'casos-realizados', component:CasosRealizadosComponent, canActivate: [AuthGuard]},
-
-  { path: 'gestion-casos', component: GestionCasosComponent, canActivate: [AuthGuard] }
+  // Ruta wildcard - redirige cualquier ruta no encontrada al home
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({

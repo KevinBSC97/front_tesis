@@ -1,29 +1,28 @@
-<app-navbar></app-navbar>
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
-    <div class="col-md-3 text-white p-3 d-flex flex-column justify-content-between" id="sidebar">
+    <div class="col-md-2 text-white p-3 d-flex flex-column justify-content-between" id="sidebar">
       <div>
-        <div class="text-center mb-4">
+        <div class="text-center mb-4 mt-4">
           <img
             src="assets/image/logo.png"
-            class="rounded-circle img-fluid"
+            class="img-fluid"
             alt="Usuario"
             style="width: 100px; height: 100px;"
           />
         </div>
         <ul class="list-group text-white sidebar-list">
-          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('inicio')">
-            <i class="pi pi-home mr-3"></i> Inicio
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('inicio')">
+            <i class="pi pi-home me-3 fw-bold"></i> Inicio
           </li>
-          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('administradores')">
-            <i class="pi pi-users mr-3"></i> Administradores
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('administradores')">
+            <i class="pi pi-users me-3 fw-bold"></i> Administradores
           </li>
-          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('abogados')">
-            <i class="pi pi-briefcase mr-3"></i> Abogados
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('abogados')">
+            <i class="pi pi-briefcase me-3 fw-bold"></i> Abogados
           </li>
-          <li class="list-group-item border-0 d-flex align-items-center" (click)="changeSection('clientes')">
-            <i class="pi pi-user mr-3"></i> Clientes
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('clientes')">
+            <i class="pi pi-user me-3 fw-bold"></i> Clientes
           </li>
         </ul>
       </div>
@@ -32,8 +31,11 @@
       </div>
     </div>
 
+
+
     <!-- Contenido principal -->
-    <div class="col mt-4">
+    <div class="col container-admin">
+      <app-navbar></app-navbar>
       <!-- Sección de Inicio -->
       <div *ngIf="currentSection === 'inicio'">
         <div class="row">
@@ -250,10 +252,6 @@
     <div class="form-group mb-3">
         <label for="nombreUsuario">Identificacion</label>
         <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10">
-    </div>
-    <div class="form-group mb-3">
-        <label for="nombreUsuario">Identificación</label>
-        <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10" (keypress)="validateNumber($event)">
     </div>
     <div class="form-group mb-3">
         <label for="nombreUsuario">Nombre de Usuario</label>

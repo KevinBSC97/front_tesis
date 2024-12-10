@@ -8,8 +8,11 @@
 } */
 
 #sidebar {
-  height: 93.5vh;
-  background-color: rgba(232, 233, 235, 0.842);  /* Evita la barra de desplazamiento */
+  height: 100vh;
+}
+
+.container-admin{
+  background-color: #dfe7ef;
 }
 
 .sidebar-list {

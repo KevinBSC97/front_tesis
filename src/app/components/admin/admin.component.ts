@@ -1,20 +1,20 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { UsuarioDTO, UsuarioRegistroDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.css']
+  styleUrls: ['./admin.component.css'],
 })
 export class AdminComponent implements OnInit {
   usuarios: any[] = [];
   displayModalAdmin: boolean = false;
   displayEditModal: boolean = false;
   showLoading: boolean = false;
+  items: MenuItem[] = [];
 
   displayAdminModal = false;
   displayLawyerModal = false;
@@ -72,6 +72,46 @@ export class AdminComponent implements OnInit {
   ngOnInit() {
     this.loadUsers();
     this.loadEspecialidades();
+
+    this.items = [
+      {
+          separator: true
+      },
+      {
+          label: 'Documents',
+          items: [
+              {
+                  label: 'New',
+                  icon: 'pi pi-plus',
+              },
+              {
+                  label: 'Search',
+                  icon: 'pi pi-search',
+              }
+          ]
+      },
+      {
+          label: 'Profile',
+          items: [
+              {
+                  label: 'Settings',
+                  icon: 'pi pi-cog',
+              },
+              {
+                  label: 'Messages',
+                  icon: 'pi pi-inbox',
+                  badge: '2'
+              },
+              {
+                  label: 'Logout',
+                  icon: 'pi pi-sign-out',
+              }
+          ]
+      },
+      {
+          separator: true
+      }
+  ];
   }
 
   changeSection(section: string) {

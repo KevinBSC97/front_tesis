@@ -1,30 +1,50 @@
-import { Component } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  providers: [MessageService]
 })
-export class LoginComponent {
-  username: string = '';
-  password: string = '';
-
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
   showLoading: boolean = false;
-  constructor(private router: Router, private authService: AuthService) {}
+  showPassword: boolean = false;
 
-  onLogin(form: NgForm) {
-    if (!form.valid) {
-      this.showAlert('Debe completar los campos para poder ingresar.');
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private messageService: MessageService
+  ) {}
+
+  ngOnInit() {
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(5)]]
+    });
+
+    this.authService.logout()
+  }
+
+  onLogin() {
+    if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach(key => {
+        const control = this.loginForm.get(key);
+        if (control?.invalid) {
+          control.markAsTouched();
+        }
+      });
       return;
     }
 
     const loginData = {
-      NombreUsuario: this.username,
-      Contraseña: this.password
+      NombreUsuario: this.loginForm.get('username')?.value,
+      Contraseña: this.loginForm.get('password')?.value
     };
 
     this.showLoading = true;
@@ -45,7 +65,13 @@ export class LoginComponent {
 
   private handleLoginError(error: any) {
     console.error('Error during login:', error);
-    this.showAlert('Credenciales incorrectas o problemas de conexión.');
+    this.showLoading = false;
+    this.messageService.add({
+      key: 'login',
+      severity: 'error',
+      summary: 'Error de acceso',
+      detail: 'Credenciales incorrectas o problemas de conexión'
+    });
   }
 
   private redirectUser(role: 'Admin' | 'Cliente' | 'Abogado') {
@@ -59,11 +85,15 @@ export class LoginComponent {
     if (route) {
       this.router.navigate([route], { replaceUrl: true });
     } else {
-      this.showAlert('El usuario no se encuentra registrado');
+      this.messageService.add({
+        key: 'login',
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El usuario no se encuentra registrado'
+      });
     }
   }
 
-  private showAlert(message: string) {
-    alert(message);
-  }
+  get usernameControl() { return this.loginForm.get('username'); }
+  get passwordControl() { return this.loginForm.get('password'); }
 }

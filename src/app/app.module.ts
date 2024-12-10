@@ -8,8 +8,7 @@ import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 
-import { FormsModule } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
@@ -17,6 +16,9 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
+import { MenuModule} from 'primeng/menu';
+import { BadgeModule } from 'primeng/badge';
+import { AvatarModule } from 'primeng/avatar';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AdminComponent } from './components/admin/admin.component';
@@ -36,6 +38,7 @@ import { UploadImageComponent } from './shared/upload-image/upload-image.compone
 import { ImageLoaderComponent } from './shared/image-loader/image-loader.component';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
 import { TooltipModule } from 'primeng/tooltip';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -75,7 +78,10 @@ import { TooltipModule } from 'primeng/tooltip';
     }),
     ProgressSpinnerModule,
     LazyLoadImageModule,
-    TooltipModule
+    TooltipModule,
+    MenuModule,
+    BadgeModule,
+    AvatarModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]

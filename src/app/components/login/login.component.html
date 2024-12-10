@@ -1,39 +1,88 @@
-<div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
-    <div class="row shadow p-5 rounded">
-      <!-- Sección del formulario de login -->
-      <div class="col-md-6 d-flex flex-column justify-content-center align-items-center bg-white">
-        <div class="login-form w-75">
-          <div class="text-center mb-4">
-            <img src="assets/image/logo.png" alt="Logo" class="mb-3" style="height: 60px;">
-            <h2>Login</h2>
-          </div>
-          <form #form="ngForm">
-            <div class="form-group mb-3">
-              <div class="p-inputgroup">
-                <span class="p-inputgroup-addon">
-                  <i class="pi pi-user"></i>
-                </span>
-                <input id="username" type="text" pInputText placeholder="Usuario" [(ngModel)]="username" name="username" class="form-control" required/>
-              </div>
-            </div>
-            <div class="form-group mb-3">
-              <div class="p-inputgroup">
-                <span class="p-inputgroup-addon">
-                  <i class="pi pi-lock"></i>
-                </span>
-                <input id="password" type="password" pInputText placeholder="Contraseña" [(ngModel)]="password" name="password" class="form-control" required/>
-              </div>
-            </div>
-            <div class="d-flex justify-content-center mb-3">
-              <button type="button" pButton class="p-button-danger p-button-block" label="Ingresar" (click)="onLogin(form)"></button>
-            </div>
-          </form>
-        </div>
-      </div>
-      <!-- Sección de la imagen o contenido adicional -->
-      <div class="col-md-6 d-none d-md-flex justify-content-center align-items-center login-bg">
-        <img src="assets/image/logo.png" alt="Logo" class="img-fluid centered-image">
+<div class="container-fluid vh-100 d-flex">
+  <div class="w-75 h-100 position-relative">
+    <div class="position-absolute w-100 h-100 bg-dark bg-opacity-25 d-flex align-items-center justify-content-center">
+      <div class="text-white text-center p-4" style="background-color: rgba(0,0,0,0.6); border-radius: 10px;">
+        <h3>Bienvenido a nuestro sistema</h3>
+        <p>Gestiona tus casos legales de manera eficiente</p>
       </div>
     </div>
+    <img src="assets/image/imagen-login.jpg" alt="Logo" class="w-100 h-100 object-fit-cover shadow-start border-start border-1" style="border-color: #e9ecef !important;">
   </div>
-  <shared-spinner *ngIf="showLoading"></shared-spinner>
+  <div class="w-50 d-flex justify-content-center align-items-center bg-white">
+    <div class="login-form w-75">
+      <div class="text-center mb-4 animate__animated animate__fadeIn">
+        <img src="assets/image/logo.png" alt="Logo" class="mb-3 hover-scale" style="height: 130px; object-fit: contain;">
+        <h2>Inicia sesión</h2>
+      </div>
+
+      <form [formGroup]="loginForm" class="animate__animated animate__fadeInUp" (ngSubmit)="onLogin()">
+        <div class="form-group mb-4">
+          <div class="p-inputgroup" style="max-width: 300px; margin: 0 auto;">
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-user"></i>
+            </span>
+            <input
+              id="username"
+              type="text"
+              pInputText
+              placeholder="Usuario"
+              formControlName="username"
+              class="form-control form-control-sm"
+              [ngClass]="{'ng-invalid ng-dirty': loginForm.get('username')?.invalid && loginForm.get('username')?.touched}"
+              autocomplete="off"
+              aria-label="Nombre de usuario"
+            />
+          </div>
+          <div class="text-danger small mt-1" style="max-width: 300px; margin: 0 auto;" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+            <span *ngIf="loginForm.get('username')?.errors?.['required']">El usuario es requerido</span>
+            <span *ngIf="loginForm.get('username')?.errors?.['minlength']">El usuario debe tener al menos 3 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group mb-4">
+          <div class="p-inputgroup" style="max-width: 300px; margin: 0 auto;">
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-lock"></i>
+            </span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              pInputText
+              placeholder="Contraseña"
+              formControlName="password"
+              class="form-control form-control-sm"
+              [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
+              aria-label="Contraseña"
+              autocomplete="off"
+            />
+            <span class="p-inputgroup-addon" style="cursor: pointer;" (click)="showPassword = !showPassword" pTooltip="{{showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}}">
+              <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </span>
+          </div>
+          <div class="text-danger small mt-1" style="max-width: 300px; margin: 0 auto;" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
+            <span *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 5 caracteres</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column align-items-center gap-3">
+          <button
+            type="submit"
+            pButton
+            class="p-button-danger"
+            style="width: 300px;"
+            label="Ingresar"
+            [loading]="showLoading"
+          ></button>
+
+          <div class="text-center">
+            <small class="text-muted">¿Necesitas ayuda? </small>
+            <a href="https://advocorpcj.com/contact/" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-danger">Contacta soporte</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<p-toast key="login" [baseZIndex]="5000"></p-toast>
