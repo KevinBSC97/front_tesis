@@ -1,4 +1,4 @@
-.card {
+/* .card {
     border: 1px solid rgba(0,0,0,.125);
     box-shadow: 0 2px 2px rgba(0,0,0,.1);
     transition: box-shadow .3s ease-in-out;
@@ -26,4 +26,43 @@
     color: #fff;
     background-color: #0056b3;
     border-color: #004085;
+} */
+ #sidebar{
+  height: 100vh;
+ }
+
+ .container-admin{
+  background-color: #dfe7ef;
+ }
+
+.sidebar-list{
+  padding: 0;
+}
+
+.sidebar-list .list-group-item{
+  font-size: 1rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.sidebar-list .list-group-item:hover{
+  background-color: #c3c5c7;
+}
+
+.sidebar-list .pi{
+  font-size: 1.2rem;
+}
+
+.rounded-circle{
+  display: block;
+  margin: 0 auto;
+}
+
+.navbar{
+  display: flex;
+  align-items: center;
+}
+
+.navbar .btn-outline-light{
+  margin-right: 1rem;
 }

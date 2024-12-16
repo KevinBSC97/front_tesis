@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
 
     this.authService.logout()
   }
-
+  //metodo que hace uso del token para la autenticacion
   onLogin() {
     if (this.loginForm.invalid) {
       Object.keys(this.loginForm.controls).forEach(key => {

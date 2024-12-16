@@ -1,5 +1,32 @@
-<app-navbar></app-navbar>
-<div class="container mt-5">
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2 text-white p-3 d-flex flex-column justify-content-between" id="sidebar">
+      <div>
+        <div class="text-center mb-4 mt-4">
+          <img src="assets/image/logo.png" alt="Usuario" class="img-fluid" style="width: 100px; height: 100px;">
+        </div>
+        <ul class="list-group text-white sidebar-list">
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
+            <i class="pi pi-home me-3 fw-bold"></i> Inicio
+          </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
+            <i class="pi pi-home me-3 fw-bold"></i> Casos
+          </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
+            <i class="pi pi-home me-3 fw-bold"></i> Citas
+          </li>
+        </ul>
+      </div>
+      <div class="text-center mt-4">
+        <button class="btn btn-danger w-100" (click)="logout()"><i class="pi pi-sign-out"></i> Cerrar Sesión</button>
+      </div>
+    </div>
+    <div class="col container-admin">
+      <app-navbar></app-navbar>
+    </div>
+  </div>
+</div>
+<!-- <div class="container mt-5">
     <h2 class="text-center mb-4">Panel de Cliente</h2>
     <div class="row">
         <div class="col-md-6">
@@ -21,5 +48,5 @@
             </a>
         </div>
     </div>
-</div>
+</div> -->
 

@@ -14,8 +14,8 @@
         <img src="assets/image/logo.png" alt="Logo" class="mb-3 hover-scale" style="height: 130px; object-fit: contain;">
         <h2>Inicia sesión</h2>
       </div>
-
-      <form [formGroup]="loginForm" class="animate__animated animate__fadeInUp" (ngSubmit)="onLogin()">
+      <!-- Formulario del login-->
+      <form [formGroup]="loginForm" class="animate__animated animate__fadeInUp" (ngSubmit)="onLogin()"><!--el metodo para acceder al sistema-->
         <div class="form-group mb-4">
           <div class="p-inputgroup" style="max-width: 300px; margin: 0 auto;">
             <span class="p-inputgroup-addon">
@@ -78,6 +78,14 @@
           <div class="text-center">
             <small class="text-muted">¿Necesitas ayuda? </small>
             <a href="https://advocorpcj.com/contact/" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-danger">Contacta soporte</a>
+          </div>
+
+          <div class="text-center mt-2">
+            <a href="/reset-password"
+               class="text-decoration-none text-danger small"
+               rel="noopener noreferrer">
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
         </div>
       </form>

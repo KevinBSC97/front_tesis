@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environment/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, throwError } from 'rxjs';
 import { EspecialidadDTO, LoginDTO, ResponseDTO, UsuarioDTO, UsuarioRegistroDTO } from '../interfaces/usuario';
 import { CitaDTO } from '../interfaces/citas';
@@ -59,10 +59,14 @@ export class AuthService {
     return localStorage.getItem('token') !== null;
   }
 
-  getUsers(): Observable<UsuarioDTO[]>{
+  getUsers(rolId?: number): Observable<UsuarioDTO[]>{
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({'Authorization': `Bearer ${token}`});
-    return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/usuarios`, {headers});
+    let params = new HttpParams();
+    if(rolId !== undefined){
+      params = params.set('rolId', rolId.toString());
+    }
+    return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/usuarios`, {headers, params});
   }
 
   register(user: UsuarioRegistroDTO): Observable<any> {

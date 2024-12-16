@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { UsuarioDTO, UsuarioRegistroDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
+import { UsuarioService } from 'src/app/services/usuario.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-admin',
@@ -12,13 +14,27 @@ import { AuthService } from 'src/app/services/auth.service';
 export class AdminComponent implements OnInit {
   usuarios: any[] = [];
   displayModalAdmin: boolean = false;
+  displayModalAbogado: boolean = false;
+  displayModalCliente: boolean = false;
   displayEditModal: boolean = false;
   showLoading: boolean = false;
   items: MenuItem[] = [];
 
+  formAdmin!: FormGroup;
+  formCliente!: FormGroup;
+  formAbogado!: FormGroup;
+
   displayAdminModal = false;
   displayLawyerModal = false;
   displayClientModal = false;
+
+  administradores: UsuarioDTO[] = [];
+  clientes: UsuarioDTO[] = [];
+  abogados: UsuarioDTO[] = [];
+
+  totalAdministradores: number = 0;
+  totalAbogados: number = 0;
+  totalClientes: number = 0;
 
   currentSection: string = 'inicio';
 
@@ -67,11 +83,13 @@ export class AdminComponent implements OnInit {
     { label: 'Derecho civil', value: 4}
   ];
 
-  constructor(private router: Router, private authService: AuthService, private messageService: MessageService) {}
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService, private messageService: MessageService, private usuarioService: UsuarioService) {}
 
   ngOnInit() {
     this.loadUsers();
     this.loadEspecialidades();
+    this.obtenerTotales();
+    this.crearFormulario();
 
     this.items = [
       {
@@ -114,6 +132,39 @@ export class AdminComponent implements OnInit {
   ];
   }
 
+  crearFormulario(): void{
+    this.formAdmin = this.fb.group({
+      identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      nombreUsuario: ['', [Validators.required]],
+      nombre: ['', [Validators.required]],
+      apellido: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      rolId: [1],
+      especialidad: [1],
+    });
+    this.formAbogado = this.fb.group({
+      identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      nombreUsuario: ['', [Validators.required]],
+      nombre: ['', [Validators.required]],
+      apellido: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      rolId: [3],
+      especialidad: ['', [Validators.required]],
+    });
+    this.formCliente = this.fb.group({
+      identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      nombreUsuario: ['', [Validators.required]],
+      nombre: ['', [Validators.required]],
+      apellido: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      rolId: [2],
+      especialidad: [1],
+    });
+  }
+
   changeSection(section: string) {
     this.currentSection = section;
   }
@@ -146,11 +197,18 @@ export class AdminComponent implements OnInit {
 
     this.authService.getEspecialidades().subscribe({
       next: (data) => {
-        this.especialidades = data.map(especialidad => ({
+        this.especialidades = data.filter((especialidad) => especialidad.especialidadId !== 1)
+        .map((especialidad) => ({
           label: especialidad.descripcion,
           value: especialidad.especialidadId
         }));
       },
+      // next: (data) => {
+      //   this.especialidades = data.map(especialidad => ({
+      //     label: especialidad.descripcion,
+      //     value: especialidad.especialidadId
+      //   }));
+      // },
       error: (error) => console.error('Error fetching especialidades:', error),
       complete: () => {
         this.showLoading = false;
@@ -161,18 +219,42 @@ export class AdminComponent implements OnInit {
   loadUsers() {
 
     this.showLoading = true;
-    this.authService.getUsers().subscribe({
+    this.authService.getUsers(1).subscribe({
       next: (data) => {
-        this.usuarios = data;
-        console.log(data);
+        this.administradores = data;
+        this.totalAdministradores = data.length;
       },
-      error: (error) => {
-        console.error('Error fetching users:', error);
-      },
-      complete: () => {
-        this.showLoading = false;
-      }
+      error: (error) => console.log('Error al cargar los adminitradores:', error),
     });
+
+    this.authService.getUsers(2).subscribe({
+      next: (data) => {
+        this.clientes = data;
+        this.totalClientes = data.length;
+      },
+      error: (error) => console.log('Error al cargar los clientes:', error),
+    });
+
+    this.authService.getUsers(3).subscribe({
+      next: (data) => {
+        this.abogados = data;
+        this.totalAbogados = data.length;
+      },
+      error: (error) => console.log('Error al cargar los abogados:', error),
+      complete: () => (this.showLoading = false),
+    });
+    // this.authService.getUsers(1).subscribe({
+    //   next: (data) => {
+    //     this.usuarios = data;
+    //     console.log(data);
+    //   },
+    //   error: (error) => {
+    //     console.error('Error fetching users:', error);
+    //   },
+    //   complete: () => {
+    //     this.showLoading = false;
+    //   }
+    // });
   }
 
   register() {
@@ -281,6 +363,30 @@ export class AdminComponent implements OnInit {
         this.showLoading = false;
       }
     });
+  }
+
+  obtenerTotales(): void{
+    this.usuarioService.getTotalesPorRol().subscribe({
+      next: (data) => {
+        console.log(data);
+        data.forEach((item: any) => {
+          switch (item.rol){
+            case 'Admin':
+              this.totalAdministradores = item.total;
+              break;
+            case 'Abogado':
+              this.totalAbogados = item.total;
+              break;
+            case 'Cliente':
+              this.totalClientes = item.total;
+              break;
+          }
+        });
+      },
+      error: (error) => {
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Error al obtener la cantidad de roles'});
+      }
+    })
   }
 
   getRoleDescription(rolId: number): string {

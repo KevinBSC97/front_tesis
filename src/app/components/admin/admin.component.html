@@ -45,7 +45,7 @@
                 <h5>Total de Administradores</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">Cantidad de administradores</p>
+                <p class="card-text">{{totalAdministradores}}</p>
               </div>
             </div>
           </div>
@@ -55,7 +55,7 @@
                 <h5>Total de Abogados</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">Cantidad de abogados</p>
+                <p class="card-text">{{totalAbogados}}</p>
               </div>
             </div>
           </div>
@@ -65,7 +65,7 @@
                 <h5>Total de Clientes</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">Cantidad de clientes</p>
+                <p class="card-text">{{totalClientes}}</p>
               </div>
             </div>
           </div>
@@ -78,29 +78,25 @@
         <button class="btn btn-success mb-3" (click)="displayModalAdmin = true">
           <i class="pi pi-plus"></i> Registrar Administrador
         </button>
-        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <p-table [value]="administradores" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
-                <th>Id</th>
                 <th>Identificacion</th>
                 <th>Nombre de Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Email</th>
-                <th>Rol</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
         </ng-template>
           <ng-template pTemplate="body" let-admin>
             <tr>
-              <td>{{ admin.id }}</td>
               <td>{{ admin.identificacion }}</td>
-              <td>{{ admin.username }}</td>
+              <td>{{ admin.nombreUsuario }}</td>
               <td>{{ admin.nombre }}</td>
               <td>{{ admin.apellido }}</td>
               <td>{{ admin.email }}</td>
-              <td>{{ admin.rol }}</td>
               <td>{{ admin.estado }}</td>
               <td>
                 <button class="btn btn-primary btn-sm me-2">
@@ -118,19 +114,17 @@
       <!-- Repite para Abogados y Clientes -->
       <div *ngIf="currentSection === 'abogados'">
         <h2 class="mb-3">Gestión de Abogados</h2>
-        <button class="btn btn-success mb-3">
+        <button class="btn btn-success mb-3" (click)="displayModalAbogado = true">
           <i class="pi pi-plus"></i> Registrar Abogado
         </button>
-        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <p-table [value]="abogados" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
-                <th>Id</th>
                 <th>Identificacion</th>
                 <th>Nombre de Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Email</th>
-                <th>Rol</th>
                 <th>Especialidad</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -138,14 +132,12 @@
         </ng-template>
           <ng-template pTemplate="body" let-abogado>
             <tr>
-              <td>{{ abogado.id }}</td>
               <td>{{ abogado.identificacion }}</td>
-              <td>{{ abogado.username }}</td>
+              <td>{{ abogado.nombreUsuario }}</td>
               <td>{{ abogado.nombre }}</td>
               <td>{{ abogado.apellido }}</td>
               <td>{{ abogado.email }}</td>
-              <td>{{ abogado.rol }}</td>
-              <td>{{ abogado.especialidad }}</td>
+              <td>{{ abogado.especialidadDescripcion }}</td>
               <td>{{ abogado.estado }}</td>
               <td>
                 <button class="btn btn-primary btn-sm me-2">
@@ -161,32 +153,28 @@
       </div>
       <div *ngIf="currentSection === 'clientes'">
         <h2 class="mb-3">Gestión de Clientes</h2>
-        <button class="btn btn-success mb-3">
+        <button class="btn btn-success mb-3" (click)="displayModalCliente = true">
           <i class="pi pi-plus"></i> Registrar Cliente
         </button>
-        <p-table [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <p-table [value]="clientes" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
-                <th>Id</th>
                 <th>Identificacion</th>
                 <th>Nombre de Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Email</th>
-                <th>Rol</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
         </ng-template>
           <ng-template pTemplate="body" let-cliente>
             <tr>
-              <td>{{ cliente.id }}</td>
               <td>{{ cliente.identificacion }}</td>
-              <td>{{ cliente.username }}</td>
+              <td>{{ cliente.nombreUsuario }}</td>
               <td>{{ cliente.nombre }}</td>
-              <td>{{ cliente.aepllido }}</td>
+              <td>{{ cliente.apellido }}</td>
               <td>{{ cliente.email }}</td>
-              <td>{{ cliente.rol }}</td>
               <td>{{ cliente.estado }}</td>
               <td>
                 <button class="btn btn-primary btn-sm me-2">
@@ -249,30 +237,109 @@
 
 <p-toast></p-toast>
 <p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true">
+  <form [formGroup]="formAdmin">
     <div class="form-group mb-3">
-        <label for="nombreUsuario">Identificacion</label>
-        <input type="text" pInputText [(ngModel)]="newUser.identificacion" required class="form-control" maxlength="10">
+      <label for="identificacion">Identifiación</label>
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
     </div>
     <div class="form-group mb-3">
-        <label for="nombreUsuario">Nombre de Usuario</label>
-        <input type="text" pInputText [(ngModel)]="newUser.nombreUsuario" required class="form-control">
+      <label for="nombreUsuario">Nombre de Usuario</label>
+      <input type="text" pInputText formControlName="nombreUsuario" class="form-control">
     </div>
     <div class="form-group mb-3">
-        <label for="nombre">Nombre</label>
-        <input type="text" pInputText [(ngModel)]="newUser.nombre" required class="form-control">
+      <label for="nombre">Nombre</label>
+      <input type="text" pInputText formControlName="nombre" class="form-control">
     </div>
     <div class="form-group mb-3">
-        <label for="apellido">Apellido</label>
-        <input type="text" pInputText [(ngModel)]="newUser.apellido" required class="form-control">
+      <label for="apellido">Apellido</label>
+      <input type="text" pInputText formControlName="apellido" class="form-control">
     </div>
     <div class="form-group mb-3">
-        <label for="email">Email</label>
-        <input type="email" pInputText [(ngModel)]="newUser.email" required class="form-control">
+      <label for="email">Email</label>
+      <input type="email" pInputText formControlName="email" class="form-control">
     </div>
     <div class="form-group mb-3">
-        <label for="password">Contraseña</label>
-        <input type="password" pInputText [(ngModel)]="newUser.password" required class="form-control">
+      <label for="password">Contraseña</label>
+      <input type="password" pInputText formControlName="password" class="form-control">
     </div>
+  </form>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Registrar" icon="pi pi-check"
+        [disabled]="!canRegister()"
+        (click)="register()" class="btn btn-success">
+        </button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Registro de Cliente" [(visible)]="displayModalCliente" [style]="{width: '50vw'}" [modal]="true">
+  <form [formGroup]="formCliente">
+    <div class="form-group mb-3">
+      <label for="identificacion">Identifiación</label>
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
+    </div>
+    <div class="form-group mb-3">
+      <label for="nombreUsuario">Nombre de Usuario</label>
+      <input type="text" pInputText formControlName="nombreUsuario" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="nombre">Nombre</label>
+      <input type="text" pInputText formControlName="nombre" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="apellido">Apellido</label>
+      <input type="text" pInputText formControlName="apellido" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="email">Email</label>
+      <input type="email" pInputText formControlName="email" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="password">Contraseña</label>
+      <input type="password" pInputText formControlName="password" class="form-control">
+    </div>
+  </form>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Registrar" icon="pi pi-check"
+        [disabled]="!canRegister()"
+        (click)="register()" class="btn btn-success">
+        </button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Registro de Abogado" [(visible)]="displayModalAbogado" [style]="{width: '50vw'}" [modal]="true">
+  <form [formGroup]="formAbogado">
+    <div class="form-group mb-3">
+      <label for="identificacion">Identifiación</label>
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
+    </div>
+    <div class="form-group mb-3">
+      <label for="nombreUsuario">Nombre de Usuario</label>
+      <input type="text" pInputText formControlName="nombreUsuario" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="nombre">Nombre</label>
+      <input type="text" pInputText formControlName="nombre" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="apellido">Apellido</label>
+      <input type="text" pInputText formControlName="apellido" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="email">Email</label>
+      <input type="email" pInputText formControlName="email" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="especialidad">Especialidad</label>
+      <p-dropdown [options]="especialidades" formControlName="especialidad" placeholder="Seleccione una especialdiad" [showClear]="true" class="w-100">
+      </p-dropdown>
+    </div>
+    <div class="form-group mb-3">
+      <label for="password">Contraseña</label>
+      <input type="password" pInputText formControlName="password" class="form-control">
+    </div>
+  </form>
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Registrar" icon="pi pi-check"
         [disabled]="!canRegister()"

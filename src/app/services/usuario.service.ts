@@ -14,4 +14,8 @@ export class UsuarioService {
   getUsuarios(): Observable<UsuarioDTO[]> {
     return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/usuarios`);
   }
+
+  getTotalesPorRol(): Observable<any>{
+    return this.http.get<any>(`${this.baseUrl}/usuarios/totales-roles`);
+  }
 }
