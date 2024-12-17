@@ -73,14 +73,14 @@ export class CitasComponent {
     this.showLoading = true;
 
     this.authService.getEspecialidades().subscribe({
-      next: (data)=>{
-        this.especialidadesDTO = data;
+      next: (data) => {
+        // Filtrar para excluir la primera especialidad con Id 1
+        this.especialidadesDTO = data.filter(especialidad => especialidad.especialidadId !== 1);
       },
       complete: () => {
         this.showLoading = false;
       }
     });
-
   }
 
   onEspecialidadChange(event: any): void {
@@ -180,7 +180,7 @@ export class CitasComponent {
       this.authService.createCita(this.newCita).subscribe({
         next: (response) => {
           this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Cita creada exitosamente'});
-          this.router.navigate(['/citas']);
+          //this.router.navigate(['/citas']);
           this.resetForm(); // Llamar a función para resetear el formulario
         },
         error: (error) => {

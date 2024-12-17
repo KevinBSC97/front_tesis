@@ -8,10 +8,16 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./abogados.component.css']
 })
 export class AbogadosComponent implements OnInit{
+  currentSection: string = 'inicio';
+
   constructor(private authService: AuthService, private router: Router){}
 
   ngOnInit(){
 
+  }
+
+  changeSection(section: string){
+    this.currentSection = section;
   }
 
   logout(){

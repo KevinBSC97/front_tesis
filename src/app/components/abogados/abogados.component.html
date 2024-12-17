@@ -6,14 +6,17 @@
           <img src="assets/image/logo.png" alt="Usuario" class="img-fluid" style="width: 100px; height: 100px;">
         </div>
         <ul class="list-group text-white sidebar-list">
-          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('inicio')">
             <i class="pi pi-home me-3 fw-bold"></i> Inicio
           </li>
-          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
-            <i class="pi pi-home me-3 fw-bold"></i> Citas
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('citas')">
+            <i class="pi pi-calendar me-3 fw-bold"></i> Citas
           </li>
-          <li class="list-group-item border-0 border-bottom d-flex align-items-center">
-            <i class="pi pi-home me-3 fw-bold"></i> Casos
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('casos')">
+            <i class="pi pi-briefcase me-3 fw-bold"></i> Casos
+          </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('crear-caso')">
+            <i class="pi pi-briefcase me-3 fw-bold"></i> Crear Casos
           </li>
         </ul>
       </div>
@@ -23,6 +26,15 @@
     </div>
     <div class="col container-admin">
       <app-navbar></app-navbar>
+      <div *ngIf="currentSection === 'citas'">
+        <app-citas-asignadas></app-citas-asignadas>
+      </div>
+      <div *ngIf="currentSection === 'casos'">
+        <app-casos-realizados></app-casos-realizados>
+      </div>
+      <div *ngIf="currentSection === 'crear-caso'">
+        <app-crear-caso></app-crear-caso>
+      </div>
     </div>
   </div>
 </div>

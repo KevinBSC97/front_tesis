@@ -151,7 +151,7 @@ export class AdminComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
       rolId: [3],
-      especialidad: ['', [Validators.required]],
+      especialidadId: ['', [Validators.required]],
     });
     this.formCliente = this.fb.group({
       identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
@@ -283,6 +283,80 @@ export class AdminComponent implements OnInit {
       }
     });
   }
+
+  registerAdmin(): void{
+    if(this.formAdmin.valid){
+      const newUser: UsuarioRegistroDTO = {
+        ...this.formAdmin.value,
+        rolId: 1,
+        especialidadId: 1,
+        estado: 'A'
+      };
+      this.sendRegisterRequest(newUser, 'Administrador');
+    } else {
+      this.showVlidationMessage();
+    }
+  }
+
+  registerCliente() {
+    if(this.formCliente.valid){
+      const newUser: UsuarioRegistroDTO = {
+        ...this.formCliente.value,
+        rolId: 2,
+        especialidadId: 1,
+        estado: 'A'
+      };
+      this.sendRegisterRequest(newUser, 'Cliente');
+    } else {
+      this.showVlidationMessage();
+    }
+  }
+
+  registerAbogado() {
+    if(this.formAbogado.valid){
+      const newUser: UsuarioRegistroDTO = {
+        ...this.formAbogado.value,
+        rolId: 3,
+        estado: 'A'
+      };
+      this.sendRegisterRequest(newUser, 'Abogado');
+    } else {
+      this.showVlidationMessage();
+    }
+  }
+
+  private sendRegisterRequest(user: UsuarioRegistroDTO, tipo: string): void{
+    this.showLoading = true;
+    this.authService.register(user).subscribe({
+      next: () => {
+        console.log(user);
+        this.messageService.add({severity: 'success', summary: 'Registro Exitoso', detail: `El ${tipo} ha sido registrado correctamente.`});
+        this.resetForms();
+      },
+      error: (error) => {
+        this.messageService.add({severity: 'error', summary: 'Error al guardar el registro', detail: 'Error en el registro'});
+      },
+      complete: () => {
+        this.showLoading = false;
+        this.loadUsers();
+      }
+    })
+  }
+
+  private showVlidationMessage(): void{
+    this.messageService.add({severity: 'warn', summary: 'Validación fallida', detail: 'Por favor, completa todos los campos correctamente.'});
+  }
+
+  private resetForms(): void{
+    this.formAdmin.reset();
+    this.formCliente.reset();
+    this.formAbogado.reset();
+    this.displayModalAdmin = false;
+    this.displayModalCliente = false;
+    this.displayModalAbogado = false;
+  }
+
+
 
   // register() {
   //   if (!this.canRegister()) {

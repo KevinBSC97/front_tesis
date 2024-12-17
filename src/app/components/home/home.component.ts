@@ -8,12 +8,18 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  currentSection: string = 'inicio';
+
   constructor(private authService: AuthService, private router: Router){
 
   }
 
   ngOnInit(): void {
 
+  }
+
+  changeSection(section: string){
+    this.currentSection = section;
   }
 
   logout(){
