@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { CasoDTO } from 'src/app/interfaces/caso';
 import { CitaDTO } from 'src/app/interfaces/citas';
 import { EspecialidadDTO } from 'src/app/interfaces/usuario';
@@ -21,7 +22,9 @@ export class CrearCasoComponent {
   showLoading: boolean = false;
   b64Img: string = "";
   isLoading: boolean = false;
-  imagenes: string[]=[]
+  imagenes: string[]=[];
+
+  @Output() crearCaso = new EventEmitter<CasoDTO>();
 
   constructor(
     private router: Router,
@@ -29,7 +32,8 @@ export class CrearCasoComponent {
     private citasService: CitasService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
-    private casosService: CasosService
+    private casosService: CasosService,
+    private messageService: MessageService
   ) {
     this.form = this.fb.group({
       citaAsignada: [''],
@@ -73,17 +77,6 @@ export class CrearCasoComponent {
 
   especialidades: EspecialidadDTO[] = [];
 
-  // loadEspecialidades(): void {
-  //   this.especialidadService.getEspecialidades().subscribe({
-  //     next: (data: EspecialidadDTO[]) => { // Especifica que 'data' es un array de EspecialidadDTO
-  //       this.especialidades = data;
-  //     },
-  //     error: (error: any) => { // Mantiene 'any' para 'error' o especifica un tipo más concreto si es posible
-  //       console.error('Error al cargar especialidades:', error);
-  //     }
-  //   });
-  // }
-
   onCitaSelected(event: any): void {
     const citaId = event.target.value;
     this.citasService.getCitaDetails(citaId).subscribe({
@@ -121,10 +114,17 @@ export class CrearCasoComponent {
       this.showLoading = true;
       this.casosService.crearCaso(casoData).subscribe({
         next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Caso creado exitosamente' })
           console.log("Caso creado con éxito", response);
-          this.router.navigate(['/casos-realizados']);
+          //this.router.navigate(['/casos-realizados']);
+          this.crearCaso.emit(response);
+          this.form.reset();
+
         },
-        error: (error) => console.error("Error al crear caso", error),
+        error: (error) => {
+          console.error("Error al crear caso", error)
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear el caso' })
+        },
         complete: () => {
           this.showLoading = false;
         }

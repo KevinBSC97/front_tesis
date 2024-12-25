@@ -23,11 +23,70 @@
     </div>
     <div class="col container-admin">
       <app-navbar></app-navbar>
+      <div *ngIf="currentSection === 'inicio'">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de citas</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text"> Total </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de casos</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text"> Total </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div *ngIf="currentSection === 'casos'">
+        <h2 class="mb-3">Casos a su nombre</h2>
         <app-casos-realizados></app-casos-realizados>
       </div>
       <div *ngIf="currentSection === 'citas'">
-        <app-citas></app-citas>
+        <h2 class="mb-3">Citas realizadas</h2>
+        <button class="btn btn-success mb-3" (click)="formularioCita()">
+          <i class="pi pi-plus"></i> Crear Cita
+        </button>
+        <p-table [value]="citas" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Descripcion</th>
+              <th>Abogado</th>
+              <th>Fecha y Hora</th>
+              <th>Duración</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-cita>
+            <tr>
+              <td>{{ cita.descripcion }}</td>
+              <td>{{ cita.nombreAbogado }}</td>
+              <td>{{ cita.fechaHora | date: 'dd/MM/yyyy'}}</td>
+              <td>{{ cita.duracion }} Minutos</td>
+              <td>{{ cita.estado }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <!-- <app-citas></app-citas> -->
+         <p-toast></p-toast>
+         <p-dialog [visible]="displayModalCrearCita" [modal]="true" [style]="{ width: '50rem'}" [closable]="true">
+            <ng-template pTemplate="header">
+              <h4>Crear Cita</h4>
+            </ng-template>
+            <app-citas (citaCreada)="crearCita($event)"></app-citas>
+            <ng-template pTemplate="footer">
+              <button class="btn btn-danger" (click)="displayModalCrearCita = false">Cerrar</button>
+            </ng-template>
+         </p-dialog>
       </div>
     </div>
   </div>

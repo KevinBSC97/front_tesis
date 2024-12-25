@@ -9,8 +9,8 @@ import { CitaDTO } from '../interfaces/citas';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:5277/api';
-
+  //private api = 'http://localhost:5277/api';
+  api = environment.apiUrl;
   private currentUserSubject: BehaviorSubject<UsuarioDTO | null>;
 
   public currentUser: Observable<UsuarioDTO | null>;
@@ -24,7 +24,7 @@ export class AuthService {
   }
 
   login(credentials: { NombreUsuario: string, Contraseña: string }): Observable<any> {
-    return this.http.post<ResponseDTO>(`${this.baseUrl}/usuarios/login`, credentials, {
+    return this.http.post<ResponseDTO>(`${this.api}/usuarios/login`, credentials, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
@@ -66,11 +66,11 @@ export class AuthService {
     if(rolId !== undefined){
       params = params.set('rolId', rolId.toString());
     }
-    return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/usuarios`, {headers, params});
+    return this.http.get<UsuarioDTO[]>(`${this.api}/usuarios`, {headers, params});
   }
 
   register(user: UsuarioRegistroDTO): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/usuarios/registro`, user, {
+    return this.http.post<any>(`${this.api}/usuarios/registro`, user, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
@@ -80,7 +80,7 @@ export class AuthService {
   createCita(cita: CitaDTO): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({'Authorization': `Bearer ${token}`});
-    return this.http.post(`${this.baseUrl}/citas`, cita, { headers });
+    return this.http.post(`${this.api}/citas`, cita, { headers });
   }
 
   getCurrentUser(): UsuarioDTO | null {
@@ -91,21 +91,21 @@ export class AuthService {
   getAbogados(): Observable<UsuarioDTO[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-    return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/usuarios/abogados`, { headers });
+    return this.http.get<UsuarioDTO[]>(`${this.api}/usuarios/abogados`, { headers });
   }
 
   getEspecialidadesAbogados(): Observable<EspecialidadDTO[]> {
-    return this.http.get<EspecialidadDTO[]>(`${this.baseUrl}/especialidades`);
+    return this.http.get<EspecialidadDTO[]>(`${this.api}/especialidades`);
   }
 
   getEspecialidades(): Observable<EspecialidadDTO[]> {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('token')}` });
-    return this.http.get<EspecialidadDTO[]>(`${this.baseUrl}/especialidades`, { headers });
+    return this.http.get<EspecialidadDTO[]>(`${this.api}/especialidades`, { headers });
   }
 
   getAbogadosByEspecialidad(especialidadId: number): Observable<UsuarioDTO[]> {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('token')}` });
-    return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/especialidades/${especialidadId}/abogados`, { headers });
+    return this.http.get<UsuarioDTO[]>(`${this.api}/especialidades/${especialidadId}/abogados`, { headers });
   }
 
   getLoggedUserId(): number | null {
@@ -114,10 +114,10 @@ export class AuthService {
   }
 
   getUsuarioById(id: number): Observable<UsuarioDTO> {
-    return this.http.get<UsuarioDTO>(`${this.baseUrl}/usuarios/${id}`);
+    return this.http.get<UsuarioDTO>(`${this.api}/usuarios/${id}`);
   }
 
   updateUsuario(id: number, usuario: UsuarioDTO): Observable<any> {
-    return this.http.put(`${this.baseUrl}/usuarios/${id}`, usuario);
+    return this.http.put(`${this.api}/usuarios/${id}`, usuario);
   }
 }

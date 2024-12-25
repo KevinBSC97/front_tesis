@@ -8,7 +8,7 @@ export interface CitaDTO {
   abogadoId?: number;
   estado: string;
   especialidad: string;
-  nombreAbogado: string;
+  nombreAbogado?: string;
   duracion: number;
 }
 

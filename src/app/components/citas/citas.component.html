@@ -2,61 +2,118 @@
 <p-toast></p-toast>
 <div class="container mt-4">
   <shared-spinner *ngIf="showLoading"></shared-spinner>
-  <h2>Crear Cita</h2>
-  <form (ngSubmit)="createCita()">
+  <form [formGroup]="citaForm" (ngSubmit)="createCita()">
+    <!-- Descripción -->
     <div class="form-group">
       <label for="descripcion">Descripción</label>
-      <input type="text" class="form-control" id="descripcion" [(ngModel)]="newCita.descripcion" name="descripcion" required>
+      <input
+        type="text"
+        class="form-control"
+        id="descripcion"
+        formControlName="descripcion"
+        required
+      />
     </div>
-    <!-- <div class="form-group">
-      <label for="fechaHora">Fecha y Hora</label>
-      <input type="datetime-local" class="form-control" id="fechaHora" [(ngModel)]="newCita.fechaHora" name="fechaHora" required>
-    </div> -->
+
+    <!-- Especialidad -->
     <div class="form-group mt-3">
       <label for="especialidad">Especialidad</label>
-      <select class="form-select" id="especialidad" [(ngModel)]="selectedEspecialidad" (change)="onEspecialidadChange($event)" name="especialidad" required>
-        <option *ngFor="let especialidad of especialidadesDTO" [value]="especialidad.especialidadId">{{ especialidad.descripcion }}</option>
+      <select
+        class="form-select"
+        id="especialidad"
+        formControlName="especialidad"
+        (change)="onEspecialidadChange($event)"
+        required
+      >
+        <option
+          *ngFor="let especialidad of especialidadesDTO"
+          [value]="especialidad.especialidadId"
+        >
+          {{ especialidad.descripcion }}
+        </option>
       </select>
     </div>
+
+    <!-- Abogado -->
     <div class="form-group mt-3">
       <label for="abogado">Abogado</label>
-      <select class="form-select" id="abogado" [(ngModel)]="selectedAbogado"  name="abogado" required [disabled]="abogadoDisabled">
-        <option *ngFor="let abogado of abogadosDTO" [value]="abogado.usuarioId">{{ abogado.nombre }} {{ abogado.apellido }}</option>
+      <select
+        class="form-select"
+        id="abogado"
+        formControlName="abogado"
+        required
+        [disabled]="abogadoDisabled"
+      >
+        <option
+          *ngFor="let abogado of abogadosDTO"
+          [value]="abogado.usuarioId"
+        >
+          {{ abogado.nombre }} {{ abogado.apellido }}
+        </option>
       </select>
     </div>
-    <div class="form-group mt-3 ">
-      <label for="fechaHora">Fecha y Hora</label>
 
-      <div class="d-flex align-items-center">
-        <input type="datetime-local" class="form-control" id="fechaHora" [(ngModel)]="newCita.fechaHora"
-               [min]="minDate" name="fechaHora" required>
-
-        <button class="btn btn-primary flex-shrink-0 ms-4" type="button" (click)="showDialog()" [disabled]="!selectedAbogado">Ver disponibilidad</button>
-      </div>
-      <p-dialog
-      header="Disponibilidad de citas"
-      [modal]="true"
-      [(visible)]="visible"
-      [style]="{ width: '50rem' }"
-      [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-      [maximizable]="true">
-          <app-calendar [dataCita]="citasAsignadasPendientes" ></app-calendar>
-      </p-dialog>
-
-    </div>
-
-
+    <!-- Fecha y Hora -->
     <div class="form-group mt-3">
-      <label for="abogado">Duración</label>
-      <select class="form-select" id="abogado" name="abogado" required [(ngModel)]="selectedDuracion">
-        <option *ngFor="let duracion of listaDuracion" [value]="duracion.value">{{ duracion.label }}</option>
+      <label for="fechaHora">Fecha y Hora</label>
+      <div class="d-flex align-items-center">
+        <input
+          type="datetime-local"
+          class="form-control"
+          id="fechaHora"
+          formControlName="fechaHora"
+          [min]="minDate"
+          required
+        />
+        <button
+          class="btn btn-primary flex-shrink-0 ms-4"
+          type="button"
+          (click)="showDialog()"
+          [disabled]="citaForm.get('abogado')?.invalid"
+        >
+          Ver disponibilidad
+        </button>
+      </div>
+
+      <p-dialog
+        header="Disponibilidad de citas"
+        [modal]="true"
+        [(visible)]="visible"
+        [style]="{ width: '50rem' }"
+        [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+        [maximizable]="true"
+      >
+        <app-calendar [dataCita]="citasAsignadasPendientes"></app-calendar>
+      </p-dialog>
+    </div>
+
+    <!-- Duración -->
+    <div class="form-group mt-3">
+      <label for="duracion">Duración</label>
+      <select
+        class="form-select"
+        id="duracion"
+        formControlName="duracion"
+        required
+      >
+        <option
+          *ngFor="let duracion of listaDuracion"
+          [value]="duracion.value"
+        >
+          {{ duracion.label }}
+        </option>
       </select>
     </div>
 
-
-    <div class="form-group  mt-4">
-      <button type="submit" class="btn btn-success" [disabled]="!canCreateCita()">Crear Cita</button>
-      <!-- <button type="button" class="btn btn-secondary btn-margin-left" (click)="navigateHome()">Regresar</button> -->
+    <!-- Botón Crear Cita -->
+    <div class="form-group mt-4">
+      <button
+        type="submit"
+        class="btn btn-success"
+        [disabled]="!canCreateCita()"
+      >
+        Crear Cita
+      </button>
     </div>
   </form>
 </div>

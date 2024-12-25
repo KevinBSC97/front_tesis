@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -12,7 +12,8 @@ import { CitasService } from 'src/app/services/citas.service';
   templateUrl: './citas.component.html',
   styleUrls: ['./citas.component.css']
 })
-export class CitasComponent {
+export class CitasComponent implements OnInit {
+  @Output() citaCreada = new EventEmitter<CitaDTO>();
 
   showLoading: boolean = false;
   especialidadesDTO: EspecialidadDTO[] = [];
@@ -30,6 +31,7 @@ export class CitasComponent {
     nombreAbogado: '',
     duracion: 0
   };
+  citaForm!: FormGroup;
   minDate!: string;
   abogadoDisabled: boolean = true;
   visible: boolean = false;
@@ -40,7 +42,7 @@ export class CitasComponent {
     this.onAbogadoChange();
       this.visible = true;
   }
-  constructor(private citaService: CitasService, private authService: AuthService, private router: Router, private messageService: MessageService) {
+  constructor(private fb: FormBuilder, private citaService: CitasService, private authService: AuthService, private router: Router, private messageService: MessageService) {
     this.setMinDate();
   }
 
@@ -61,8 +63,20 @@ export class CitasComponent {
   }
 
   ngOnInit(): void {
-    this.loadEspecialidades();
     const currentUser = this.authService.getCurrentUser();
+    console.log('Usuario actual:', currentUser);
+    this.citaForm = this.fb.group({
+      descripcion: ['', Validators.required],
+      especialidad: ['', Validators.required],
+      abogadoId: [''],
+      abogado: [{ value: '', disabled: true}, Validators.required],
+      fechaHora: ['', Validators.required],
+      duracion: ['', Validators.required],
+      clienteId: [currentUser ? currentUser.usuarioId : 0, Validators.required],
+      nombreCliente: [currentUser ? `${currentUser.nombre} ${currentUser.apellido}` : '']
+    });
+    console.log('Formulario:', this.citaForm.value);
+    this.loadEspecialidades();
     if (currentUser) {
       this.newCita.clienteId = currentUser.usuarioId;
     }
@@ -71,7 +85,6 @@ export class CitasComponent {
 
   loadEspecialidades(): void {
     this.showLoading = true;
-
     this.authService.getEspecialidades().subscribe({
       next: (data) => {
         // Filtrar para excluir la primera especialidad con Id 1
@@ -85,185 +98,120 @@ export class CitasComponent {
 
   onEspecialidadChange(event: any): void {
     const especialidadId = +event.target.value;
+    this.citaForm.get('abogado')?.disable();
     this.selectedAbogado = null; // Resetea el abogado seleccionado cada vez que cambia la especialidad
-
-    if (especialidadId === 1) {  // Si la especialidad es 'Ninguna'
+    this.abogadoDisabled = true;
+    if (especialidadId === 1) {
       this.abogadosDTO = [];
-      this.abogadoDisabled = true;
     } else {
       this.authService.getAbogadosByEspecialidad(especialidadId).subscribe({
         next: (abogados) => {
-          // Filtra para mostrar solo abogados con estado 'A'
-          const abogadosActivos = abogados.filter(abogado => abogado.estado === 'A');
+          const abogadosActivos = abogados.filter(a => a.estado === 'A');
           this.abogadosDTO = abogadosActivos;
 
           if (abogadosActivos.length > 0) {
-            this.selectedAbogado = abogadosActivos[0].usuarioId; // Selecciona automáticamente el primer abogado activo
-            this.abogadoDisabled = false; // Habilita el select de abogados
+            this.citaForm.patchValue({ abogado: abogadosActivos[0].usuarioId });
+            this.citaForm.get('abogado')?.enable();
+            this.abogadoDisabled = false;
           } else {
-            // Mostrar mensaje de no disponibilidad
-            alert('No hay un abogado disponible para esta especialidad');
-            this.abogadoDisabled = true;
-            this.selectedAbogado = null; // Asegura que no se seleccione un abogado
+            this.messageService.add({ severity: 'warn', summary: 'Sin abogados', detail: 'No hay abogados disponibles' });
           }
-        },
-        error: (error) => {
-          console.error('Error al cargar abogados:', error);
-          this.abogadosDTO = [];
-          this.abogadoDisabled = true;
         }
       });
     }
   }
-
-  // onEspecialidadChange(event: any): void {
-  //   const especialidadId = +event.target.value; // Usar el operador '+' asegura que el valor es numérico
-  //   if (especialidadId === 1) {  // Si la especialidad es 'Ninguna'
-  //     this.abogadosDTO = [];
-  //     this.selectedAbogado = null;
-  //   } else {
-  //     this.authService.getAbogadosByEspecialidad(especialidadId).subscribe({
-  //       next: (abogados) => {
-  //         this.abogadosDTO = abogados;
-  //         if (abogados.length > 0) {
-  //           this.selectedAbogado = abogados[0].usuarioId; // Selecciona automáticamente el primer abogado
-  //         } else {
-  //           this.selectedAbogado = null; // No hay abogados para esta especialidad
-  //         }
-  //       },
-  //       error: (error) => {
-  //         console.error('Error al cargar abogados:', error);
-  //         this.abogadosDTO = [];
-  //         this.selectedAbogado = null;
-  //       }
-  //     });
-  //   }
-  // }
 
   canCreateCita(): boolean {
     // Asegúrate de que todos los campos necesarios están completos
-    if (!this.newCita.descripcion || !this.newCita.fechaHora || this.selectedEspecialidad === null || this.selectedAbogado === null) {
-      return false;
-    }
+    // if (!this.newCita.descripcion || !this.newCita.fechaHora || this.selectedEspecialidad === null || this.selectedAbogado === null) {
+    //   return false;
+    // }
 
     // Condiciones específicas para la creación de la cita
-    if (this.selectedEspecialidad === 1) {
-      return false;  // No permitir crear citas con 'Ninguna' especialidad
-    }
+    //if (this.selectedEspecialidad === 1) {
+      //return false;  // No permitir crear citas con 'Ninguna' especialidad
+    //}
 
-    return true;
+    //return true;
+    return this.citaForm.valid;
   }
 
   createCita(): void {
-    const selectedDate = new Date(this.newCita.fechaHora);
+    const selectedDate = new Date(this.citaForm.value.fechaHora);
     const now = new Date();
-    now.setMinutes(0, 0, 0);
+    now.setMinutes(0, 0, 0); // Elimina minutos y segundos para comparación justa
 
+    // Validación de horario
     if (selectedDate < now || selectedDate.getHours() < 9 || selectedDate.getHours() > 17) {
-      alert('La fecha y hora seleccionadas no son válidas. Por favor seleccione un horario entre las 9:00 y las 17:00 en un día futuro.');
-      return;
-    }
-    if (!this.canCreateCita()) {
-      this.messageService.add({severity:'error', summary: 'Error', detail: 'Por favor complete todos los campos correctamente antes de crear la cita.'});
-      return;
-    }
-    if (this.selectedEspecialidad == 1) {
-      this.messageService.add({severity:'error', summary: 'Error', detail: 'No se puede crear una cita con la especialidad "Ninguna"'});
+      //alert('Seleccione un horario válido entre las 9:00 y las 17:00.');
+      this.messageService.add({ severity: 'warn', summary: 'Horario no válido', detail: 'Seleccione un horario entre las 9:00 y las 17:00'})
       return;
     }
 
-    if (this.selectedAbogado) {
-      this.showLoading = true;
-      this.newCita.abogadoId = this.selectedAbogado;
-      this.newCita.duracion = Number(this.selectedDuracion);
-      this.newCita.nombreCliente = "Nombre del Cliente"; // Asegúrate de asignar este valor correctamente
-      this.authService.createCita(this.newCita).subscribe({
-        next: (response) => {
-          this.messageService.add({severity:'success', summary: 'Éxito', detail: 'Cita creada exitosamente'});
-          //this.router.navigate(['/citas']);
-          this.resetForm(); // Llamar a función para resetear el formulario
-        },
-        error: (error) => {
-          this.messageService.add({severity:'error', summary: 'Error', detail: error.error});
-          console.error('Error creando la cita', error);
-          this.showLoading = false;
-        },
-        complete: () => {
-          this.showLoading = false;
-        }
-      });
-    } else {
-      this.messageService.add({severity:'error', summary: 'Error', detail: 'Debe seleccionar un abogado'});
+    if (this.citaForm.invalid) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Complete todos los campos correctamente.' });
+      return;
     }
+
+    if (this.citaForm.value.especialidad === '1') {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se puede crear una cita con la especialidad "Ninguna".' });
+      return;
+    }
+
+    this.showLoading = true;
+    const abogadoSeleccionado = this.abogadosDTO.find(a => a.usuarioId === this.citaForm.value.abogado);
+    // Obtener el usuario actual
+    const usuarioActual = this.authService.getCurrentUser();
+
+    // Asignar valores desde el formulario
+    const citaData: CitaDTO = {
+      ...this.citaForm.value,
+      clienteId: usuarioActual ? usuarioActual.usuarioId : 0,
+      abogadoId: abogadoSeleccionado?.usuarioId,
+      nombreAbogado: abogadoSeleccionado ? `${abogadoSeleccionado.nombre} ${abogadoSeleccionado.apellido}` : '',
+      nombreCliente: usuarioActual ? `${usuarioActual.nombre} ${usuarioActual.apellido}` : '',
+      estado: 'Pendiente'
+    };
+
+    this.authService.createCita(citaData).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Cita creada exitosamente' });
+        this.router.navigate(['/citas']);
+        this.resetForm();
+      },
+      error: (error) => {
+        const errorMsg = error.error.message || 'Error inesperado al crear la cita';
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMsg });
+        console.error('Error creando la cita:', error);
+        this.showLoading = false;
+      },
+      complete: () => {
+        this.showLoading = false;
+      }
+    });
   }
 
   resetForm(): void {
-    // Resetea los valores del formulario a los valores iniciales
-    this.newCita = {
-      citaId: 0,
-      fechaHora: '',
-      descripcion: '',
-      clienteId: this.newCita.clienteId,
-      estado: 'Pendiente',
-      especialidad: '',
-      nombreAbogado: '',
-      duracion: 0
-    };
-    this.selectedEspecialidad = null;
-    this.selectedAbogado = null;
+    this.citaForm.reset();
     this.abogadoDisabled = true;
+    this.citaForm.patchValue({ clienteId: this.authService.getCurrentUser()?.usuarioId });
   }
-
-  // createCita(): void {
-  //   if (!this.canCreateCita()) {
-  //     alert('Por favor complete todos los campos correctamente antes de crear la cita.');
-  //     return;
-  //   }
-  //   if (this.selectedEspecialidad == 1) {
-  //     alert('No se puede crear una cita con la especialidad "Ninguna"');
-  //     console.error('No se puede crear una cita con la especialidad "Ninguna"');
-  //     return;
-  //   }
-  //   if (this.selectedAbogado) {
-  //     this.newCita.abogadoId = this.selectedAbogado;
-  //     this.newCita.nombreCliente = "Nombre del Cliente"; // Asegúrate de asignar este valor correctamente
-  //     this.authService.createCita(this.newCita).subscribe({
-  //       next: (response) => {
-  //         console.log('Cita creada exitosamente', response);
-  //         this.router.navigate(['/citas']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error creando la cita', error);
-  //       }
-  //     });
-  //   } else {
-  //     alert('Debe seleccionar un abogado');
-  //     console.error('Debe seleccionar un abogado');
-  //   }
-  // }
 
   navigateHome() {
     this.router.navigate(['/home']); // Asegúrate de cambiar '/home' por la ruta correcta
   }
 
   onAbogadoChange(): void {
-
-    this.showLoading = true;
-    if (this.selectedAbogado) {
-      this.citaService.getCitasAsignadas(this.selectedAbogado).subscribe({
+    if (this.citaForm.value.abogado) {
+      this.showLoading = true;
+      this.citaService.getCitasAsignadas(this.citaForm.value.abogado).subscribe({
         next: (citas) => {
-          this.citasAsignadasPendientes = []
-          this.citasAsignadasPendientes = [...citas.filter(c => c.estado === 'Aceptado'),...citas.filter(c => c.estado === 'Pendiente')  ]
+          this.citasAsignadasPendientes = citas.filter(c => c.estado === 'Aceptado' || c.estado === 'Pendiente');
         },
-        error: (error) => {
-          console.error('Error al cargar las citas:', error);
-        },
-        complete: ()=> {
+        complete: () => {
           this.showLoading = false;
         }
       });
-    } else {
-      console.error('No user id found');
     }
   }
 }
