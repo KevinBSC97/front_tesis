@@ -38,7 +38,7 @@
       <app-navbar></app-navbar>
       <!-- Sección de Inicio -->
       <div *ngIf="currentSection === 'inicio'">
-        <div class="row">
+        <div class="row justify-content-center mt-5">
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
@@ -70,6 +70,34 @@
             </div>
           </div>
         </div>
+
+
+        <!-- Fila adicional para Citas Creadas y Casos -->
+        <div class="row justify-content-center mt-4">
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de Citas Creadas</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text">Total</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-primary text-white text-center">
+                <h5>Total de Casos</h5>
+              </div>
+              <div class="card-body text-center">
+                <p class="card-text">Total</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container mt-4">
+          <button class="btn btn-primary" (click)="exportarExcel()">Exportar a Excel</button>
+        </div>
       </div>
 
       <!-- Sección de Administradores -->
@@ -99,7 +127,7 @@
               <td>{{ admin.email }}</td>
               <td>{{ admin.estado }}</td>
               <td>
-                <button class="btn btn-primary btn-sm me-2">
+                <button class="btn btn-primary btn-sm me-2" (click)="editUserAdmin(admin.usuarioId)" title="Editar Administrador">
                   <i class="pi pi-pencil"></i>
                 </button>
                 <button class="btn btn-danger btn-sm">
@@ -140,7 +168,7 @@
               <td>{{ abogado.especialidadDescripcion }}</td>
               <td>{{ abogado.estado }}</td>
               <td>
-                <button class="btn btn-primary btn-sm me-2">
+                <button class="btn btn-primary btn-sm me-2" (click)="editUserAbogado(abogado.usuarioId)" title="Editar Abogado">
                   <i class="pi pi-pencil"></i>
                 </button>
                 <button class="btn btn-danger btn-sm">
@@ -177,7 +205,7 @@
               <td>{{ cliente.email }}</td>
               <td>{{ cliente.estado }}</td>
               <td>
-                <button class="btn btn-primary btn-sm me-2">
+                <button class="btn btn-primary btn-sm me-2" (click)="editUserCliente(cliente.usuarioId)" title="Editar Cliente">
                   <i class="pi pi-pencil"></i>
                 </button>
                 <button class="btn btn-danger btn-sm">
@@ -345,6 +373,111 @@
 
         (click)="registerAbogado()" class="btn btn-success">
         </button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Editar Administrador" [(visible)]="displayEditModalAdmin" [style]="{width: '50vw'}" [modal]="true">
+    <div class="form-group mb-3">
+        <label for="identificacion">Identificación</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.identificacion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombreUsuario" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombre">Nombre</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombre" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="apellido">Apellido</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.apellido" class="form-control" >
+    </div>
+    <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input type="email" pInputText [(ngModel)]="selectedUser.email" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="rol">Rol</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.rolDescripcion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="estado">Estado</label>
+        <p-dropdown [options]="estados" [(ngModel)]="selectedUser.estado" optionLabel="label" optionValue="value" placeholder="Selecciona un estado"></p-dropdown>
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUserAdmin()" class="btn btn-success"></button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Editar Abogado" [(visible)]="displayEditModalAbogado" [style]="{width: '50vw'}" [modal]="true">
+    <div class="form-group mb-3">
+        <label for="identificacion">Identificación</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.identificacion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombreUsuario" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombre">Nombre</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombre" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="apellido">Apellido</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.apellido" class="form-control" >
+    </div>
+    <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input type="email" pInputText [(ngModel)]="selectedUser.email" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="rol">Rol</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.rolDescripcion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="estado">Estado</label>
+        <p-dropdown [options]="estados" [(ngModel)]="selectedUser.estado" optionLabel="label" optionValue="value" placeholder="Selecciona un estado"></p-dropdown>
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUserAbogado()" class="btn btn-success"></button>
+    </div>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-dialog header="Editar Cliente" [(visible)]="displayEditModalCliente" [style]="{width: '50vw'}" [modal]="true">
+    <div class="form-group mb-3">
+        <label for="identificacion">Identificación</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.identificacion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombreUsuario" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="nombre">Nombre</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.nombre" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="apellido">Apellido</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.apellido" class="form-control" >
+    </div>
+    <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input type="email" pInputText [(ngModel)]="selectedUser.email" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+        <label for="rol">Rol</label>
+        <input type="text" pInputText [(ngModel)]="selectedUser.rolDescripcion" class="form-control" disabled>
+    </div>
+    <div class="form-group mb-3">
+        <label for="estado">Estado</label>
+        <p-dropdown [options]="estados" [(ngModel)]="selectedUser.estado" optionLabel="label" optionValue="value" placeholder="Selecciona un estado"></p-dropdown>
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUserCliente()" class="btn btn-success"></button>
     </div>
 </p-dialog>
 

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CasoDTO } from 'src/app/interfaces/caso';
+import { AuthService } from 'src/app/services/auth.service';
 import { CasosService } from 'src/app/services/casos.service';
 import * as XLSX from 'xlsx';
 
@@ -14,7 +15,7 @@ export class GestionCasosComponent {
   selectedCaso: CasoDTO | null = null;
   displayModal: boolean = false;
 
-  constructor(private router: Router, private casosService: CasosService) {}
+  constructor(private router: Router, private casosService: CasosService, private authService: AuthService) {}
 
   ngOnInit() {
     this.loadCasos();
@@ -30,14 +31,17 @@ export class GestionCasosComponent {
   }
 
   loadCasos() {
-    this.casosService.getCasos().subscribe(
-      data => {
-        this.casos = data;
-      },
-      error => {
-        console.error('Error al cargar los casos:', error);
-      }
-    );
+    const abogadoId = this.authService.getCurrentUser()?.usuarioId;
+    if(abogadoId){
+      this.casosService.getCasos(abogadoId).subscribe(
+        data => {
+          this.casos = data;
+        },
+        error => {
+          console.log('Error al cargar los casos: ', error);
+        }
+      )
+    }
   }
 
   closeModal() {

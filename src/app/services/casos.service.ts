@@ -25,8 +25,8 @@ export class CasosService {
     return this.http.post<CasoDTO>(`${this.api}/casos`, caso);
   }
 
-  getCasos(): Observable<CasoDTO[]> {
-    return this.http.get<CasoDTO[]>(`${this.api}/casos`);
+  getCasos(abogadoId: number): Observable<CasoDTO[]> {
+    return this.http.get<CasoDTO[]>(`${this.api}/casos/abogado/${abogadoId}`);
   }
 
   updateCaso(caso: CasoDTO): Observable<void> {

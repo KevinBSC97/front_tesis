@@ -1,9 +1,6 @@
 <!-- <app-navbar></app-navbar> -->
 <shared-spinner *ngIf="showLoading"></shared-spinner>
 <div class="container mt-4">
-    <!-- <div class="mb-3">
-        <button class="btn btn-secondary" (click)="navigateToPanel()">Regresar</button>
-    </div> -->
     <!-- Citas Asignadas Pendientes -->
     <h3>Citas Asignadas Pendientes</h3>
     <table class="table" *ngIf="citasPendientes.length > 0; else noCitasPendientes">
@@ -13,6 +10,7 @@
                 <th>Descripción</th>
                 <th>Nombre del Cliente</th>
                 <th>Acciones</th>
+                <th>Motivo</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +25,9 @@
                         <button class="btn btn-success" (click)="updateEstado(cita.citaId, 'Aceptado')">Aceptar</button>
                     <button class="btn btn-danger" (click)="updateEstado(cita.citaId, 'Rechazado')">Rechazar</button>
                     </div>
+                </td>
+                <td>
+                  <input type="text" class="form-control" placeholder="Solo en caso de rechazar" [(ngModel)]="cita.motivo">
                 </td>
             </tr>
         </tbody>

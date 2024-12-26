@@ -10,6 +10,7 @@ export interface CitaDTO {
   especialidad: string;
   nombreAbogado?: string;
   duracion: number;
+  motivo?:string;
 }
 
 export interface IDuracionCita{

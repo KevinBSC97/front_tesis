@@ -47,18 +47,20 @@
           <ng-template pTemplate="body" let-caso>
             <tr>
               <td>{{ caso.asunto }}</td>
-              <td>{{ caso.cliente }}</td>
-              <td>{{ caso.abogado }}</td>
-              <td>{{ caso.fecha }}</td>
+              <td>{{ caso.nombreCliente }}</td>
+              <td>{{ caso.nombreAbogado }}</td>
+              <td>{{ caso.fechaRegistro }}</td>
               <td><button
                 class="btn btn-warning me-3"
                 title="Ver Caso"
+                (click)="showCaseDetails(caso)"
               >
                 <i class="pi pi-eye"></i>
               </button>
               <button
                 class="btn btn-primary"
                 title="Editar Caso"
+                (click)="editCaso(caso)"
               >
                 <i class="pi pi-pencil"></i>
               </button></td>
@@ -83,6 +85,78 @@
     </div>
   </div>
 </div>
+
+<p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
+  <div *ngIf="selectedCaso">
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+          <th>Asunto</th>
+          <td>{{ selectedCaso.asunto }}</td>
+        </tr>
+        <tr>
+          <th>Descripción</th>
+          <td>{{ selectedCaso.descripcion }}</td>
+        </tr>
+        <tr>
+          <th>Cliente</th>
+          <td>{{ selectedCaso.nombreCliente }}</td>
+        </tr>
+        <tr>
+          <th>Abogado</th>
+          <td>{{ selectedCaso.nombreAbogado }}</td>
+        </tr>
+        <tr>
+          <th>Fecha del Caso</th>
+          <td>{{ selectedCaso.fechaRegistro | date:'medium' }}</td>
+        </tr>
+        <tr>
+          <th>Estado</th>
+          <td>{{ selectedCaso.estado }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Descargar" icon="pi pi-download" class="p-button-success" (click)="downloadExcel()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeModal()"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Editar Caso" [(visible)]="displayEditModal" [style]="{width: '50vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="asunto">Asunto</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.asunto" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="descripcion">Descripción</label>
+    <textarea pInputTextarea [(ngModel)]="selectedCasoUser.descripcion" class="form-control" rows="4"></textarea>
+  </div>
+  <div class="form-group mb-3">
+    <label for="cliente">Cliente</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreCliente" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="abogado">Abogado</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreAbogado" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaCita">Fecha</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaRegistro" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="estado">Estado</label>
+    <select class="form-select" [(ngModel)]="selectedCasoUser.estado" required>
+      <option value="abierto">Abierto</option>
+      <option value="en_proceso">En Proceso</option>
+      <option value="cerrado">Cerrado</option>
+    </select>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>
+  </p-footer>
+</p-dialog>
 <!-- <div class="container mt-4">
     <h2 class="text-center mb-4">Panel de Abogado</h2>
     <div class="row justify-content-center">

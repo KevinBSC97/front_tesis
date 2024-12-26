@@ -20,4 +20,10 @@ export class UsuarioService {
   getTotalesPorRol(): Observable<any>{
     return this.http.get<any>(`${this.api}/usuarios/totales-roles`);
   }
+
+  exportExcel(pageNumber: number, pageSize: number): Observable<any> {
+    return this.http.get(`${this.api}/usuarios/export-excel?pageNumber=${pageNumber}&pageSize=${pageSize}`, {
+      responseType: 'json'
+    });
+  }
 }

@@ -5,6 +5,7 @@ import { UsuarioDTO, UsuarioRegistroDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
 import { UsuarioService } from 'src/app/services/usuario.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-admin',
@@ -16,7 +17,9 @@ export class AdminComponent implements OnInit {
   displayModalAdmin: boolean = false;
   displayModalAbogado: boolean = false;
   displayModalCliente: boolean = false;
-  displayEditModal: boolean = false;
+  displayEditModalAdmin: boolean = false;
+  displayEditModalCliente: boolean = false;
+  displayEditModalAbogado: boolean = false;
   showLoading: boolean = false;
   items: MenuItem[] = [];
 
@@ -35,6 +38,9 @@ export class AdminComponent implements OnInit {
   totalAdministradores: number = 0;
   totalAbogados: number = 0;
   totalClientes: number = 0;
+
+  pageNumber: number = 1;
+  pageSize: number = 50;
 
   currentSection: string = 'inicio';
 
@@ -163,6 +169,29 @@ export class AdminComponent implements OnInit {
       rolId: [2],
       especialidad: [1],
     });
+  }
+
+  exportarExcel(): void {
+    // Llamada al servicio para obtener los datos de la página actual
+    this.usuarioService.exportExcel(this.pageNumber, this.pageSize).subscribe(
+      (response: any) => {
+        if (response && response.length > 0) {
+          const wb = XLSX.utils.book_new(); // Crear un nuevo libro de Excel
+
+          // Si hay datos, crear la hoja de usuarios
+          const usersSheet = XLSX.utils.json_to_sheet(response);
+          XLSX.utils.book_append_sheet(wb, usersSheet, "Usuarios");
+
+          // Exportar el archivo Excel
+          XLSX.writeFile(wb, 'Usuarios.xlsx'); // Nombre del archivo Excel
+        } else {
+          console.error('No hay datos disponibles para exportar');
+        }
+      },
+      (error) => {
+        console.error('Error al exportar los datos:', error);
+      }
+    );
   }
 
   changeSection(section: string) {
@@ -334,7 +363,11 @@ export class AdminComponent implements OnInit {
         this.resetForms();
       },
       error: (error) => {
-        this.messageService.add({severity: 'error', summary: 'Error al guardar el registro', detail: 'Error en el registro'});
+        let errorMsg = 'Error en el registro';
+        if(error.error){
+          errorMsg = error.error;
+        }
+        this.messageService.add({severity: 'error', summary: 'Error al guardar el registro', detail: errorMsg});
       },
       complete: () => {
         this.showLoading = false;
@@ -403,12 +436,12 @@ export class AdminComponent implements OnInit {
     };
   }
 
-  editUser(usuarioId: number) {
+  editUserAdmin(usuarioId: number) {
     this.showLoading = true;
     this.authService.getUsuarioById(usuarioId).subscribe({
       next: (usuario) => {
         this.selectedUser = usuario;
-        this.displayEditModal = true;
+        this.displayEditModalAdmin = true;
       },
       error: (error) => {
         console.error('Error al cargar el usuario:', error);
@@ -420,12 +453,84 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  updateUser() {
+  editUserAbogado(usuarioId: number) {
+    this.showLoading = true;
+    this.authService.getUsuarioById(usuarioId).subscribe({
+      next: (usuario) => {
+        this.selectedUser = usuario;
+        this.displayEditModalAbogado = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar el usuario:', error);
+        this.selectedUser = this.defaultUser; // Usar defaultUser en lugar de null
+      },
+      complete: ()=>{
+        this.showLoading = false;
+      }
+    });
+  }
+
+  editUserCliente(usuarioId: number) {
+    this.showLoading = true;
+    this.authService.getUsuarioById(usuarioId).subscribe({
+      next: (usuario) => {
+        this.selectedUser = usuario;
+        this.displayEditModalCliente = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar el usuario:', error);
+        this.selectedUser = this.defaultUser; // Usar defaultUser en lugar de null
+      },
+      complete: ()=>{
+        this.showLoading = false;
+      }
+    });
+  }
+
+  updateUserAdmin() {
     this.showLoading = true;
     this.authService.updateUsuario(this.selectedUser.usuarioId, this.selectedUser).subscribe({
       next: () => {
         console.log('Usuario actualizado con éxito');
-        this.displayEditModal = false;
+        this.displayEditModalAdmin = false;
+        this.loadUsers(); // Recargar los usuarios actualizados
+        this.messageService.add({severity:'success', summary: 'Éxito', detail: 'El usuario ha sido actualizado con éxito'});
+      },
+      error: (error) => {
+        console.error('Error al actualizar el usuario:', error);
+        this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al actualizar el usuario'});
+      },
+      complete: () => {
+        this.showLoading = false;
+      }
+    });
+  }
+
+  updateUserAbogado() {
+    this.showLoading = true;
+    this.authService.updateUsuario(this.selectedUser.usuarioId, this.selectedUser).subscribe({
+      next: () => {
+        console.log('Usuario actualizado con éxito');
+        this.displayEditModalAbogado = false;
+        this.loadUsers(); // Recargar los usuarios actualizados
+        this.messageService.add({severity:'success', summary: 'Éxito', detail: 'El usuario ha sido actualizado con éxito'});
+      },
+      error: (error) => {
+        console.error('Error al actualizar el usuario:', error);
+        this.messageService.add({severity:'error', summary: 'Error', detail: 'Error al actualizar el usuario'});
+      },
+      complete: () => {
+        this.showLoading = false;
+      }
+    });
+  }
+
+  updateUserCliente() {
+    this.showLoading = true;
+    this.authService.updateUsuario(this.selectedUser.usuarioId, this.selectedUser).subscribe({
+      next: () => {
+        console.log('Usuario actualizado con éxito');
+        this.displayEditModalCliente = false;
         this.loadUsers(); // Recargar los usuarios actualizados
         this.messageService.add({severity:'success', summary: 'Éxito', detail: 'El usuario ha sido actualizado con éxito'});
       },
