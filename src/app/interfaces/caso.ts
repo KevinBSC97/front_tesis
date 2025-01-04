@@ -12,4 +12,6 @@ export interface CasoDTO{
     nombreAbogado: string;
     imagenes: string[];
     fechaRegistro?: Date;
+    archivos: string[];
+    nombreArchivo: string[];
 }

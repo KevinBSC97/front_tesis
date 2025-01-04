@@ -66,3 +66,12 @@
 .navbar .btn-outline-light{
   margin-right: 1rem;
 }
+
+.group-images{
+  display: flex;
+  gap: .5rem;
+}
+
+img {
+  width: 100px;
+}

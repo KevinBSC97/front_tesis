@@ -26,4 +26,8 @@ export class UsuarioService {
       responseType: 'json'
     });
   }
+
+  recuperarPassword(email: string): Observable<any>{
+    return this.http.post(`${this.api}/citas/reset-password`, {email});
+  }
 }

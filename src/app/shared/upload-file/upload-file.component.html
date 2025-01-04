@@ -1,0 +1,32 @@
+<div class="full-container">
+  <div
+    [ngClass]="{ 'disabled': disabled }"
+    class="clickable-container"
+    (click)="!disabled ? fileInput.click() : null"
+  >
+    <div class="centered-content">
+      <ng-container *ngIf="filesBase64.length === 0">
+        <div class="empty-state centered-content">
+          <i class="pi pi-file icon"></i>
+          <span class="text-label">Subir archivos</span>
+          <span class="text-label description">Formatos permitidos (pdf, docx, txt)</span>
+        </div>
+      </ng-container>
+
+      <div *ngIf="filesBase64.length > 0" class="pictures-container">
+        <div class="pictures-wrapper">
+          <div class="overlay" *ngIf="filesBase64.length > 1" pTooltip="Eliminar todo" tooltipPosition="left">
+            <i class="pi pi-trash trash-icon" (click)="deleteAllFiles($event)"></i>
+          </div>
+          <div *ngFor="let file of filesBase64; let i = index" class="picture-item">
+            <div class="file-item">
+              <i class="pi pi-file file-icon"></i> {{ fileNames[i] }}  <!-- Aquí se muestra el nombre del archivo -->
+            </div>
+            <i class="pi pi-trash trash-icon" (click)="deleteFile($event, i)"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input #fileInput class="form-control" type="file" style="display: none" [accept]="'.pdf,.docx,.txt'" (change)="selectFiles($event)" multiple />
+</div>

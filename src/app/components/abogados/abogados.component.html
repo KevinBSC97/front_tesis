@@ -117,8 +117,29 @@
       </tbody>
     </table>
   </div>
+  <div class="group-images">
+    <div *ngFor="let imagen of selectedCaso?.imagenes">
+      <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
+      </shared-image-loader>
+    </div>
+  </div>
+  <div class="detalles-archivos">
+    <h4>Archivos Adjuntos</h4>
+    <div *ngIf="(selectedCaso?.archivos?.length ?? 0) > 0; else noArchivos">
+      <div *ngFor="let archivo of selectedCaso?.archivos; let i = index">
+        <shared-file-loader
+          [file]="archivo"
+          [fileName]="selectedCaso?.nombreArchivo?.[i] ?? ''"
+          [fileType]="extraerTipoArchivo(archivo)">
+        </shared-file-loader>
+      </div>
+    </div>
+    <ng-template #noArchivos>
+      <p>No hay archivos adjuntos</p>
+    </ng-template>
+  </div>
   <p-footer>
-    <button type="button" pButton label="Descargar" icon="pi pi-download" class="p-button-success" (click)="downloadExcel()"></button>
+    <button type="button" pButton label="Descargar" icon="pi pi-download" class="p-button-success" (click)="downloadPDF()"></button>
     <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeModal()"></button>
   </p-footer>
 </p-dialog>
@@ -151,6 +172,19 @@
       <option value="en_proceso">En Proceso</option>
       <option value="cerrado">Cerrado</option>
     </select>
+  </div>
+  <div class="my-4">
+    <shared-upload-image
+    [required]="true"
+    [label]="'Cargar imágenes'"
+    (deletePictureEvent)="resetFile($event)"
+    [bottomLabel]="'Formatos permitidos'"
+    [bottomLabelExtensionAllowed]="'png, jpeg, jpg'"
+    [accept]="'image/*'"
+    (eventUpload)="setFile($event)"
+    [initialImages]="selectedCasoUser?.imagenes ?? []"
+  >
+  </shared-upload-image>
   </div>
   <p-footer>
     <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>

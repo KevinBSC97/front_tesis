@@ -10,6 +10,7 @@ import { CitasAsignadasComponent } from './components/citas-asignadas/citas-asig
 import { CrearCasoComponent } from './components/crear-caso/crear-caso.component';
 import { CasosRealizadosComponent } from './components/casos-realizados/casos-realizados.component';
 import { GestionCasosComponent } from './components/gestion-casos/gestion-casos.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 const routes: Routes = [
   // Ruta por defecto
@@ -17,6 +18,8 @@ const routes: Routes = [
 
   // Rutas públicas
   { path: 'login', component: LoginComponent, pathMatch: 'full'  },
+
+  { path: 'reset-password', component: ResetPasswordComponent },
 
   // Rutas protegidas por AuthGuard
   {
@@ -61,7 +64,8 @@ const routes: Routes = [
   },
 
   // Ruta wildcard - redirige cualquier ruta no encontrada al home
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/login' },
+
 ];
 
 @NgModule({

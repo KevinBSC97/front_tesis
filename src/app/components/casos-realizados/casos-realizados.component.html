@@ -77,6 +77,10 @@
           <th>Estado</th>
           <td>{{ selectedCaso.estado }}</td>
         </tr>
+        <tr>
+          <th>Imagenes</th>
+          <td>{{ selectedCaso.imagenes }}</td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -106,12 +110,7 @@
   </p-footer>
 </p-dialog>
 
-<p-dialog
-  header="Editar Caso"
-  [(visible)]="displayEditModal"
-  [style]="{ width: '50vw' }"
-  [modal]="true"
->
+<p-dialog header="Editar Caso" [(visible)]="displayEditModal" [style]="{ width: '50vw' }" [modal]="true">
   <div class="form-group mb-3">
     <label for="asunto">Asunto</label>
     <input
@@ -164,9 +163,9 @@
   <div class="form-group mb-3">
     <label for="estado">Estado</label>
     <select class="form-select" [(ngModel)]="selectedCasoUser.estado" required>
-      <option value="abierto">Abierto</option>
-      <option value="en_proceso">En Proceso</option>
-      <option value="cerrado">Cerrado</option>
+      <option value="Abierto">Abierto</option>
+      <option value="En proceso">En Proceso</option>
+      <option value="Cerrado">Cerrado</option>
     </select>
   </div>
 

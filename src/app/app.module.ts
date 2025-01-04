@@ -38,6 +38,9 @@ import { UploadImageComponent } from './shared/upload-image/upload-image.compone
 import { ImageLoaderComponent } from './shared/image-loader/image-loader.component';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
 import { TooltipModule } from 'primeng/tooltip';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { UploadFileComponent } from './shared/upload-file/upload-file.component';
+import { FileLoaderComponent } from './shared/file-loader/file-loader.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +58,10 @@ import { TooltipModule } from 'primeng/tooltip';
     CalendarComponent,
     SpinnerComponent,
     UploadImageComponent,
-    ImageLoaderComponent
+    ImageLoaderComponent,
+    ResetPasswordComponent,
+    UploadFileComponent,
+    FileLoaderComponent
   ],
   imports: [
     BrowserModule,

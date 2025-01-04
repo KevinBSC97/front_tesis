@@ -93,9 +93,9 @@
       <div class="mb-3">
         <label for="estadoCaso" class="form-label">Estado del Caso</label>
         <select class="form-select" formControlName="estadoCaso" required>
-          <option value="abierto">Abierto</option>
-          <option value="en_proceso">En Proceso</option>
-          <option value="cerrado">Cerrado</option>
+          <option value="Abierto">Abierto</option>
+          <option value="En proceso">En Proceso</option>
+          <option value="Cerrado">Cerrado</option>
         </select>
       </div>
 
@@ -112,6 +112,12 @@
         [urlPhoto]="b64Img"
       >
       </shared-upload-image>
+      </div>
+
+      <div class="my-4">
+        <shared-upload-file
+          (uploadComplete)="setFiles($event)"
+        ></shared-upload-file>
       </div>
 
       <div class="text-center">

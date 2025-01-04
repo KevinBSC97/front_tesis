@@ -29,7 +29,9 @@ export class CasosRealizadosComponent {
     nombreCliente: '',
     fechaCita: new Date(),
     nombreAbogado: '',
-    imagenes: []
+    imagenes: [],
+    archivos: [],
+    nombreArchivo: []
   };
 
   selectedCasoUser: CasoDTO = this.defaultCaso;

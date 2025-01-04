@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CasoDTO } from 'src/app/interfaces/caso';
 import { CitaDTO } from 'src/app/interfaces/citas';
+import { FileUpload } from 'src/app/interfaces/file';
 import { EspecialidadDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
 import { CasosService } from 'src/app/services/casos.service';
@@ -23,6 +24,7 @@ export class CrearCasoComponent {
   b64Img: string = "";
   isLoading: boolean = false;
   imagenes: string[]=[];
+  archivosBase64: FileUpload = { archivos: [], nombres: [] };
 
   @Output() crearCaso = new EventEmitter<CasoDTO>();
 
@@ -58,6 +60,10 @@ export class CrearCasoComponent {
 
   resetFile(event: boolean){
 
+  }
+
+  setFiles(files: FileUpload) {
+    this.archivosBase64 = files;
   }
 
   cargarCitasAceptadas(): void {
@@ -108,12 +114,15 @@ export class CrearCasoComponent {
         nombreCliente: this.selectedCita.nombreCliente || '',
         nombreAbogado: this.selectedCita.nombreAbogado || '',
         fechaCita: new Date(this.selectedCita.fechaHora),
-        imagenes: this.imagenes
+        imagenes: this.imagenes,
+        archivos: this.archivosBase64.archivos.map(file => file.content),
+        nombreArchivo: this.archivosBase64.archivos.map(file => file.name)
       };
 
       this.showLoading = true;
       this.casosService.crearCaso(casoData).subscribe({
         next: (response) => {
+          console.log(casoData);
           this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Caso creado exitosamente' })
           console.log("Caso creado con éxito", response);
           //this.router.navigate(['/casos-realizados']);
