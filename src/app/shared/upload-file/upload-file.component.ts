@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { FileUpload } from 'src/app/interfaces/file';
 
 @Component({
@@ -13,7 +13,33 @@ export class UploadFileComponent {
   fileUrls: { url: string; name: string }[] = [];
 
   @Output() uploadComplete = new EventEmitter<FileUpload>();
+  @Output() deleteFileEvent = new EventEmitter<boolean>();
   @Input() disabled: boolean = false;
+  @Input() initialFiles: { name: string; type: string; content: string}[] = [];
+
+  ngOnInit(){
+    if(this.initialFiles && this.initialFiles.length > 0){
+      this.filesBase64 = [...this.initialFiles];
+      this.fileNames = this.initialFiles.map(file => file.name);
+
+      // Emitimos los archivos al inicializar el componente
+      this.uploadComplete.emit({
+        archivos: this.filesBase64,
+        nombres: this.fileNames
+      });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["initialFiles"] && changes["initialFiles"].currentValue) {
+      this.filesBase64 = [...changes["initialFiles"].currentValue];
+      this.fileNames = this.initialFiles.map(file => file.name);
+      this.uploadComplete.emit({
+        archivos: this.filesBase64,
+        nombres: this.fileNames
+      });
+    }
+  }
 
   selectFiles(event: Event): void {
     const input = event.target as HTMLInputElement;

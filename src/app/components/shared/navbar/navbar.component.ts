@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NotificacionDTO } from 'src/app/interfaces/notificacion';
 import { AuthService } from 'src/app/services/auth.service';
 import { NotificacionesService } from 'src/app/services/notificaciones.service';
 
@@ -11,17 +12,55 @@ import { NotificacionesService } from 'src/app/services/notificaciones.service';
 export class NavbarComponent {
   username: string = 'Invitado';  // Valor por defecto para cuando no hay usuario logueado
   displaySidebar: boolean = false;
-  notificacionesCount: number = 0;
+  notificaciones: NotificacionDTO[] = [];
+  notificacionesNoLeidas: number = 0;
 
   constructor(private router: Router, private authService: AuthService, private notificacionService: NotificacionesService) {
-    this.preventBackButton();
+
   }
 
   ngOnInit() {
     this.authService.currentUser.subscribe(user => {
       this.username = user ? `${user.nombreUsuario}` : 'Invitado';  // Actualiza el nombre de usuario basado en el estado actual del login
+      if(user){
+        this.cargarNotificaciones(user.usuarioId);
+        this.cargarRecordatorios(user.usuarioId);
+      }
       //this.loadNotificaciones();
     });
+  }
+
+  cargarNotificaciones(usuarioId: number){
+    this.notificacionService.getNotificacionesPorUsuario(usuarioId).subscribe({
+      next: (notificaciones) => {
+        this.notificaciones = notificaciones;
+        this.notificacionesNoLeidas = notificaciones.filter((n) => !n.leida).length;
+      },
+      error: (error) => console.log('Error al obtener las notificaciones: ', error)
+    });
+  }
+
+  cargarRecordatorios(usuarioId: number) {
+    this.notificacionService.getRecordatoriosPendientes(usuarioId).subscribe({
+      next: (recordatorios) => {
+        // Agregar recordatorios como notificaciones
+        this.notificaciones = [...this.notificaciones, ...recordatorios];
+        this.notificacionesNoLeidas += recordatorios.length;
+      },
+      error: (error) => console.log('Error al obtener recordatorios: ', error),
+    });
+  }
+
+  marcarComoLeida(notificacion: NotificacionDTO){
+    if(!notificacion.leida){
+      this.notificacionService.marcarNotificacionComoLeida(notificacion.notificacionId).subscribe({
+        next: () => {
+          notificacion.leida = true;
+          this.notificacionesNoLeidas = this.notificaciones.filter((n) => !n.leida).length;
+        },
+        error: (error) => console.log('Error al marcar como leida: ', error)
+      });
+    }
   }
 
   logout() {
@@ -31,19 +70,5 @@ export class NavbarComponent {
 
   toggleSidebar() {
     this.displaySidebar = !this.displaySidebar;
-  }
-
-  preventBackButton() {
-    history.pushState("", "", location.href);
-    window.onpopstate = () => {
-      history.go(1);
-      if (!this.authService.isLoggedIn()) {
-        this.router.navigate(['/login']);
-      }
-    };
-  }
-
-  onNotificationClick() {
-    // Manejo de clic en notificación
   }
 }

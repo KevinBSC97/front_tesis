@@ -24,6 +24,12 @@
           <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('clientes')">
             <i class="pi pi-user me-3 fw-bold"></i> Clientes
           </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('citas')">
+            <i class="pi pi-calendar me-3 fw-bold"></i> Citas
+          </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('casos')">
+            <i class="pi pi-briefcase me-3 fw-bold"></i> Casos
+          </li>
         </ul>
       </div>
       <div class="text-center mt-4">
@@ -80,7 +86,7 @@
                 <h5>Total de Citas Creadas</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">Total</p>
+                <p class="card-text">2</p>
               </div>
             </div>
           </div>
@@ -90,23 +96,34 @@
                 <h5>Total de Casos</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">Total</p>
+                <p class="card-text">1</p>
               </div>
             </div>
           </div>
-        </div>
-        <div class="container mt-4">
-          <button class="btn btn-primary" (click)="exportarExcel()">Exportar a Excel</button>
         </div>
       </div>
 
       <!-- Sección de Administradores -->
       <div *ngIf="currentSection === 'administradores'">
         <h2 class="mb-3">Gestión de Administradores</h2>
-        <button class="btn btn-success mb-3" (click)="displayModalAdmin = true">
-          <i class="pi pi-plus"></i> Registrar Administrador
-        </button>
-        <p-table [value]="administradores" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-success" (click)="displayModalAdmin = true">
+            <i class="pi pi-plus"></i> Registrar Administrador
+          </button>
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextAdmin"
+              (input)="filterAdministradores()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredAdmin" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
                 <th>Identificacion</th>
@@ -142,10 +159,24 @@
       <!-- Repite para Abogados y Clientes -->
       <div *ngIf="currentSection === 'abogados'">
         <h2 class="mb-3">Gestión de Abogados</h2>
-        <button class="btn btn-success mb-3" (click)="displayModalAbogado = true">
-          <i class="pi pi-plus"></i> Registrar Abogado
-        </button>
-        <p-table [value]="abogados" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-success" (click)="displayModalAbogado = true">
+            <i class="pi pi-plus"></i> Registrar Abogado
+          </button>
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextAbogado"
+              (input)="filterAbogados()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredAbogado" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
                 <th>Identificacion</th>
@@ -181,10 +212,24 @@
       </div>
       <div *ngIf="currentSection === 'clientes'">
         <h2 class="mb-3">Gestión de Clientes</h2>
-        <button class="btn btn-success mb-3" (click)="displayModalCliente = true">
-          <i class="pi pi-plus"></i> Registrar Cliente
-        </button>
-        <p-table [value]="clientes" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-success" (click)="displayModalCliente = true">
+            <i class="pi pi-plus"></i> Registrar Cliente
+          </button>
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchText"
+              (input)="filterClientes()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredUsers" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
                 <th>Identificacion</th>
@@ -216,52 +261,253 @@
           </ng-template>
         </p-table>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- <shared-spinner *ngIf="showLoading"></shared-spinner> -->
-<!-- <div class="container mt-4">
-    <h2 class="text-center mb-3">Panel de Administrador</h2>
-    <button type="button" class="btn btn-success mb-3" (click)="displayModal = true">
-        <i class="pi pi-plus"></i> Registrar Nuevo Usuario
-    </button>
-
-    <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll">
-        <ng-template pTemplate="header">
+      <div *ngIf="currentSection === 'citas'">
+        <h2 class="mb-3">Gestión de Citas</h2>
+        <div class="d-flex justify-content-between mb-3">
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextCitas"
+              (input)="filterCitas()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredCitas" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
             <tr>
-                <th>Id</th>
-                <th>Identificacion</th>
-                <th>Nombre de Usuario</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Especialidad</th>
+                <th>Descripcion</th>
+                <th>Abogado</th>
+                <th>Cliente</th>
+                <th>Fecha y Hora de la Cita</th>
+                <th>Duración</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-usuario>
+          <ng-template pTemplate="body" let-cita>
             <tr>
-                <td>{{ usuario.usuarioId }}</td>
-                <td>{{ usuario.identificacion }}</td>
-                <td>{{ usuario.nombreUsuario }}</td>
-                <td>{{ usuario.nombre }}</td>
-                <td>{{ usuario.apellido }}</td>
-                <td>{{ usuario.email }}</td>
-                <td>{{ usuario.rolId === 1 ? 'Admin' : (usuario.rolId === 2 ? 'Cliente' : 'Abogado') }}</td>
-                <td>{{ getEspecialidadDescripcion(usuario.especialidadId) }}</td>
-                <td>{{ usuario.estado }}</td>
-                <td>
-                    <button class="btn btn-primary btn-circle" (click)="editUser(usuario.usuarioId)" title="Editar Usuario">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
+              <td>{{ cita.descripcion }}</td>
+              <td>{{ cita.nombreAbogado }}</td>
+              <td>{{ cita.nombreCliente }}</td>
+              <td>{{ cita.fechaHora | date:'dd/MM/yyyy' }}</td>
+              <td>{{ cita.duracion }} Minutos</td>
+              <td>{{ cita.estado }}</td>
+              <td><button
+                class="btn btn-primary me-3"
+                title="Editar cita"
+                (click)="editCita(cita)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn btn-danger" title="Eliminar cita">
+                <i class="pi pi-trash"></i>
+              </button></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="currentSection === 'casos'">
+        <h2 class="mb-3">Gestión de Casos</h2>
+        <div class="d-flex justify-content-between mb-3">
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextCasos"
+              (input)="filterCasos()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredCasos" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Asunto</th>
+                <th>Cliente</th>
+                <th>Abogado</th>
+                <th>Fecha de registro del caso</th>
+                <th>Estado</th>
+                <th>Fecha de finalizacion</th>
+                <th>Acciones</th>
             </tr>
         </ng-template>
-    </p-table>
-</div> -->
+          <ng-template pTemplate="body" let-caso>
+            <tr>
+              <td>{{ caso.asunto }}</td>
+              <td>{{ caso.nombreCliente }}</td>
+              <td>{{ caso.nombreAbogado }}</td>
+              <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+              <td>{{ caso.estado }}</td>
+              <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
+              <td><button
+                class="btn btn-warning me-3"
+                title="Ver Caso"
+                (click)="showCaseDetails(caso)"
+              >
+                <i class="pi pi-eye"></i>
+              </button>
+              <button class="btn btn-info" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
+                <i class="pi pi-key"></i>
+              </button></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>
+<p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
+  <div *ngIf="selectedCaso">
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+          <th>Asunto</th>
+          <td>{{ selectedCaso.asunto }}</td>
+        </tr>
+        <tr>
+          <th>Descripción</th>
+          <td>{{ selectedCaso.descripcion }}</td>
+        </tr>
+        <tr>
+          <th>Cliente</th>
+          <td>{{ selectedCaso.nombreCliente }}</td>
+        </tr>
+        <tr>
+          <th>Abogado</th>
+          <td>{{ selectedCaso.nombreAbogado }}</td>
+        </tr>
+        <tr>
+          <th>Fecha del Caso</th>
+          <td>{{ selectedCaso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+        </tr>
+        <tr>
+          <th>Estado</th>
+          <td>{{ selectedCaso.estado }}</td>
+        </tr>
+        <tr>
+          <th>Duracion del Caso</th>
+          <td>{{ selectedCaso.duracion }} Dias</td>
+        </tr>
+        <tr>
+          <th>Fecha de Finalizacion del caso</th>
+          <td>{{ selectedCaso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
+        </tr>
+        <tr>
+          <th>Progreso del Caso</th>
+          <td>{{ selectedCaso.progreso }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="group-images">
+    <div *ngFor="let imagen of selectedCaso?.imagenes">
+      <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
+      </shared-image-loader>
+    </div>
+  </div>
+  <div class="detalles-archivos">
+    <h4>Archivos Adjuntos</h4>
+    <div *ngIf="(selectedCaso?.archivos?.length ?? 0) > 0; else noArchivos">
+      <div *ngFor="let archivo of selectedCaso?.archivos; let i = index">
+        <shared-file-loader
+          [file]="archivo"
+          [fileName]="selectedCaso?.nombreArchivo?.[i] ?? ''"
+          [fileType]="extraerTipoArchivo(archivo)">
+        </shared-file-loader>
+      </div>
+    </div>
+    <ng-template #noArchivos>
+      <p>No hay archivos adjuntos</p>
+    </ng-template>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Descargar" icon="pi pi-download" class="p-button-success" (click)="downloadPDF()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeModal()"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Seguimiento del Caso" [(visible)]="displaySeguimientoModal" [modal]="true" [style]="{ width: '50vw' }">
+  <form [formGroup]="seguimientoForm">
+    <div class="form-group mb-3">
+      <label for="observacion">Observación</label>
+      <textarea id="observacion" class="form-control" rows="4" formControlName="observacion"></textarea>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="progreso" class="form-label">Progreso del Caso</label>
+      <p-slider
+        formControlName="progreso"
+        [step]="1"
+        [min]="0"
+        [max]="100"
+      ></p-slider>
+      <p>{{ progreso }}%</p>
+    </div>
+
+    <p-footer>
+      <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarSeguimiento()"></button>
+      <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="displaySeguimientoModal = false"></button>
+    </p-footer>
+  </form>
+</p-dialog>
+
+<p-dialog header="Editar Cita" [(visible)]="displayEditModalCita" [style]="{width: '50vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="descripcion">Descripcion de la Cita</label>
+    <input type="text" pInputText [(ngModel)]="selectCitaUser.descripcion" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="especialidad">Especialidad</label>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="selectCitaUser.especialidad"
+      class="form-control"
+      disabled
+    />
+  </div>
+  <div class="form-group mb-3">
+    <label for="cliente">Nombre del Cliente</label>
+    <input type="text" pInputText [(ngModel)]="selectCitaUser.nombreCliente" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="abogado">Seleccione un Abogado</label>
+    <p-dropdown
+      [options]="listaAbogados"
+      [(ngModel)]="selectCitaUser.abogadoId"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Seleccione un abogado"
+      class="w-100"
+    ></p-dropdown>
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaCita">Fecha de la Cita</label>
+    <input type="text" pInputText [(ngModel)]="selectCitaUser.fechaHora" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="estado">Estado de la cita</label>
+    <input type="text" pInputText [(ngModel)]="selectCitaUser.estado" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="motivo">Motivo</label>
+    <input type="text" pInputText [(ngModel)]="selectCitaUser.motivo" class="form-control" disabled>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCita()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>
+  </p-footer>
+</p-dialog>
 
 <p-toast></p-toast>
 <p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true">

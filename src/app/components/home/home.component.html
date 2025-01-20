@@ -31,7 +31,7 @@
                 <h5>Total de citas</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text"> Total </p>
+                <p class="card-text">{{ totalCitas }}</p>
               </div>
             </div>
           </div>
@@ -41,15 +41,51 @@
                 <h5>Total de casos</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text"> Total </p>
+                <p class="card-text">{{ totalCasos }}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div *ngIf="currentSection === 'casos'">
-        <h2 class="mb-3">Casos a su nombre</h2>
-        <app-casos-realizados></app-casos-realizados>
+        <h2 class="mb-3">Mis casos</h2>
+        <!-- <app-casos-realizados></app-casos-realizados> -->
+        <p-table [value]="casos" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Asunto</th>
+              <th>Cliente</th>
+              <th>Abogado</th>
+              <th>Fecha de registro del caso</th>
+              <th>Duracion del caso</th>
+              <th>Fecha de Finalizacion del caso</th>
+              <th>Progreso del caso</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-caso>
+            <tr>
+              <td>{{ caso.asunto }}</td>
+              <td>{{ caso.nombreCliente }}</td>
+              <td>{{ caso.nombreAbogado }}</td>
+              <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+              <td>{{ caso.duracion }} Días</td>
+              <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
+              <td>{{ caso.progreso }} % </td>
+              <td>
+                <button class="btn btn-warning me-3" title="Ver Caso" (click)="showCaseDetails(caso)">
+                  <i class="pi pi-eye"></i>
+                </button>
+                <button class="btn btn-primary me-3" title="Editar Caso" (click)="editCaso(caso)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="displaySeguimientoModal = true">
+                  <i class="pi pi-key"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
       <div *ngIf="currentSection === 'citas'">
         <h2 class="mb-3">Citas realizadas</h2>
@@ -61,7 +97,7 @@
             <tr>
               <th>Descripcion</th>
               <th>Abogado</th>
-              <th>Fecha y Hora</th>
+              <th>Fecha y Hora de la Cita</th>
               <th>Duración</th>
               <th>Estado</th>
             </tr>
@@ -70,14 +106,14 @@
             <tr>
               <td>{{ cita.descripcion }}</td>
               <td>{{ cita.nombreAbogado }}</td>
-              <td>{{ cita.fechaHora | date: 'dd/MM/yyyy'}}</td>
+              <td>{{ cita.fechaHora | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
               <td>{{ cita.duracion }} Minutos</td>
               <td>{{ cita.estado }}</td>
             </tr>
           </ng-template>
         </p-table>
         <!-- <app-citas></app-citas> -->
-         <p-toast></p-toast>
+         <!-- <p-toast></p-toast> -->
          <p-dialog [visible]="displayModalCrearCita" [modal]="true" [style]="{ width: '50rem'}" [closable]="true">
             <ng-template pTemplate="header">
               <h4>Crear Cita</h4>
@@ -91,6 +127,146 @@
     </div>
   </div>
 </div>
+
+<p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
+  <div *ngIf="selectedCaso">
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+          <th>Asunto</th>
+          <td>{{ selectedCaso.asunto }}</td>
+        </tr>
+        <tr>
+          <th>Descripción</th>
+          <td>{{ selectedCaso.descripcion }}</td>
+        </tr>
+        <tr>
+          <th>Cliente</th>
+          <td>{{ selectedCaso.nombreCliente }}</td>
+        </tr>
+        <tr>
+          <th>Abogado</th>
+          <td>{{ selectedCaso.nombreAbogado }}</td>
+        </tr>
+        <tr>
+          <th>Fecha del Caso</th>
+          <td>{{ selectedCaso.fechaRegistro }}</td>
+        </tr>
+        <tr>
+          <th>Estado</th>
+          <td>{{ selectedCaso.estado }}</td>
+        </tr>
+        <tr>
+          <th>Duracion del Caso</th>
+          <td>{{ selectedCaso.duracion }} Dias</td>
+        </tr>
+        <tr>
+          <th>Fecha de Finalizacion del caso</th>
+          <td>{{ selectedCaso.fechaFinalizacion | date:'dd/MM/yyyy'}}</td>
+        </tr>
+        <tr>
+          <th>Progreso del Caso</th>
+          <td>{{ selectedCaso.progreso }} %</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="group-images">
+    <div *ngFor="let imagen of selectedCaso?.imagenes">
+      <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
+      </shared-image-loader>
+    </div>
+  </div>
+  <div class="detalles-archivos">
+    <h4>Archivos Adjuntos</h4>
+    <div *ngIf="(selectedCaso?.archivos?.length ?? 0) > 0; else noArchivos" class="archivo-grid">
+      <div *ngFor="let archivo of selectedCaso?.archivos; let i = index" class="archivo-item">
+        <shared-file-loader
+          [file]="archivo"
+          [fileName]="selectedCaso?.nombreArchivo?.[i] ?? ''"
+          [fileType]="extraerTipoArchivo(archivo)">
+        </shared-file-loader>
+      </div>
+    </div>
+    <ng-template #noArchivos>
+      <p>No hay archivos adjuntos</p>
+    </ng-template>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Descargar" icon="pi pi-download" class="p-button-success" (click)="downloadPDF()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeModal()"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Editar Caso" [(visible)]="displayEditModal" [style]="{width: '50vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="asunto">Asunto</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.asunto" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="descripcion">Descripción</label>
+    <textarea pInputTextarea [(ngModel)]="selectedCasoUser.descripcion" class="form-control" rows="4" disabled=""></textarea>
+  </div>
+  <div class="form-group mb-3">
+    <label for="cliente">Cliente</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreCliente" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="abogado">Abogado</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreAbogado" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaCita">Fecha</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaRegistro" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="estado">Estado</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.estado" class="form-control" disabled>
+  </div>
+  <div class="my-4">
+    <shared-upload-image
+    [required]="true"
+    [label]="'Cargar imágenes'"
+    (deletePictureEvent)="resetFile($event)"
+    [bottomLabel]="'Formatos permitidos'"
+    [bottomLabelExtensionAllowed]="'png, jpeg, jpg'"
+    [accept]="'image/*'"
+    (eventUpload)="setFile($event)"
+    [initialImages]="selectedCasoUser?.imagenes ?? []"
+  >
+  </shared-upload-image>
+  </div>
+  <div class="my-4">
+    <shared-upload-file
+      [initialFiles]="transformarArchivos(selectedCasoUser?.archivos ?? [], selectedCasoUser?.nombreArchivo ?? [])"
+      (uploadComplete)="uploadFiles($event)"
+    ></shared-upload-file>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Seguimiento del Caso" [(visible)]="displaySeguimientoModal" [modal]="true" [style]="{ width: '50vw' }">
+  <form [formGroup]="seguimientoForm">
+    <div class="form-group mb-3">
+      <label for="observacion">Observación</label>
+      <textarea id="observacion" class="form-control" rows="4" formControlName="observacion"></textarea>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="progreso">Progreso del Caso</label>
+      <p-slider formControlName="progreso" [step]="10" [min]="0" [max]="100"></p-slider>
+      <p>{{ progreso }}%</p>
+    </div>
+
+    <p-footer>
+      <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success"></button>
+      <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger"></button>
+    </p-footer>
+  </form>
+</p-dialog>
 <!-- <div class="container mt-5">
     <h2 class="text-center mb-4">Panel de Cliente</h2>
     <div class="row">

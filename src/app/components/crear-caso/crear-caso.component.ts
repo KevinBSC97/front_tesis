@@ -26,6 +26,8 @@ export class CrearCasoComponent {
   imagenes: string[]=[];
   archivosBase64: FileUpload = { archivos: [], nombres: [] };
 
+  progreso: number = 0;
+
   @Output() crearCaso = new EventEmitter<CasoDTO>();
 
   constructor(
@@ -45,7 +47,10 @@ export class CrearCasoComponent {
       especialidad: [{ value: '', disabled: true }],
       responsable: [{ value: '', disabled: true }],
       asuntoCaso: [''],  // Asegúrate que esto es requerido
-      estadoCaso: ['']  // y también esto
+      estadoCaso: [''],  // y también esto
+      duracion: ['', [Validators.required, Validators.min(1)]],
+      fechaFinalizacion: [{value: '', disabled: true}],
+      progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
   }
 
@@ -64,6 +69,22 @@ export class CrearCasoComponent {
 
   setFiles(files: FileUpload) {
     this.archivosBase64 = files;
+  }
+
+  calcularFechaFinalizacion(): void {
+    const duracion = this.form.get('duracion')?.value; // Duración en días
+    const fechaRegistro = new Date(); // Fecha actual
+    if (duracion > 0) {
+      // Calcula la fecha final
+      const fechaFinalizacion = new Date(fechaRegistro);
+      fechaFinalizacion.setDate(fechaRegistro.getDate() + parseInt(duracion, 10));
+
+      // Formatea la fecha al formato 'yyyy-MM-dd' requerido por el input de tipo date
+      const fechaFinalizacionISO = fechaFinalizacion.toISOString().split('T')[0];
+
+      // Actualiza el valor del campo en el formulario
+      this.form.patchValue({ fechaFinalizacion: fechaFinalizacionISO });
+    }
   }
 
   cargarCitasAceptadas(): void {
@@ -116,8 +137,13 @@ export class CrearCasoComponent {
         fechaCita: new Date(this.selectedCita.fechaHora),
         imagenes: this.imagenes,
         archivos: this.archivosBase64.archivos.map(file => file.content),
-        nombreArchivo: this.archivosBase64.archivos.map(file => file.name)
+        nombreArchivo: this.archivosBase64.archivos.map(file => file.name),
+        duracion: this.form.get('duracion')!.value,
+        fechaFinalizacion: this.form.get('fechaFinalizacion')!.value,
+        progreso: this.form.get('progreso')!.value
       };
+
+      console.log('data caso: ', casoData);
 
       this.showLoading = true;
       this.casosService.crearCaso(casoData).subscribe({

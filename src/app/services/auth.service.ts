@@ -23,7 +23,7 @@ export class AuthService {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  login(credentials: { NombreUsuario: string, Contraseña: string }): Observable<any> {
+  login(credentials: { nombreUsuario: string, password: string }): Observable<any> {
     return this.http.post<ResponseDTO>(`${this.api}/usuarios/login`, credentials, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'

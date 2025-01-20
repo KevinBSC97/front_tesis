@@ -15,4 +15,8 @@ export class EspecialidadService {
   getEspecialidades(): Observable<EspecialidadDTO[]> {
     return this.http.get<EspecialidadDTO[]>(`${this.api}/especialidades`);
   }
+
+  getAbogadosPorEspecialidad(especialidadId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/especialidades/${especialidadId}/abogados`);
+  }
 }

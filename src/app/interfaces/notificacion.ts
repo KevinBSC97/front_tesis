@@ -1,6 +1,7 @@
 export interface NotificacionDTO {
-    notificacionId: number;
-    mensaje: string;
-    fecha: Date;
-    leida: boolean;
-  }
+  notificacionId: number;
+  usuarioId: number;
+  mensaje: string;
+  fecha: Date;
+  leida: boolean;
+}

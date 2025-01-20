@@ -29,7 +29,8 @@ export class CitasComponent implements OnInit {
     estado: 'Pendiente',
     especialidad: '',
     nombreAbogado: '',
-    duracion: 0
+    duracion: 0,
+    especialidadId: 0
   };
   citaForm!: FormGroup;
   minDate!: string;

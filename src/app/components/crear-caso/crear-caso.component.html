@@ -99,6 +99,42 @@
         </select>
       </div>
 
+      <div class="mb-3">
+        <label for="duracion" class="form-label">Duración del Caso (en días)</label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="duracion"
+          min="1"
+          (change)="calcularFechaFinalizacion()"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="fechaFinalizacion" class="form-label">Fecha de Finalización</label>
+        <input
+          type="date"
+          class="form-control"
+          id="fechaFinalizacion"
+          formControlName="fechaFinalizacion"
+          readonly
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="progreso" class="form-label">Progreso del Caso</label>
+        <p-slider
+          [(ngModel)]="progreso"
+          formControlName="progreso"
+          [style]="{ width: '100%' }"
+          [min]="0"
+          [max]="100"
+          [step]="1"
+        ></p-slider>
+        <div class="text-center">{{ progreso }}%</div>
+      </div>
+
       <div class="my-4">
         <shared-upload-image
         [required]="true"

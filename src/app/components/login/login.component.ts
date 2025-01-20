@@ -43,8 +43,8 @@ export class LoginComponent implements OnInit {
     }
 
     const loginData = {
-      NombreUsuario: this.loginForm.get('username')?.value,
-      Contraseña: this.loginForm.get('password')?.value
+      nombreUsuario: this.loginForm.get('username')?.value,
+      password: this.loginForm.get('password')?.value
     };
 
     this.showLoading = true;

@@ -19,6 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { MenuModule} from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
+import { SliderModule } from 'primeng/slider';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AdminComponent } from './components/admin/admin.component';
@@ -87,7 +88,8 @@ import { FileLoaderComponent } from './shared/file-loader/file-loader.component'
     TooltipModule,
     MenuModule,
     BadgeModule,
-    AvatarModule
+    AvatarModule,
+    SliderModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]

@@ -1,3 +1,4 @@
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CasoDTO } from 'src/app/interfaces/caso';
@@ -7,6 +8,11 @@ import { CasosService } from 'src/app/services/casos.service';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { CitasService } from 'src/app/services/citas.service';
+import { FileUpload } from 'src/app/interfaces/file';
+import { SeguimientoService } from 'src/app/services/seguimiento.service';
+import { MessageService } from 'primeng/api';
+import { DocumentoService } from 'src/app/services/documento.service';
 
 @Component({
   selector: 'app-abogados',
@@ -16,11 +22,24 @@ import autoTable from 'jspdf-autotable';
 export class AbogadosComponent implements OnInit{
   currentSection: string = 'inicio';
   displayModalCrearCaso: boolean = false;
+  displayModalCargarDocumento: boolean = false;
   casos: CasoDTO[] = [];
   showLoading: boolean = false;
   selectedCaso: CasoDTO | null = null;
   displayModal: boolean = false;
   displayEditModal: boolean = false;
+  displaySeguimientoModal = false;
+
+  archivosBase64: FileUpload = { archivos: [], nombres: [] };
+
+  totalCitas: number = 0;
+  totalCitasPendientes: number = 0;
+  totalCitasAceptadas: number = 0;
+  totalCitasRechazadas: number = 0;
+  progreso = 0;
+
+  documentForm!: FormGroup;
+  seguimientoForm!: FormGroup;
 
   defaultCaso: CasoDTO = {
     casoId: 0,
@@ -41,13 +60,37 @@ export class AbogadosComponent implements OnInit{
 
   selectedCasoUser: CasoDTO = this.defaultCaso;
 
+  tiposDocumentos: { label: string; value: string }[] = [];
 
   @ViewChild(CrearCasoComponent) crearCasoComponent!: CrearCasoComponent;
 
-  constructor(private authService: AuthService, private router: Router, private casosService: CasosService){}
+  constructor(private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private casosService: CasosService,
+    private citasService: CitasService,
+    private seguimientoService: SeguimientoService,
+    private documentoService: DocumentoService,
+    private messageService: MessageService){}
 
   ngOnInit(){
+    this.seguimientoForm = this.fb.group({
+      observacion: ['', Validators.required],
+      progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+    });
+    this.tiposDocumentos = [
+      { label: 'Legal', value: 'legal' },
+      { label: 'Leyes', value: 'leyes' },
+      { label: 'Contratos', value: 'contratos' },
+      { label: 'Otros', value: 'otros' },
+    ];
+    this.documentForm = this.fb.group({
+      nombreDocumento: ['', [Validators.required, Validators.minLength(3)]],
+      tipoDocumento: ['', Validators.required]
+    });
     this.loadCasos();
+    this.obtenerTotalCitas();
+    this.cargarCitasPorEstado();
   }
 
   setFile(listB64: string[]) {
@@ -58,6 +101,10 @@ export class AbogadosComponent implements OnInit{
   resetFile(event: boolean){
 
   }
+
+  setFiles(files: FileUpload) {
+      this.archivosBase64 = files;
+    }
 
   visualizarArchivo(base64Content: string): void {
     const blob = this.base64ToBlob(base64Content, 'application/pdf');
@@ -105,8 +152,115 @@ export class AbogadosComponent implements OnInit{
     }
   }
 
+  guardarDocumento(event: Event) {
+    event.preventDefault(); // Previene el envío del formulario por defecto.
+
+    if (this.documentForm.valid && this.archivosBase64.archivos.length > 0) {
+      const documentoData = {
+        nombre: this.documentForm.value.nombreDocumento,
+        tipo: this.documentForm.value.tipoDocumento,
+        contenido: this.archivosBase64.archivos[0].content,
+        usuarioId: this.authService.getCurrentUser()?.usuarioId,
+      };
+      this.documentoService.agregarDocumento(documentoData).subscribe({
+        next: (response) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Documento Guardado',
+            detail: 'El documento fue guardado exitosamente',
+          });
+          this.displayModalCargarDocumento = false;
+          this.documentForm.reset();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al guardar el documento',
+          });
+        },
+      });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Por favor, complete todos los campos para cargar un archivo',
+      });
+    }
+  }
+
+  obtenerTotalCitas(){
+    const abogadoId = this.authService.getCurrentUser()?.usuarioId;
+    if(abogadoId){
+      this.citasService.getTotalCitasAbogado(abogadoId).subscribe({
+        next: (data) => {
+          console.log('total citas: ', data);
+          this.totalCitas = data.cantidadCitas;
+        }
+      })
+    }
+  }
+
+  cargarCitasPorEstado() {
+    const abogadoId = this.authService.getCurrentUser()?.usuarioId;
+    if (abogadoId) {
+      this.citasService.getCitasPorEstado(abogadoId).subscribe({
+        next: (data) => {
+          console.log('Citas por estado:', data);
+          this.totalCitasPendientes = data.pendientes;
+          this.totalCitasAceptadas = data.aceptadas;
+          this.totalCitasRechazadas = data.rechazadas;
+        },
+        error: (error) => console.log('Error al cargar citas por estado:', error)
+      });
+    }
+  }
+
+  abrirModalSeguimiento(caso: any) {
+    this.selectedCasoUser = caso;
+    this.progreso = caso.progreso || 0;
+    this.seguimientoForm.patchValue({
+      observacion: '',
+      progreso: this.progreso,
+    });
+    this.displaySeguimientoModal = true;
+  }
+
+
+  guardarSeguimiento(){
+    if(this.seguimientoForm.valid){
+      const seguimientoData = {
+        casoId: this.selectedCasoUser.casoId,
+        usuarioId: this.authService.getCurrentUser()?.usuarioId,
+        observacion: this.seguimientoForm.value.observacion,
+        progreso: this.seguimientoForm.value.progreso
+      };
+      this.seguimientoService.agregarSeguimiento(seguimientoData).subscribe({
+        next: (response) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Seguimiento Guardado',
+            detail: 'El seguimiento fue guardado exitosamente',
+          });
+          this.displaySeguimientoModal = false;
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al guardar el seguimiento',
+          })
+        }
+      })
+    }
+  }
+
   formularioCaso(){
     this.displayModalCrearCaso = true;
+  }
+
+  formularioDocumento(){
+    this.displayModalCargarDocumento = true;
   }
 
   crearCaso(nuevoCaso: CasoDTO){
@@ -131,39 +285,104 @@ export class AbogadosComponent implements OnInit{
 
   downloadPDF() {
     if (this.selectedCaso) {
-      const doc = new jsPDF();
+        const doc = new jsPDF();
+        let finalY = 30; // Posición inicial después del título
 
-      // Título
-      doc.setFontSize(18);
-      doc.text('Detalles del Caso', 14, 15);
+        // Título del Documento
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text('Detalles del Caso', 105, 15, { align: "center" });
 
-      // Datos a excluir (por ejemplo, IDs)
-      const excludedFields = ['casoId', 'abogadoId', 'clienteId', 'citaId'];
+        // Datos a excluir (como IDs y otros innecesarios)
+        const excludedFields = ['casoId', 'abogadoId', 'clienteId', 'citaId', 'imagenes', 'archivos', 'especialidadDescripcion', 'fechaCita', 'nombreArchivo'];
 
-      // Mapea los campos que deseas incluir en el PDF
-      const data = this.selectedCaso
-  ? Object.keys(this.selectedCaso)
-      .filter(key => !excludedFields.includes(key))
-      .map(key => [key, this.selectedCaso?.[key as keyof CasoDTO] ?? ''])
-  : [];
+        const fieldMapping: { [key: string]: string } = {
+            asunto: 'Asunto',
+            descripcion: 'Descripción',
+            nombreCliente: 'Cliente',
+            nombreAbogado: 'Abogado',
+            fechaRegistro: 'Fecha del Caso',
+            estado: 'Estado',
+            duracion: 'Duracion',
+            fechaFinalizacion: 'Fecha de finalizacion del caso',
+            progreso: 'Progreso'
+        };
 
-      // Agrega la tabla con los detalles
-      autoTable(doc, {
-        startY: 25,
-        head: [['Campo', 'Valor']],
-        body: data.map(row => row.map(item => {
-          if (Array.isArray(item)) {
-            return item.join(', ');  // Convierte arrays a string
-          } else if (item instanceof Date) {
-            return item.toLocaleDateString();  // Formatea fechas
-          } else {
-            return item.toString();  // Convierte cualquier otro tipo a string
-          }
-        }))
-      });
+        // Formateo y mapeo de los datos
+        const data = this.selectedCaso
+          ? Object.keys(this.selectedCaso)
+              .filter(key => !excludedFields.includes(key))
+              .map(key => [
+                fieldMapping[key] || key, // Mapea el nombre del campo
+                (() => {
+                  const value = this.selectedCaso?.[key as keyof CasoDTO];
+                  if (key === 'fechaRegistro') {
+                    // Manejo específico para el campo fechaRegistro
+                    if (value instanceof Date) {
+                      return value.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    }
+                    if (typeof value === 'string') {
+                      try {
+                        return new Date(value).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                      } catch {
+                        return value; // Devuelve el valor como está si no se puede convertir
+                      }
+                    }
+                    return ''; // Valor por defecto si no es ni Date ni string
+                  }
+                  // Manejo genérico para otros campos
+                  if (Array.isArray(value)) {
+                    return value.join(', ');
+                  }
+                  return value?.toString() ?? '';
+                })()
+              ])
+          : [];
 
-      // Guarda el PDF con un nombre dinámico
-      doc.save(`Detalles_Caso_${this.selectedCaso.casoId}.pdf`);
+        // Generar tabla con los datos
+        autoTable(doc, {
+            startY: finalY,
+            head: [['Campo', 'Valor']],
+            body: data,
+            styles: {
+                fontSize: 11,
+                cellPadding: 3,
+                minCellHeight: 10
+            },
+            headStyles: {
+                fillColor: [41, 128, 185],
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            margin: { top: 25, left: 15, right: 15 },
+            didDrawPage: (data) => {
+              finalY = data.cursor?.y ?? 30; // Actualizamos la posición final de la tabla
+            }
+        });
+
+        // Agregar imágenes
+        if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
+          let imgY = finalY + 10; // Espacio después de la tabla
+          this.selectedCaso.imagenes.forEach((base64Image: string) => {
+            const imgWidth = 50; // Ancho de la imagen
+            const imgHeight = 50; // Alto de la imagen
+
+            // Verificar si la imagen cabe en la página actual
+            if (imgY + imgHeight > doc.internal.pageSize.height) {
+              doc.addPage(); // Crear nueva página
+              imgY = 10; // Reiniciar posición en la nueva página
+            }
+
+            doc.addImage(base64Image, 'JPEG', 15, imgY, imgWidth, imgHeight);
+            imgY += imgHeight + 10; // Incrementar posición para la siguiente imagen
+          });
+        }
+
+        // Guardar el PDF con un nombre dinámico
+        doc.save(`Detalles_Caso_${this.selectedCaso.casoId}.pdf`);
     }
   }
 

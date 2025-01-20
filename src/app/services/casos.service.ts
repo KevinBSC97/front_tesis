@@ -29,7 +29,19 @@ export class CasosService {
     return this.http.get<CasoDTO[]>(`${this.api}/casos/abogado/${abogadoId}`);
   }
 
+  getCasosCliente(clienteId: number): Observable<CasoDTO[]>{
+    return this.http.get<CasoDTO[]>(`${this.api}/casos/cliente/${clienteId}`)
+  }
+
   updateCaso(caso: CasoDTO): Observable<void> {
     return this.http.put<void>(`${this.api}/casos/${caso.casoId}`, caso);
+  }
+
+  getTotalCasosCliente(clienteId: number): Observable<any>{
+    return this.http.get<any>(`${this.api}/casos/cantidad-casos/cliente/${clienteId}`);
+  }
+
+  obtenerCasos(): Observable<CasoDTO[]>{
+    return this.http.get<CasoDTO[]>(`${this.api}/casos`);
   }
 }
