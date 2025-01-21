@@ -48,4 +48,10 @@ export class CasosService {
   eliminarCaso(casoId: number): Observable<any>{
     return this.http.delete(`${this.api}/casos/eliminar-caso/${casoId}`)
   }
+
+  obtieneReporte(): Observable<Blob> {
+    return this.http.get(`${this.api}/casos/descargar-reporte`, {
+      responseType: 'blob' // Asegura que la respuesta sea tratada como un archivo binario
+    });
+  }
 }

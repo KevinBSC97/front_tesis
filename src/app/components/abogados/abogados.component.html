@@ -387,14 +387,33 @@
     <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreAbogado" class="form-control" disabled>
   </div>
   <div class="form-group mb-3">
-    <label for="fechaCita">Fecha</label>
+    <label for="fechaCita">Fecha de Registro del caso</label>
     <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaRegistro" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="duracion">Duracion del caso</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.duracion" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaFinalizacion">Fecha de finalizacion</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaFinalizacion" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="progreso" class="form-label">Progreso del Caso</label>
+    <p-slider
+      [(ngModel)]="selectedCasoUser.progreso"
+      [min]="0"
+      [max]="100"
+      [step]="1"
+      style="width: 100%"
+    ></p-slider>
+    <p class="text-center">{{ selectedCasoUser.progreso }}%</p>
   </div>
   <div class="form-group mb-3">
     <label for="estado">Estado</label>
     <select class="form-select" [(ngModel)]="selectedCasoUser.estado" required>
-      <option value="abierto">Abierto</option>
-      <option value="en_proceso">En Proceso</option>
+      <option value="Abierto">Abierto</option>
+      <option value="En proceso">En Proceso</option>
       <option value="cerrado">Cerrado</option>
     </select>
   </div>
@@ -411,6 +430,7 @@
   >
   </shared-upload-image>
   </div>
+
   <p-footer>
     <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>
     <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>

@@ -290,6 +290,33 @@ export class AdminComponent implements OnInit {
     );
   }
 
+  descargarReporte(){
+    this.casosService.obtieneReporte().subscribe({
+      next: (response: Blob) => {
+        const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ReporteCompleto.xlsx'; // Nombre del archivo
+        a.click();
+        window.URL.revokeObjectURL(url); // Libera la memoria asignada al objeto URL
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'El reporte se descargó correctamente'
+        });
+      },
+      error: (err) => {
+        console.error('Error al descargar el reporte:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo descargar el reporte'
+        });
+      }
+    });
+  }
+
   changeSection(section: string) {
     this.currentSection = section;
   }
