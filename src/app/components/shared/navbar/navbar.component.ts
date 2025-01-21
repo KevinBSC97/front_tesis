@@ -25,6 +25,8 @@ export class NavbarComponent {
       if(user){
         this.cargarNotificaciones(user.usuarioId);
         this.cargarRecordatorios(user.usuarioId);
+        this.cargarRecordatoriosAdministrador();
+        this.cargarRecordatoriosCasosPendientes();
       }
       //this.loadNotificaciones();
     });
@@ -49,6 +51,27 @@ export class NavbarComponent {
       },
       error: (error) => console.log('Error al obtener recordatorios: ', error),
     });
+  }
+
+  cargarRecordatoriosAdministrador() {
+    this.notificacionService.getRecordatoriosParaAdministradores().subscribe({
+      next: (recordatorios) => {
+        this.notificaciones = [...this.notificaciones, ...recordatorios];
+        this.notificacionesNoLeidas += recordatorios.length;
+      },
+      error: (error) => console.log('Error al obtener recordatorios para administradores: ', error),
+    });
+  }
+
+  cargarRecordatoriosCasosPendientes(){
+    this.notificacionService.getRecordatorioCasosPendientes().subscribe({
+      next: (casosPendientes) => {
+        console.log(casosPendientes);
+        this.notificaciones = [...this.notificaciones, ...casosPendientes];
+        this.notificacionesNoLeidas += casosPendientes.length;
+      },
+      error: (error) => console.log('Error al obtener recordatorios de casos pendientes: ', error),
+    })
   }
 
   marcarComoLeida(notificacion: NotificacionDTO){

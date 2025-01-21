@@ -30,4 +30,8 @@ export class UsuarioService {
   recuperarPassword(email: string): Observable<any>{
     return this.http.post(`${this.api}/citas/reset-password`, {email});
   }
+
+  eliminarUsuario(usuarioId: number): Observable<any>{
+    return this.http.delete(`${this.api}/usuarios/eliminar/${usuarioId}`)
+  }
 }

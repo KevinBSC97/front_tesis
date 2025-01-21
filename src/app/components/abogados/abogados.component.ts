@@ -13,6 +13,8 @@ import { FileUpload } from 'src/app/interfaces/file';
 import { SeguimientoService } from 'src/app/services/seguimiento.service';
 import { MessageService } from 'primeng/api';
 import { DocumentoService } from 'src/app/services/documento.service';
+import { DocumentoDTO } from 'src/app/interfaces/documentos';
+import { CitaDTO } from 'src/app/interfaces/citas';
 
 @Component({
   selector: 'app-abogados',
@@ -24,11 +26,19 @@ export class AbogadosComponent implements OnInit{
   displayModalCrearCaso: boolean = false;
   displayModalCargarDocumento: boolean = false;
   casos: CasoDTO[] = [];
+  documentos: DocumentoDTO[] = [];
   showLoading: boolean = false;
   selectedCaso: CasoDTO | null = null;
   displayModal: boolean = false;
   displayEditModal: boolean = false;
+  displayModalDocumento: boolean = false;
   displaySeguimientoModal = false;
+
+  searchTextCitas: string = '';
+  filteredCitas: CitaDTO[] = [];
+
+  searchTextCasos: string = '';
+  filteredCasos: CasoDTO[] = [];
 
   archivosBase64: FileUpload = { archivos: [], nombres: [] };
 
@@ -37,6 +47,13 @@ export class AbogadosComponent implements OnInit{
   totalCitasAceptadas: number = 0;
   totalCitasRechazadas: number = 0;
   progreso = 0;
+
+  citas: CitaDTO[] = [];
+
+  selectedDocumento: DocumentoDTO | null = null;
+
+  searchTextDocumentos: string = '';
+  filteredDocumentos: DocumentoDTO[] = [];
 
   documentForm!: FormGroup;
   seguimientoForm!: FormGroup;
@@ -71,6 +88,7 @@ export class AbogadosComponent implements OnInit{
     private citasService: CitasService,
     private seguimientoService: SeguimientoService,
     private documentoService: DocumentoService,
+    private documentosService: DocumentoService,
     private messageService: MessageService){}
 
   ngOnInit(){
@@ -89,6 +107,8 @@ export class AbogadosComponent implements OnInit{
       tipoDocumento: ['', Validators.required]
     });
     this.loadCasos();
+    this.loadCitas();
+    this.loadDocumentos();
     this.obtenerTotalCitas();
     this.cargarCitasPorEstado();
   }
@@ -137,6 +157,57 @@ export class AbogadosComponent implements OnInit{
     return match ? match[1] : 'application/octet-stream';  // Si no se encuentra, usa un genérico
   }
 
+  loadCitas(){
+    const userId = this.authService.getCurrentUser()?.usuarioId;
+    if(userId){
+      this.citasService.getCitasAsignadas(userId).subscribe({
+        next: (data) => {
+          this.citas = data;
+          this.filteredCitas = [...data]
+        }
+      })
+    }
+  }
+
+  eliminarCita(citaId: number){
+    if(confirm('¿Está seguro de que desea eliminar esta cita?')){
+      this.citasService.eliminarCita(citaId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cita eliminada',
+            detail: 'La cita fue eliminada correctamente'
+          });
+          this.loadCitas();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar la cita'
+          })
+        }
+      })
+    }
+  }
+
+  filterCitas(): void{
+    if(!this.searchTextCitas.trim()){
+      this.filteredCitas = [...this.citas];
+      return;
+    }
+
+    const searchTextLower = this.searchTextCitas.toLowerCase();
+    this.filteredCitas = this.citas.filter((cita) => {
+      return(
+        cita.descripcion.toLowerCase().includes(searchTextLower) ||
+        cita.nombreAbogado?.toLowerCase().includes(searchTextLower) ||
+        cita.nombreCliente?.toLowerCase().includes(searchTextLower) ||
+        cita.estado.toLowerCase().includes(searchTextLower)
+      );
+    })
+  }
+
   loadCasos(){
     this.showLoading = true;
     const abogadoId = this.authService.getCurrentUser()?.usuarioId;
@@ -144,12 +215,43 @@ export class AbogadosComponent implements OnInit{
       this.casosService.getCasos(abogadoId).subscribe(
         data => {
           this.casos = data;
+          this.filteredCasos = [...data]
         },
         error => {
           console.log('Error al cargar los casos: ', error);
         }
       )
     }
+  }
+
+  filterCasos() {
+    if(!this.searchTextCasos.trim()){
+      this.filteredCasos = [...this.casos];
+      return;
+    }
+
+    const searchTextLower = this.searchTextCasos.toLowerCase();
+    this.filteredCasos = this.casos.filter((caso) => {
+      return(
+        caso.asunto.toLowerCase().includes(searchTextLower) ||
+        caso.nombreCliente.toLowerCase().includes(searchTextLower) ||
+        caso.nombreAbogado.toLowerCase().includes(searchTextLower) ||
+        caso.estado.toLowerCase().includes(searchTextLower)
+      )
+    })
+  }
+
+  loadDocumentos(){
+    this.documentosService.getDocumentos().subscribe({
+      next: (data) => {
+        console.log('docs: ', data);
+        this.documentos = data;
+        this.filteredDocumentos = [...data];
+      },
+      error: (error) => {
+        console.log('error');
+      }
+    })
   }
 
   guardarDocumento(event: Event) {
@@ -160,6 +262,7 @@ export class AbogadosComponent implements OnInit{
         nombre: this.documentForm.value.nombreDocumento,
         tipo: this.documentForm.value.tipoDocumento,
         contenido: this.archivosBase64.archivos[0].content,
+        nombreArchivo: this.archivosBase64.archivos[0].name,
         usuarioId: this.authService.getCurrentUser()?.usuarioId,
       };
       this.documentoService.agregarDocumento(documentoData).subscribe({
@@ -187,6 +290,25 @@ export class AbogadosComponent implements OnInit{
         detail: 'Por favor, complete todos los campos para cargar un archivo',
       });
     }
+  }
+
+  filterDocumentos(){
+    if(!this.searchTextDocumentos.trim()){
+      this.filteredDocumentos = [...this.documentos];
+      return;
+    }
+    const searchTextLower = this.searchTextDocumentos.toLowerCase();
+    this.filteredDocumentos = this.documentos.filter((documento) => {
+      return(
+        documento.nombre.toLowerCase().includes(searchTextLower) ||
+        documento.tipo.toLowerCase().includes(searchTextLower)
+      )
+    })
+  }
+
+  visualizarDocumento(documento: DocumentoDTO){
+    this.selectedDocumento = documento;
+    this.displayModalDocumento = true;
   }
 
   obtenerTotalCitas(){

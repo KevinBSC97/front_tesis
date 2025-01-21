@@ -5,7 +5,7 @@ export interface CitaDTO {
   clienteId: number;
   nombreCliente?: string;
   apellidoCliente?: string;
-  abogadoId?: number;
+  abogadoId?: number | null;
   estado: string;
   especialidad: string;
   nombreAbogado?: string;

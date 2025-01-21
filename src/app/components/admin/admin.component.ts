@@ -14,6 +14,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SeguimientoService } from 'src/app/services/seguimiento.service';
 import { EspecialidadService } from 'src/app/services/especialidades.service';
+import { DocumentoService } from 'src/app/services/documento.service';
+import { DocumentoDTO } from 'src/app/interfaces/documentos';
 
 @Component({
   selector: 'app-admin',
@@ -32,6 +34,7 @@ export class AdminComponent implements OnInit {
   showLoading: boolean = false;
   displaySeguimientoModal = false;
   displayEditModalCita: boolean = false;
+  displayModalDocumento: boolean = false;
 
   items: MenuItem[] = [];
   searchText: string = '';
@@ -39,18 +42,23 @@ export class AdminComponent implements OnInit {
   searchTextAdmin: string = '';
   searchTextCitas: string = '';
   searchTextCasos: string = '';
+  searchTextDocumentos: string = '';
   filteredUsers: UsuarioDTO[] = [];
   filteredAbogado: UsuarioDTO[] = [];
   filteredAdmin: UsuarioDTO[] = [];
   filteredCitas: CitaDTO[] = [];
   filteredCasos: CasoDTO[] = [];
+  filteredDocumentos: DocumentoDTO[] = [];
 
   formAdmin!: FormGroup;
   formCliente!: FormGroup;
   formAbogado!: FormGroup;
   seguimientoForm!: FormGroup;
 
+  documentos: DocumentoDTO[] = [];
+
   selectedCaso: CasoDTO | null = null;
+  selectedDocumento: DocumentoDTO | null = null;
 
   displayAdminModal = false;
   displayLawyerModal = false;
@@ -67,6 +75,8 @@ export class AdminComponent implements OnInit {
   totalAdministradores: number = 0;
   totalAbogados: number = 0;
   totalClientes: number = 0;
+  totalCasos: number = 0;
+  totalCitas: number = 0;
   progreso = 0;
 
   especialidades: { label: string, value: number }[] = [];
@@ -166,6 +176,7 @@ export class AdminComponent implements OnInit {
     private especialidadService: EspecialidadService,
     private citasService: CitasService,
     private casosService: CasosService,
+    private documentosService: DocumentoService,
     private seguimientoService: SeguimientoService,
     private usuarioService: UsuarioService) {}
 
@@ -176,6 +187,7 @@ export class AdminComponent implements OnInit {
     this.crearFormulario();
     this.loadCitas();
     this.loadCasos();
+    this.loadDocumentos();
     this.seguimientoForm = this.fb.group({
       observacion: ['', Validators.required],
       progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
@@ -311,6 +323,7 @@ export class AdminComponent implements OnInit {
       next: (response) => {
         console.log('citas: ', response);
         this.citas = response;
+        this.totalCitas = response.length;
         this.filteredCitas = [...response];
       },
       error: (error) => {
@@ -328,7 +341,21 @@ export class AdminComponent implements OnInit {
     this.casosService.obtenerCasos().subscribe({
       next: (response) => {
         this.casos = response;
+        this.totalCasos = response.length;
         this.filteredCasos = [...response];
+      }
+    })
+  }
+
+  loadDocumentos(){
+    this.documentosService.getDocumentos().subscribe({
+      next: (data) => {
+        console.log('docs: ', data);
+        this.documentos = data;
+        this.filteredDocumentos = [...data];
+      },
+      error: (error) => {
+        console.log('error');
       }
     })
   }
@@ -358,31 +385,43 @@ export class AdminComponent implements OnInit {
   }
 
   cargarAbogadosPorEspecialidad(): void {
-    if (!this.selectedEspecialidad) {
-      this.abogados = [];
+    if (!this.selectedEspecialidad?.especialidadId) {
+      this.listaAbogados = []; // Limpia la lista si no hay especialidad seleccionada
       return;
     }
 
-    this.especialidadService.getAbogadosPorEspecialidad(this.selectCitaUser.especialidadId).subscribe({
+    // Llama al servicio para cargar abogados según la especialidad
+    this.especialidadService.getAbogadosPorEspecialidad(this.selectedEspecialidad.especialidadId).subscribe({
       next: (response) => {
-        this.listaAbogados = response.map(abogado => ({
-            label: `${abogado.nombre} ${abogado.apellido}`, // Nombre completo del abogado
-            value: abogado.usuarioId // ID del abogado
+        this.listaAbogados = response.map((abogado) => ({
+          label: `${abogado.nombre} ${abogado.apellido}`, // Nombre completo
+          value: abogado.usuarioId, // ID único
         }));
-        console.log('Abogados cargados: ', this.listaAbogados); // Verificar datos mapeados
-        },
-        error: (error) => {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al cargar los abogados'
-            });
+
+        // Si no hay abogados disponibles
+        if (this.listaAbogados.length === 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Sin abogados',
+            detail: 'No hay abogados disponibles para esta especialidad.',
+          });
         }
+
+        console.log('Abogados cargados:', this.listaAbogados); // Debugging
+      },
+      error: (error) => {
+        this.listaAbogados = []; // Limpia la lista si hay un error
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar los abogados.',
+        });
+        console.error('Error al cargar abogados:', error);
+      },
     });
   }
 
   loadUsers() {
-
     this.showLoading = true;
     this.authService.getUsers(1).subscribe({
       next: (data) => {
@@ -502,6 +541,20 @@ export class AdminComponent implements OnInit {
     })
   }
 
+  filterDocumentos(){
+    if(!this.searchTextDocumentos.trim()){
+      this.filteredDocumentos = [...this.documentos];
+      return;
+    }
+    const searchTextLower = this.searchTextDocumentos.toLowerCase();
+    this.filteredDocumentos = this.documentos.filter((documento) => {
+      return(
+        documento.nombre.toLowerCase().includes(searchTextLower) ||
+        documento.tipo.toLowerCase().includes(searchTextLower)
+      )
+    })
+  }
+
   register() {
     if (!this.canRegister()) {
       this.messageService.add({severity:'warn', summary: 'Validación fallida', detail: 'Por favor, revisa los campos. Algunos datos son inválidos.'});
@@ -608,43 +661,81 @@ export class AdminComponent implements OnInit {
   editCita(cita: CitaDTO){
     console.log('cita seleccionada: ', cita);
     this.selectCitaUser = { ...cita };
-    if(cita.especialidad){
-      this.selectedEspecialidad = { descripcion: cita.especialidad }
+    this.selectCitaUser.abogadoId = null;
+    if (cita.especialidadId) {
+      this.selectedEspecialidad = { especialidadId: cita.especialidadId, descripcion: cita.especialidad };
       this.cargarAbogadosPorEspecialidad();
+    } else {
+      this.listaAbogados = []; // Limpia la lista si no hay especialidad
     }
     this.displayEditModalCita = true;
   }
 
-  // register() {
-  //   if (!this.canRegister()) {
-  //     this.messageService.add({severity:'warn', summary: 'Validación fallida', detail: 'Por favor, revisa los campos. Algunos datos son inválidos.'});
-  //     return;
-  //   }
-  //   const user: UsuarioRegistroDTO = {
-  //     identificacion: this.newUser.identificacion,
-  //     nombre: this.newUser.nombre,
-  //     apellido: this.newUser.apellido,
-  //     email: this.newUser.email,
-  //     nombreUsuario: this.newUser.nombreUsuario,
-  //     password: this.newUser.password,
-  //     rolId: this.newUser.rolId,
-  //     especialidadId: this.newUser.especialidadId,
-  //     estado: this.newUser.estado
-  //   };
-  //   this.authService.register(user).subscribe({
-  //     next: (data) => {
-  //       console.log("Registro exitoso", data);
-  //       this.resetNewUser();
-  //       this.displayModal = false;
-  //       this.loadUsers(); // Recargar lista de usuarios
-  //       this.messageService.add({severity:'success', summary: 'Registro Exitoso', detail: 'El usuario ha sido registrado con éxito'});
-  //     },
-  //     error: (error) => {
-  //       console.error("Error en el registro", error);
-  //       this.messageService.add({severity:'error', summary: 'Error en el Registro', detail: 'Error al registrar el usuario'});
-  //     }
-  //   });
-  // }
+  eliminarUsuario(usuarioId: number){
+    if(confirm('¿Está seguro de que desea eliminar este usuario?')){
+      this.usuarioService.eliminarUsuario(usuarioId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Usuario eliminado',
+            detail: 'El usuario fue eliminado correctamente'
+          });
+          this.loadUsers();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar el usuario',
+          })
+        }
+      })
+    }
+  }
+
+  eliminarCita(citaId: number){
+    if(confirm('¿Está seguro de que desea eliminar esta cita?')){
+      this.citasService.eliminarCita(citaId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cita eliminada',
+            detail: 'La cita fue eliminada correctamente'
+          });
+          this.loadCitas();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar la cita'
+          })
+        }
+      })
+    }
+  }
+
+  eliminarCaso(casoId: number){
+    if(confirm('¿Está seguro de que desea eliminar este caso?')){
+      this.casosService.eliminarCaso(casoId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Caso eliminado',
+            detail: 'El caso fue eliminado correctamente'
+          });
+          this.loadCasos();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar el caso'
+          })
+        }
+      })
+    }
+  }
 
   resetNewUser() {
     this.newUser = {
@@ -768,8 +859,9 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  updateCita(){
+  updateCita() {
     if (this.selectCitaUser) {
+      console.log(this.selectCitaUser);
       const citaActualizada: CitaDTO = {
         citaId: this.selectCitaUser.citaId,
         fechaHora: this.selectCitaUser.fechaHora,
@@ -778,30 +870,33 @@ export class AdminComponent implements OnInit {
         nombreCliente: this.selectCitaUser.nombreCliente,
         nombreAbogado: this.selectCitaUser.nombreAbogado,
         especialidad: this.selectCitaUser.especialidad,
-        abogadoId: this.selectCitaUser.abogadoId, // Enviar solo el ID del abogado
-        especialidadId: this.selectedEspecialidad.especialidadId, // Enviar el ID de la especialidad seleccionada
+        abogadoId: Number(this.selectCitaUser.abogadoId), // Asegúrate de convertirlo a número
+        especialidadId: this.selectedEspecialidad?.especialidadId || 0, // ID de especialidad
         estado: this.selectCitaUser.estado,
-        duracion: this.selectCitaUser.duracion,
-        motivo: this.selectCitaUser.motivo,
+        duracion: this.selectCitaUser.duracion || 60, // Valor predeterminado si falta
+        motivo: this.selectCitaUser.motivo || '', // Valor predeterminado si falta
       };
+
+      console.log('Datos enviados al backend:', citaActualizada);
+
       this.citasService.actualizarCita(citaActualizada.citaId, citaActualizada).subscribe({
-          next: () => {
-              this.messageService.add({
-                  severity: 'success',
-                  summary: 'Cita Actualizada',
-                  detail: 'La cita se actualizó correctamente',
-              });
-              this.displayEditModalCita = false;
-              this.loadCitas(); // Recarga la lista de citas
-          },
-          error: (error) => {
-              this.messageService.add({
-                  severity: 'error',
-                  summary: 'Error',
-                  detail: 'Error al actualizar la cita',
-              });
-              console.error('Error al actualizar la cita:', error);
-          },
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cita Actualizada',
+            detail: 'La cita se actualizó correctamente.',
+          });
+          this.displayEditModalCita = false;
+          this.loadCitas(); // Recarga la lista de citas
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al actualizar la cita.',
+          });
+          console.error('Error al actualizar la cita:', error);
+        },
       });
     }
   }
@@ -838,6 +933,11 @@ export class AdminComponent implements OnInit {
     console.log('caso:', caso);
     this.selectedCaso = caso;
     this.displayModal = true;
+  }
+
+  visualizarDocumento(documento: DocumentoDTO){
+    this.selectedDocumento = documento;
+    this.displayModalDocumento = true;
   }
 
   abrirModalSeguimiento(caso: any) {

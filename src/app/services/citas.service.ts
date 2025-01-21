@@ -53,4 +53,8 @@ export class CitasService {
   actualizarCita(citaId: number, cita: CitaDTO): Observable<CitaDTO[]>{
     return this.http.put<CitaDTO[]>(`${this.api}/citas/editar-cita/${citaId}`, cita);
   }
+
+  eliminarCita(citaId: number): Observable<any>{
+    return this.http.delete(`${this.api}/citas/eliminar-cita/${citaId}`);
+  }
 }

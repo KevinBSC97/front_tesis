@@ -27,4 +27,12 @@ export class NotificacionesService {
   getRecordatoriosPendientes(usuarioId: number): Observable<NotificacionDTO[]> {
     return this.http.get<NotificacionDTO[]>(`${this.api}/citas/recordatorios/${usuarioId}`);
   }
+
+  getRecordatoriosParaAdministradores(): Observable<NotificacionDTO[]> {
+    return this.http.get<NotificacionDTO[]>(`${this.api}/citas/administrador/recordatorios`);
+  }
+
+  getRecordatorioCasosPendientes(): Observable<NotificacionDTO[]>{
+    return this.http.get<NotificacionDTO[]>(`${this.api}/casos/verificar-casos`);
+  }
 }

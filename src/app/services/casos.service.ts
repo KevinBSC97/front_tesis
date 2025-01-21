@@ -44,4 +44,8 @@ export class CasosService {
   obtenerCasos(): Observable<CasoDTO[]>{
     return this.http.get<CasoDTO[]>(`${this.api}/casos`);
   }
+
+  eliminarCaso(casoId: number): Observable<any>{
+    return this.http.delete(`${this.api}/casos/eliminar-caso/${casoId}`)
+  }
 }

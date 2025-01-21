@@ -14,4 +14,8 @@ export class DocumentoService{
   agregarDocumento(documento: any): Observable<any>{
     return this.http.post(`${this.api}/documentos/crear-documento`, documento);
   }
+
+  getDocumentos(): Observable<any[]>{
+    return this.http.get<any[]>(`${this.api}/documentos`);
+  }
 }

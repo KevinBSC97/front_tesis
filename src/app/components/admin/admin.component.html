@@ -30,6 +30,9 @@
           <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('casos')">
             <i class="pi pi-briefcase me-3 fw-bold"></i> Casos
           </li>
+          <li class="list-group-item border-0 border-bottom d-flex align-items-center" (click)="changeSection('documentos')">
+            <i class="pi pi-file me-3 fw-bold"></i> Documentos
+          </li>
         </ul>
       </div>
       <div class="text-center mt-4">
@@ -44,6 +47,7 @@
       <app-navbar></app-navbar>
       <!-- Sección de Inicio -->
       <div *ngIf="currentSection === 'inicio'">
+        <h2>Panel de Administrador</h2>
         <div class="row justify-content-center mt-5">
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
@@ -86,7 +90,7 @@
                 <h5>Total de Citas Creadas</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">2</p>
+                <p class="card-text">{{totalCitas}}</p>
               </div>
             </div>
           </div>
@@ -96,7 +100,7 @@
                 <h5>Total de Casos</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">1</p>
+                <p class="card-text">{{totalCasos}}</p>
               </div>
             </div>
           </div>
@@ -147,7 +151,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserAdmin(admin.usuarioId)" title="Editar Administrador">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(admin.usuarioId)" title="Eliminar Administrador">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -202,7 +206,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserAbogado(abogado.usuarioId)" title="Editar Abogado">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(abogado.usuarioId)" title="Eliminar Abogado">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -253,7 +257,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserCliente(cliente.usuarioId)" title="Editar Cliente">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(cliente.usuarioId)" title="Eliminar Cliente">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -304,7 +308,7 @@
               >
                 <i class="pi pi-pencil"></i>
               </button>
-              <button class="btn btn-danger" title="Eliminar cita">
+              <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita.citaId)">
                 <i class="pi pi-trash"></i>
               </button></td>
             </tr>
@@ -335,6 +339,7 @@
                 <th>Abogado</th>
                 <th>Fecha de registro del caso</th>
                 <th>Estado</th>
+                <th>Progreso</th>
                 <th>Fecha de finalizacion</th>
                 <th>Acciones</th>
             </tr>
@@ -346,6 +351,7 @@
               <td>{{ caso.nombreAbogado }}</td>
               <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
               <td>{{ caso.estado }}</td>
+              <td>{{ caso.progreso }}%</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
               <td><button
                 class="btn btn-warning me-3"
@@ -356,6 +362,48 @@
               </button>
               <button class="btn btn-info" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
+              </button></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="currentSection === 'documentos'">
+        <h2 class="mb-3">Gestión de Documentos</h2>
+        <div class="d-flex justify-content-between mb-3">
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextDocumentos"
+              (input)="filterDocumentos()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredDocumentos" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+                <th>Nombre del Documento</th>
+                <th>Tipo del Documento</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+          <ng-template pTemplate="body" let-documento>
+            <tr>
+              <td>{{ documento.nombre }}</td>
+              <td>{{ documento.tipo }}</td>
+              <td><button
+                class="btn btn-warning me-3"
+                title="Ver archivo"
+                (click)="visualizarDocumento(documento)"
+              >
+                <i class="pi pi-eye"></i>
+              </button>
+              <button class="btn btn-primary" title="Editar Documento">
+                <i class="pi pi-pencil"></i>
               </button></td>
             </tr>
           </ng-template>
@@ -606,7 +654,7 @@
     </div>
     <div class="form-group mb-3">
       <label for="especialidad">Especialidad</label>
-      <p-dropdown [options]="especialidades" formControlName="especialidadId" placeholder="Seleccione una especialdiad" [showClear]="true" class="w-100">
+      <p-dropdown [options]="especialidades" formControlName="especialidadId" placeholder="Seleccione una especialidad" [showClear]="true" class="w-100">
       </p-dropdown>
     </div>
     <div class="form-group mb-3">
@@ -725,6 +773,24 @@
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUserCliente()" class="btn btn-success"></button>
     </div>
+</p-dialog>
+
+<p-dialog header="Visualizar documento" [(visible)]="displayModalDocumento" [modal]="true" [style]="{width: '30vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
+  <div class="detalles-archivos">
+    <h4>Archivos Adjuntos</h4>
+    <div>
+      <div>
+        <shared-file-loader *ngIf="selectedDocumento"
+          [file]="selectedDocumento.contenido"
+          [fileName]="selectedDocumento.nombreArchivo"
+          [fileType]="extraerTipoArchivo(selectedDocumento.contenido)">
+        </shared-file-loader>
+      </div>
+    </div>
+    <ng-template #noArchivos>
+      <p>No hay archivos adjuntos</p>
+    </ng-template>
+  </div>
 </p-dialog>
 
 <!-- <p-toast></p-toast>

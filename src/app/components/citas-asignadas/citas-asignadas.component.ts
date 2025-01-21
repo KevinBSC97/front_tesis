@@ -45,7 +45,7 @@ export class CitasAsignadasComponent {
 
           this.citasPendientes = citas.filter(c => c.estado === 'Pendiente');
           this.citasAceptadas = citas.filter(c => c.estado === 'Aceptado');
-          this.citasRechazadas = citas.filter(c => c.estado === 'Rechazada');
+          this.citasRechazadas = citas.filter(c => c.estado === 'Rechazado');
         },
         error: (error) => {
           console.error('Error al cargar las citas:', error);
@@ -106,6 +106,7 @@ export class CitasAsignadasComponent {
 
     const citaToUpdate = this.citasPendientes.find(c => c.citaId === citaId);  // Ensure this searches the correct array
     if (citaToUpdate) {
+      console.log('cita actualiza: ', citaToUpdate);
       citaToUpdate.estado = nuevoEstado;  // Modify the local copy
       this.citaService.updateCita(citaToUpdate).subscribe({
         next: (response) => {
@@ -131,6 +132,6 @@ export class CitasAsignadasComponent {
   filtrarCitasPorEstado(): void {
     this.citasPendientes = this.citasAsignadas.filter(c => c.estado === 'Pendiente');
     this.citasAceptadas = this.citasAsignadas.filter(c => c.estado === 'Aceptado');
-    this.citasRechazadas = this.citasAsignadas.filter(c => c.estado === 'Rechazada');
+    this.citasRechazadas = this.citasAsignadas.filter(c => c.estado === 'Rechazado');
   }
 }
