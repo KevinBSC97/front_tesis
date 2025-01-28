@@ -17,4 +17,5 @@ export interface CasoDTO{
   duracion?: number;
   fechaFinalizacion?: Date;
   progreso?: number;
+  tipoCaso?: string;
 }

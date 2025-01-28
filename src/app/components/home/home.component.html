@@ -101,6 +101,7 @@
               <th>Fecha y Hora de la Cita</th>
               <th>Duración</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-cita>
@@ -110,6 +111,9 @@
               <td>{{ cita.fechaHora | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
               <td>{{ cita.duracion }} Minutos</td>
               <td>{{ cita.estado }}</td>
+              <td><button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita.citaId)">
+                <i class="pi pi-trash"></i>
+              </button></td>
             </tr>
           </ng-template>
         </p-table>

@@ -35,4 +35,8 @@ export class NotificacionesService {
   getRecordatorioCasosPendientes(): Observable<NotificacionDTO[]>{
     return this.http.get<NotificacionDTO[]>(`${this.api}/casos/verificar-casos`);
   }
+
+  getNotificarProgresoCaso(): Observable<NotificacionDTO[]>{
+    return this.http.get<NotificacionDTO[]>(`${this.api}/casos/verificar-progreso-casos`);
+  }
 }

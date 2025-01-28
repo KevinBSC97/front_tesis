@@ -50,7 +50,8 @@ export class CrearCasoComponent {
       estadoCaso: [''],  // y también esto
       duracion: ['', [Validators.required, Validators.min(1)]],
       fechaFinalizacion: [{value: '', disabled: true}],
-      progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
+      progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      tipoCaso: ['', Validators.required],
     });
   }
 
@@ -76,15 +77,38 @@ export class CrearCasoComponent {
     const fechaRegistro = new Date(); // Fecha actual
     if (duracion > 0) {
       // Calcula la fecha final
-      const fechaFinalizacion = new Date(fechaRegistro);
-      fechaFinalizacion.setDate(fechaRegistro.getDate() + parseInt(duracion, 10));
+      const fechaFinalizacion = this.calcularFechaLaboral(parseInt(duracion, 10));
 
-      // Formatea la fecha al formato 'yyyy-MM-dd' requerido por el input de tipo date
-      const fechaFinalizacionISO = fechaFinalizacion.toISOString().split('T')[0];
+      this.form.patchValue({ fechaFinalizacion })
+      // const fechaFinalizacion = new Date(fechaRegistro);
+      // fechaFinalizacion.setDate(fechaRegistro.getDate() + parseInt(duracion, 10));
 
-      // Actualiza el valor del campo en el formulario
-      this.form.patchValue({ fechaFinalizacion: fechaFinalizacionISO });
+      // // Formatea la fecha al formato 'yyyy-MM-dd' requerido por el input de tipo date
+      // const fechaFinalizacionISO = fechaFinalizacion.toISOString().split('T')[0];
+
+      // // Actualiza el valor del campo en el formulario
+      // this.form.patchValue({ fechaFinalizacion: fechaFinalizacionISO });
     }
+  }
+
+  private calcularFechaLaboral(duracion: number): string {
+    const fechaInicio = new Date(); // Fecha actual
+    let diasRestantes = duracion;
+    const fechaFinal = new Date(fechaInicio);
+
+    while (diasRestantes > 0) {
+      fechaFinal.setDate(fechaFinal.getDate() + 1); // Avanza un día
+
+      // Verifica si el día no es sábado (6) ni domingo (0)
+      const esFinDeSemana = fechaFinal.getDay() === 0 || fechaFinal.getDay() === 6;
+
+      if (!esFinDeSemana) {
+        diasRestantes--; // Resta un día solo si es laborable
+      }
+    }
+
+    // Devuelve la fecha en formato 'yyyy-MM-dd'
+    return fechaFinal.toISOString().split('T')[0];
   }
 
   cargarCitasAceptadas(): void {
@@ -140,7 +164,8 @@ export class CrearCasoComponent {
         nombreArchivo: this.archivosBase64.archivos.map(file => file.name),
         duracion: this.form.get('duracion')!.value,
         fechaFinalizacion: this.form.get('fechaFinalizacion')!.value,
-        progreso: this.form.get('progreso')!.value
+        progreso: 0,
+        tipoCaso: this.form.get('tipoCaso')!.value,
       };
 
       console.log('data caso: ', casoData);

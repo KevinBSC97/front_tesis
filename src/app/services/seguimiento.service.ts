@@ -18,4 +18,8 @@ export class SeguimientoService{
   getSeguimientosPorCaso(casoId: number): Observable<any[]>{
     return this.http.get<any[]>(`${this.api}/seguimientos/caso/${casoId}`);
   }
+
+  notificarRetraso(casoId: number, mensaje: string): Observable<any>{
+    return this.http.post(`${this.api}/casos/notificar-retraso/${casoId}`, JSON.stringify(mensaje), { headers: { 'Content-Type': 'application/json'}})
+  }
 }

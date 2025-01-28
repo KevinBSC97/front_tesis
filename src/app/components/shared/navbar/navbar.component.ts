@@ -27,6 +27,7 @@ export class NavbarComponent {
         this.cargarRecordatorios(user.usuarioId);
         this.cargarRecordatoriosAdministrador();
         this.cargarRecordatoriosCasosPendientes();
+        this.cargarNotificacionProgresoCasos();
       }
       //this.loadNotificaciones();
     });
@@ -71,6 +72,17 @@ export class NavbarComponent {
         this.notificacionesNoLeidas += casosPendientes.length;
       },
       error: (error) => console.log('Error al obtener recordatorios de casos pendientes: ', error),
+    })
+  }
+
+  cargarNotificacionProgresoCasos(){
+    this.notificacionService.getNotificarProgresoCaso().subscribe({
+      next: (progresoCasos) => {
+        console.log('progreso: ', progresoCasos);
+        this.notificaciones = [...this.notificaciones, ...progresoCasos];
+        this.notificacionesNoLeidas += progresoCasos.length;
+      },
+      error: (error) => console.log('Error al cargar los progresos de los casos. ', error),
     })
   }
 

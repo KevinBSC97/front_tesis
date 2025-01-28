@@ -204,6 +204,7 @@
               <th>Duracion del caso</th>
               <th>Fecha de Finalizacion del caso</th>
               <th>Estado</th>
+              <th>Tipo de Caso</th>
               <th>Progreso del caso</th>
               <th>Acciones</th>
             </tr>
@@ -217,6 +218,7 @@
               <td>{{ caso.duracion }} Días</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
               <td>{{ caso.estado }}</td>
+              <td>{{ caso.tipoCaso }}</td>
               <td>{{ caso.progreso }} % </td>
               <td><button
                 class="btn btn-warning me-3"
@@ -430,7 +432,12 @@
   >
   </shared-upload-image>
   </div>
-
+  <div class="my-4">
+    <shared-upload-file
+      [initialFiles]="transformedArchivos"
+      (uploadComplete)="handleFileChanges($event)"
+    ></shared-upload-file>
+  </div>
   <p-footer>
     <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>
     <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>

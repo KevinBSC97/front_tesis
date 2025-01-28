@@ -54,6 +54,22 @@
         />
       </div>
 
+      <div class="mb-3">
+        <label for="tipoCaso" class="form-label">Tipo de Caso</label>
+        <select
+          id="tipoCaso"
+          class="form-select"
+          formControlName="tipoCaso"
+          required
+        >
+          <option value="" disabled selected>Seleccione el tipo de caso</option>
+          <option value="Laboral">Laboral</option>
+          <option value="Civil">Civil</option>
+          <option value="Penal">Penal</option>
+          <option value="Familiar">Familiar</option>
+        </select>
+      </div>
+
       <!-- Descripción del Caso -->
       <div class="mb-3">
         <label for="descripcionCaso" class="form-label"
@@ -120,19 +136,6 @@
           formControlName="fechaFinalizacion"
           readonly
         />
-      </div>
-
-      <div class="mb-3">
-        <label for="progreso" class="form-label">Progreso del Caso</label>
-        <p-slider
-          [(ngModel)]="progreso"
-          formControlName="progreso"
-          [style]="{ width: '100%' }"
-          [min]="0"
-          [max]="100"
-          [step]="1"
-        ></p-slider>
-        <div class="text-center">{{ progreso }}%</div>
       </div>
 
       <div class="my-4">

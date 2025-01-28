@@ -124,6 +124,28 @@ export class HomeComponent implements OnInit {
     })
   }
 
+  eliminarCita(citaId: number){
+    if(confirm('¿Está seguro de que desea eliminar esta cita?')){
+      this.citasService.eliminarCita(citaId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cita eliminada',
+            detail: 'La cita fue eliminada correctamente'
+          });
+          this.cargarCitas();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar la cita'
+          })
+        }
+      })
+    }
+  }
+
   loadCasos(){
     this.loading = true;
     const clienteId = this.authService.getCurrentUser()?.usuarioId;

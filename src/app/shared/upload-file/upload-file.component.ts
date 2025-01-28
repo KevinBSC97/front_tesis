@@ -18,25 +18,51 @@ export class UploadFileComponent {
   @Input() initialFiles: { name: string; type: string; content: string}[] = [];
 
   ngOnInit(){
-    if(this.initialFiles && this.initialFiles.length > 0){
+    // if(this.initialFiles && this.initialFiles.length > 0){
+    //   this.filesBase64 = [...this.initialFiles];
+    //   this.fileNames = this.initialFiles.map(file => file.name);
+
+    //   // Emitimos los archivos al inicializar el componente
+    //   this.uploadComplete.emit({
+    //     archivos: this.filesBase64,
+    //     nombres: this.fileNames
+    //   });
+    // }
+    if (this.initialFiles && this.initialFiles.length > 0) {
       this.filesBase64 = [...this.initialFiles];
       this.fileNames = this.initialFiles.map(file => file.name);
+      this.fileUrls = this.initialFiles.map(file => ({
+          url: '', // Asigna una URL vacía si no está disponible
+          name: file.name,
+      }));
 
-      // Emitimos los archivos al inicializar el componente
       this.uploadComplete.emit({
-        archivos: this.filesBase64,
-        nombres: this.fileNames
+          archivos: this.filesBase64,
+          nombres: this.fileNames,
       });
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // if (changes["initialFiles"] && changes["initialFiles"].currentValue) {
+    //   this.filesBase64 = [...changes["initialFiles"].currentValue];
+    //   this.fileNames = this.initialFiles.map(file => file.name);
+    //   this.uploadComplete.emit({
+    //     archivos: this.filesBase64,
+    //     nombres: this.fileNames
+    //   });
+    // }
     if (changes["initialFiles"] && changes["initialFiles"].currentValue) {
       this.filesBase64 = [...changes["initialFiles"].currentValue];
       this.fileNames = this.initialFiles.map(file => file.name);
+      this.fileUrls = this.initialFiles.map(file => ({
+          url: '', // Asigna una URL vacía si no está disponible
+          name: file.name,
+      }));
+
       this.uploadComplete.emit({
-        archivos: this.filesBase64,
-        nombres: this.fileNames
+          archivos: this.filesBase64,
+          nombres: this.fileNames,
       });
     }
   }
@@ -87,9 +113,12 @@ export class UploadFileComponent {
 
   deleteFile(event: Event, index: number): void {
     event.stopPropagation();
+    if(this.fileUrls[index]?.url){
+      URL.revokeObjectURL(this.fileUrls[index].url);
+    }
     this.filesBase64.splice(index, 1);
     this.fileNames.splice(index, 1);
-    URL.revokeObjectURL(this.fileUrls[index].url);  // Liberar memoria de la URL
+    //URL.revokeObjectURL(this.fileUrls[index].url);  // Liberar memoria de la URL
     this.fileUrls.splice(index, 1);
 
     // Emitir el objeto completo con archivos y nombres

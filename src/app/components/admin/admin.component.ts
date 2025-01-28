@@ -35,6 +35,7 @@ export class AdminComponent implements OnInit {
   displaySeguimientoModal = false;
   displayEditModalCita: boolean = false;
   displayModalDocumento: boolean = false;
+  displayEditModalDocumento: boolean = false;
 
   items: MenuItem[] = [];
   searchText: string = '';
@@ -56,9 +57,18 @@ export class AdminComponent implements OnInit {
   seguimientoForm!: FormGroup;
 
   documentos: DocumentoDTO[] = [];
+  transformedArchivo: { name: string; type: string; content: string }[] = []
 
   selectedCaso: CasoDTO | null = null;
-  selectedDocumento: DocumentoDTO | null = null;
+  selectedDocumento: DocumentoDTO = {
+    contenido: '',
+    documentoId: 0,
+    fechaCreacion: new Date(),
+    nombre: '',
+    nombreArchivo: '',
+    tipo: '',
+    usuarioId: 0,
+  };
 
   displayAdminModal = false;
   displayLawyerModal = false;
@@ -928,6 +938,69 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  editDocumento(documento: any): void {
+    if (!documento) return; // Si el documento es null o undefined, salir del método
+
+    this.selectedDocumento = { ...documento };
+
+    // Transforma el archivo actual para `shared-upload-file`
+    if (this.selectedDocumento?.contenido) {
+      this.transformedArchivo = [
+        {
+          name: this.selectedDocumento.nombreArchivo ?? "Archivo sin nombre",
+          type: this.selectedDocumento.contenido.split(";")[0]?.split(":")[1] ?? "application/octet-stream",
+          content: this.selectedDocumento.contenido,
+        },
+      ];
+      console.log('archivo: ', this.transformedArchivo);
+    } else {
+      this.transformedArchivo = [];
+    }
+
+    this.displayEditModalDocumento = true;
+  }
+
+  handleFileChanges(event: { archivos: any[]; nombres: string[] }): void {
+    // Actualiza el archivo en el formulario
+    if (event.archivos.length > 0) {
+      this.selectedDocumento.contenido = event.archivos[0]?.content || ""; // Base64 del archivo con valor predeterminado
+      this.selectedDocumento.nombreArchivo = event.archivos[0]?.name || "Archivo sin nombre"; // Nombre del archivo con valor predeterminado
+    } else {
+      this.selectedDocumento.contenido = ''; // Valores vacíos si no hay archivo
+      this.selectedDocumento.nombreArchivo = '';
+    }
+  }
+
+  updateDocumento(): void {
+    if (this.selectedDocumento) {
+      this.documentosService.updateDocumento(this.selectedDocumento.documentoId, this.selectedDocumento).subscribe({
+        next: (response) => {
+          console.log(response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Documento Actualizado',
+            detail: 'El documento ha sido actualizado correctamente.',
+          });
+          this.displayEditModalDocumento = false;
+          this.loadDocumentos(); // Recargar la lista de documentos actualizada
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al actualizar el documento.',
+          });
+          console.error(err);
+        },
+      });
+    }
+  }
+
+
+  closeEditModalDocumento() {
+    this.displayEditModalDocumento = false;
+  }
+
   closeEditModal() {
     this.displayEditModalCita = false;
   }
@@ -978,30 +1051,77 @@ export class AdminComponent implements OnInit {
   }
 
   guardarSeguimiento(){
-    if(this.seguimientoForm.valid){
+    // if(this.seguimientoForm.valid){
+    //   const seguimientoData = {
+    //     casoId: this.selectedCasoUser.casoId,
+    //     usuarioId: this.authService.getCurrentUser()?.usuarioId,
+    //     observacion: this.seguimientoForm.value.observacion,
+    //     progreso: this.seguimientoForm.value.progreso
+    //   };
+    //   this.seguimientoService.agregarSeguimiento(seguimientoData).subscribe({
+    //     next: (response) => {
+    //       this.messageService.add({
+    //         severity: 'success',
+    //         summary: 'Seguimiento Guardado',
+    //         detail: 'El seguimiento fue guardado exitosamente',
+    //       });
+    //       this.displaySeguimientoModal = false;
+    //     },
+    //     error: (error) => {
+    //       this.messageService.add({
+    //         severity: 'error',
+    //         summary: 'Error',
+    //         detail: 'Hubo un problema al guardar el seguimiento',
+    //       })
+    //     }
+    //   })
+    // }
+    if (this.seguimientoForm.valid) {
       const seguimientoData = {
-        casoId: this.selectedCasoUser.casoId,
-        usuarioId: this.authService.getCurrentUser()?.usuarioId,
-        observacion: this.seguimientoForm.value.observacion,
-        progreso: this.seguimientoForm.value.progreso
+          casoId: this.selectedCasoUser?.casoId,
+          usuarioId: this.authService.getCurrentUser()?.usuarioId,
+          observacion: this.seguimientoForm.value.observacion,
+          progreso: this.seguimientoForm.value.progreso,
       };
-      this.seguimientoService.agregarSeguimiento(seguimientoData).subscribe({
-        next: (response) => {
+
+      if (!seguimientoData.casoId) {
           this.messageService.add({
-            severity: 'success',
-            summary: 'Seguimiento Guardado',
-            detail: 'El seguimiento fue guardado exitosamente',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo identificar el caso. Por favor, inténtalo de nuevo.',
           });
-          this.displaySeguimientoModal = false;
-        },
-        error: (error) => {
+          return;
+      }
+
+      const mensaje = `El caso '${this.selectedCasoUser?.asunto}' tiene un progreso actual de ${seguimientoData.progreso}%. Observación: ${seguimientoData.observacion}`;
+
+      if (!mensaje || mensaje.trim() === '') {
           this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Hubo un problema al guardar el seguimiento',
-          })
-        }
-      })
+              severity: 'error',
+              summary: 'Error',
+              detail: 'El mensaje no se generó correctamente.',
+          });
+          return;
+      }
+
+      this.seguimientoService.notificarRetraso(seguimientoData.casoId, mensaje).subscribe({
+          next: () => {
+              this.messageService.add({
+                  severity: 'success',
+                  summary: 'Notificación Enviada',
+                  detail: 'Se notificó al abogado sobre el retraso del caso.',
+              });
+              this.displaySeguimientoModal = false;
+          },
+          error: (err) => {
+              this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Hubo un problema al notificar al abogado.',
+              });
+              console.error(err);
+          },
+      });
     }
   }
 

@@ -349,6 +349,7 @@
                 <th>Abogado</th>
                 <th>Fecha de registro del caso</th>
                 <th>Estado</th>
+                <th>Tipo de Caso</th>
                 <th>Progreso</th>
                 <th>Fecha de finalizacion</th>
                 <th>Acciones</th>
@@ -361,6 +362,7 @@
               <td>{{ caso.nombreAbogado }}</td>
               <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
               <td>{{ caso.estado }}</td>
+              <td>{{ caso.tipoCaso }}</td>
               <td>{{ caso.progreso }}%</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
               <td><button
@@ -412,7 +414,7 @@
               >
                 <i class="pi pi-eye"></i>
               </button>
-              <button class="btn btn-primary" title="Editar Documento">
+              <button class="btn btn-primary" title="Editar Documento" (click)="editDocumento(documento)">
                 <i class="pi pi-pencil"></i>
               </button></td>
             </tr>
@@ -519,6 +521,8 @@
   </form>
 </p-dialog>
 
+
+
 <p-dialog header="Editar Cita" [(visible)]="displayEditModalCita" [style]="{width: '50vw'}" [modal]="true">
   <div class="form-group mb-3">
     <label for="descripcion">Descripcion de la Cita</label>
@@ -571,7 +575,7 @@
 <p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true">
   <form [formGroup]="formAdmin">
     <div class="form-group mb-3">
-      <label for="identificacion">Identifiación</label>
+      <label for="identificacion">Identificación</label>
       <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
     </div>
     <div class="form-group mb-3">
@@ -607,7 +611,7 @@
 <p-dialog header="Registro de Cliente" [(visible)]="displayModalCliente" [style]="{width: '50vw'}" [modal]="true">
   <form [formGroup]="formCliente">
     <div class="form-group mb-3">
-      <label for="identificacion">Identifiación</label>
+      <label for="identificacion">Identificación</label>
       <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
     </div>
     <div class="form-group mb-3">
@@ -643,7 +647,7 @@
 <p-dialog header="Registro de Abogado" [(visible)]="displayModalAbogado" [style]="{width: '50vw'}" [modal]="true">
   <form [formGroup]="formAbogado">
     <div class="form-group mb-3">
-      <label for="identificacion">Identifiación</label>
+      <label for="identificacion">Identificación</label>
       <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
     </div>
     <div class="form-group mb-3">
@@ -801,6 +805,28 @@
       <p>No hay archivos adjuntos</p>
     </ng-template>
   </div>
+</p-dialog>
+
+<p-dialog header="Editar Documento" [(visible)]="displayEditModalDocumento" [style]="{width: '40vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="nombre">Nombre del Documento</label>
+    <input type="text" pInputText [(ngModel)]="selectedDocumento.nombre" class="form-control" />
+  </div>
+  <div class="form-group mb-3">
+    <label for="tipo">Tipo del Documento</label>
+    <input type="text" pInputText [(ngModel)]="selectedDocumento.tipo" class="form-control" />
+  </div>
+  <div class="form-group mb-3">
+    <label for="archivo">Archivo</label>
+    <shared-upload-file
+      [initialFiles]="transformedArchivo"
+      (uploadComplete)="handleFileChanges($event)"
+    ></shared-upload-file>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateDocumento()"></button>
+    <button type="button" pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModalDocumento()"></button>
+  </p-footer>
 </p-dialog>
 
 <!-- <p-toast></p-toast>
