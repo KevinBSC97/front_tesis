@@ -54,4 +54,8 @@ export class CasosService {
       responseType: 'blob' // Asegura que la respuesta sea tratada como un archivo binario
     });
   }
+
+  verificarCasoDuplicado(clienteId: number, asunto: string, citaId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.api}/casos/validar-duplicado/${clienteId}/${asunto}/${citaId}`);
+  }
 }

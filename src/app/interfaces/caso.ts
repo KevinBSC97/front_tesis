@@ -18,4 +18,14 @@ export interface CasoDTO{
   fechaFinalizacion?: Date;
   progreso?: number;
   tipoCaso?: string;
+  seguimientos?: SeguimientoDTO[]
+}
+
+export interface SeguimientoDTO {
+  seguimientoId: number;  // ID del seguimiento
+  casoId: number;         // ID del caso asociado
+  usuarioId: number;      // ID del usuario que creó el seguimiento
+  observacion: string;    // Observación realizada
+  progreso: number;       // Porcentaje de progreso
+  fechaRegistro: Date;    // Fecha del seguimiento
 }

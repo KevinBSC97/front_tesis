@@ -194,6 +194,34 @@ export class CrearCasoComponent {
     }
   }
 
+  checkCasoDuplicado() {
+    const clienteId = this.form.get('clienteId')?.value;
+    const asunto = this.form.get('asunto')?.value;
+    const citaId = this.selectedCita?.citaId;
+
+    if (!clienteId || !asunto || !citaId) {
+      this.messageService.add({
+          severity: 'warn',
+          summary: 'Validación incompleta',
+          detail: 'Ya existe un caso asociado a esta cita.',
+      });
+      return; // Salir del método si los datos son incompletos
+    }
+
+    this.casosService.verificarCasoDuplicado(clienteId, asunto, citaId).subscribe({
+        next: (existe) => {
+            if (existe) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Caso duplicado',
+                    detail: 'Ya existe un caso con el mismo cliente, asunto y cita asignada.',
+                });
+            }
+        },
+        error: (err) => console.error('Error al verificar caso duplicado:', err)
+    });
+  }
+
   navigateToPanel(): void {
     this.router.navigate(['/abogados']); // Asegúrate de usar la ruta correcta aquí
   }

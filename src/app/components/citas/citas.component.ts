@@ -68,7 +68,7 @@ export class CitasComponent implements OnInit {
     console.log('Usuario actual:', currentUser);
     this.citaForm = this.fb.group({
       descripcion: ['', Validators.required],
-      especialidad: ['', Validators.required],
+      especialidadId: ['', Validators.required],
       abogadoId: [''],
       abogado: [{ value: '', disabled: true}, Validators.required],
       fechaHora: ['', Validators.required],
@@ -144,51 +144,54 @@ export class CitasComponent implements OnInit {
 
     // Validación de horario
     if (selectedDate < now || selectedDate.getHours() < 9 || selectedDate.getHours() > 17) {
-      //alert('Seleccione un horario válido entre las 9:00 y las 17:00.');
-      this.messageService.add({ severity: 'warn', summary: 'Horario no válido', detail: 'Seleccione un horario entre las 9:00 y las 17:00'})
-      return;
+        this.messageService.add({ severity: 'warn', summary: 'Horario no válido', detail: 'Seleccione un horario entre las 9:00 y las 17:00' });
+        return;
     }
 
     if (this.citaForm.invalid) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Complete todos los campos correctamente.' });
-      return;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Complete todos los campos correctamente.' });
+        return;
     }
 
-    if (this.citaForm.value.especialidad === '1') {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se puede crear una cita con la especialidad "Ninguna".' });
-      return;
+    if (this.citaForm.value.especialidadId === '1') {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se puede crear una cita con la especialidad "Ninguna".' });
+        return;
     }
 
     this.showLoading = true;
+
+    // Buscar el nombre de la especialidad seleccionada
+    const especialidadSeleccionada = this.especialidadesDTO.find(e => e.especialidadId === +this.citaForm.value.especialidadId);
     const abogadoSeleccionado = this.abogadosDTO.find(a => a.usuarioId === this.citaForm.value.abogado);
+
     // Obtener el usuario actual
     const usuarioActual = this.authService.getCurrentUser();
 
     // Asignar valores desde el formulario
     const citaData: CitaDTO = {
-      ...this.citaForm.value,
-      clienteId: usuarioActual ? usuarioActual.usuarioId : 0,
-      abogadoId: abogadoSeleccionado?.usuarioId,
-      nombreAbogado: abogadoSeleccionado ? `${abogadoSeleccionado.nombre} ${abogadoSeleccionado.apellido}` : '',
-      nombreCliente: usuarioActual ? `${usuarioActual.nombre} ${usuarioActual.apellido}` : '',
-      estado: 'Pendiente'
+        ...this.citaForm.value,
+        clienteId: usuarioActual ? usuarioActual.usuarioId : 0,
+        abogadoId: abogadoSeleccionado?.usuarioId,
+        nombreAbogado: abogadoSeleccionado ? `${abogadoSeleccionado.nombre} ${abogadoSeleccionado.apellido}` : '',
+        nombreCliente: usuarioActual ? `${usuarioActual.nombre} ${usuarioActual.apellido}` : '',
+        especialidad: especialidadSeleccionada ? especialidadSeleccionada.descripcion : 'No especificada', // Asignar el nombre de la especialidad
+        estado: 'Pendiente'
     };
 
     this.authService.createCita(citaData).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Cita creada exitosamente' });
-        //this.router.navigate(['/citas']);
-        this.resetForm();
-      },
-      error: (error) => {
-        const errorMsg = error.error.message || 'Error inesperado al crear la cita';
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMsg });
-        console.error('Error creando la cita:', error);
-        this.showLoading = false;
-      },
-      complete: () => {
-        this.showLoading = false;
-      }
+        next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Cita creada exitosamente' });
+            this.resetForm();
+        },
+        error: (error) => {
+            const errorMsg = error.error.message || 'Error inesperado al crear la cita';
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMsg });
+            console.error('Error creando la cita:', error);
+            this.showLoading = false;
+        },
+        complete: () => {
+            this.showLoading = false;
+        }
     });
   }
 

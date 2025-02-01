@@ -50,8 +50,22 @@
       </div>
       <div *ngIf="currentSection === 'casos'">
         <h2 class="mb-3">Mis casos</h2>
+        <div class="d-flex justify-content-between mb-3">
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextCasos"
+              (input)="filterCasos()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
         <!-- <app-casos-realizados></app-casos-realizados> -->
-        <p-table [value]="casos" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <p-table [value]="filteredCasos" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
               <th>Asunto</th>
@@ -60,6 +74,8 @@
               <th>Fecha de registro del caso</th>
               <th>Duracion del caso</th>
               <th>Fecha de Finalizacion del caso</th>
+              <th>Estado</th>
+              <th>Tipo de Caso</th>
               <th>Progreso del caso</th>
               <th>Acciones</th>
             </tr>
@@ -72,6 +88,8 @@
               <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
               <td>{{ caso.duracion }} Días</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
+              <td>{{ caso.estado }}</td>
+              <td>{{ caso.tipoCaso }}</td>
               <td>{{ caso.progreso }} % </td>
               <td>
                 <button class="btn btn-warning me-3" title="Ver Caso" (click)="showCaseDetails(caso)">
@@ -80,9 +98,16 @@
                 <button class="btn btn-primary me-3" title="Editar Caso" (click)="editCaso(caso)">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="displaySeguimientoModal = true">
+                <button
+                class="btn btn-info me-3"
+                title="Ver Seguimientos"
+                (click)="showSeguimientos(caso)"
+              >
+                <i class="pi pi-list"></i>
+              </button>
+                <!-- <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="displaySeguimientoModal = true">
                   <i class="pi pi-key"></i>
-                </button>
+                </button> -->
               </td>
             </tr>
           </ng-template>
@@ -90,10 +115,24 @@
       </div>
       <div *ngIf="currentSection === 'citas'">
         <h2 class="mb-3">Citas realizadas</h2>
-        <button class="btn btn-success mb-3" (click)="formularioCita()">
-          <i class="pi pi-plus"></i> Crear Cita
-        </button>
-        <p-table [value]="citas" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-success mb-3" (click)="formularioCita()">
+            <i class="pi pi-plus"></i> Crear Cita
+          </button>
+          <div class="input-group" style="width: 300px;">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar..."
+              [(ngModel)]="searchTextCitas"
+              (input)="filterCitas()"
+            />
+            <span class="input-group-text">
+              <i class="pi pi-search"></i>
+            </span>
+          </div>
+        </div>
+        <p-table [value]="filteredCitas" [paginator]="true" [rows]="8" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
               <th>Descripcion</th>
@@ -133,6 +172,7 @@
   </div>
 </div>
 
+<p-toast></p-toast>
 <p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
   <div *ngIf="selectedCaso">
     <table class="table table-striped">
@@ -271,6 +311,35 @@
       <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger"></button>
     </p-footer>
   </form>
+</p-dialog>
+
+<p-dialog header="Seguimientos del Caso" [(visible)]="displaySeguimientosModal" [modal]="true" [style]="{ width: '50vw' }">
+  <ng-container *ngIf="seguimientos.length > 0; else noSeguimientos">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Observación</th>
+          <th>Progreso</th>
+          <th>Fecha de Registro</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let seguimiento of seguimientos; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ seguimiento.observacion }}</td>
+          <td>{{ seguimiento.progreso }}%</td>
+          <td>{{ seguimiento.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+  <ng-template #noSeguimientos>
+    <p>No se encontraron seguimientos para este caso.</p>
+  </ng-template>
+  <p-footer>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="displaySeguimientosModal = false"></button>
+  </p-footer>
 </p-dialog>
 <!-- <div class="container mt-5">
     <h2 class="text-center mb-4">Panel de Cliente</h2>

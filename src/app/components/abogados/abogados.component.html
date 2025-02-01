@@ -83,7 +83,7 @@
                 <h5>Total de Casos a cargo</h5>
               </div>
               <div class="card-body text-center">
-                <p class="card-text">1</p>
+                <p class="card-text">0</p>
               </div>
             </div>
           </div>
@@ -234,6 +234,13 @@
               >
                 <i class="pi pi-pencil"></i>
               </button>
+              <button
+                class="btn btn-info me-3"
+                title="Ver Seguimientos"
+                (click)="showSeguimientos(caso)"
+              >
+                <i class="pi pi-list"></i>
+              </button>
               <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
               </button></td>
@@ -290,7 +297,7 @@
               >
                 <i class="pi pi-eye"></i>
               </button>
-              <button class="btn btn-primary" title="Editar Documento">
+              <button class="btn btn-primary" title="Editar Documento" (click)="editDocumento(documento)">
                 <i class="pi pi-pencil"></i>
               </button></td>
             </tr>
@@ -508,6 +515,57 @@
       <p>No hay archivos adjuntos</p>
     </ng-template>
   </div>
+</p-dialog>
+
+<p-dialog header="Seguimientos del Caso" [(visible)]="displaySeguimientosModal" [modal]="true" [style]="{ width: '50vw' }">
+  <ng-container *ngIf="seguimientos.length > 0; else noSeguimientos">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Observación</th>
+          <th>Progreso</th>
+          <th>Fecha de Registro</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let seguimiento of seguimientos; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ seguimiento.observacion }}</td>
+          <td>{{ seguimiento.progreso }}%</td>
+          <td>{{ seguimiento.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+  <ng-template #noSeguimientos>
+    <p>No se encontraron seguimientos para este caso.</p>
+  </ng-template>
+  <p-footer>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="displaySeguimientosModal = false"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Editar Documento" [(visible)]="displayEditModalDocumento" [style]="{width: '40vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="nombre">Nombre del Documento</label>
+    <input type="text" pInputText [(ngModel)]="selectedDocumento.nombre" class="form-control" />
+  </div>
+  <div class="form-group mb-3">
+    <label for="tipo">Tipo del Documento</label>
+    <input type="text" pInputText [(ngModel)]="selectedDocumento.tipo" class="form-control" />
+  </div>
+  <div class="form-group mb-3">
+    <label for="archivo">Archivo</label>
+    <shared-upload-file
+      [initialFiles]="transformedArchivo"
+      (uploadComplete)="handleFileChanges($event)"
+    ></shared-upload-file>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateDocumento()"></button>
+    <button type="button" pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModalDocumento()"></button>
+  </p-footer>
 </p-dialog>
 <!-- <div class="container mt-4">
     <h2 class="text-center mb-4">Panel de Abogado</h2>

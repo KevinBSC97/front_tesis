@@ -1,7 +1,7 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { CasoDTO } from 'src/app/interfaces/caso';
+import { CasoDTO, SeguimientoDTO } from 'src/app/interfaces/caso';
 import { AuthService } from 'src/app/services/auth.service';
 import { CrearCasoComponent } from '../crear-caso/crear-caso.component';
 import { CasosService } from 'src/app/services/casos.service';
@@ -33,6 +33,10 @@ export class AbogadosComponent implements OnInit{
   displayEditModal: boolean = false;
   displayModalDocumento: boolean = false;
   displaySeguimientoModal = false;
+  displaySeguimientosModal = false;
+  displayEditModalDocumento: boolean = false;
+
+  seguimientos: SeguimientoDTO[] = [];
 
   searchTextCitas: string = '';
   filteredCitas: CitaDTO[] = [];
@@ -50,7 +54,15 @@ export class AbogadosComponent implements OnInit{
 
   citas: CitaDTO[] = [];
 
-  selectedDocumento: DocumentoDTO | null = null;
+  selectedDocumento: DocumentoDTO = {
+    contenido: '',
+    documentoId: 0,
+    fechaCreacion: new Date(),
+    nombre: '',
+    nombreArchivo: '',
+    tipo: '',
+    usuarioId: 0,
+  };
 
   searchTextDocumentos: string = '';
   filteredDocumentos: DocumentoDTO[] = [];
@@ -79,6 +91,8 @@ export class AbogadosComponent implements OnInit{
 
   tiposDocumentos: { label: string; value: string }[] = [];
 
+  transformedArchivo: { name: string; type: string; content: string }[] = []
+
   @ViewChild(CrearCasoComponent) crearCasoComponent!: CrearCasoComponent;
 
   constructor(private fb: FormBuilder,
@@ -97,10 +111,10 @@ export class AbogadosComponent implements OnInit{
       progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
     });
     this.tiposDocumentos = [
-      { label: 'Legal', value: 'legal' },
-      { label: 'Leyes', value: 'leyes' },
-      { label: 'Contratos', value: 'contratos' },
-      { label: 'Otros', value: 'otros' },
+      { label: 'Legal', value: 'Legal' },
+      { label: 'Leyes', value: 'Leyes' },
+      { label: 'Contratos', value: 'Contratos' },
+      { label: 'Otros', value: 'Otros' },
     ];
     this.documentForm = this.fb.group({
       nombreDocumento: ['', [Validators.required, Validators.minLength(3)]],
@@ -214,7 +228,11 @@ export class AbogadosComponent implements OnInit{
     if(abogadoId){
       this.casosService.getCasos(abogadoId).subscribe(
         data => {
-          this.casos = data;
+          //this.casos = data;
+          this.casos = data.map(caso => ({
+            ...caso,
+            seguimientos: caso.seguimientos || [] // Asegúrate de inicializar seguimientos como array si es null o undefined
+          }));
           this.filteredCasos = [...data]
         },
         error => {
@@ -222,6 +240,57 @@ export class AbogadosComponent implements OnInit{
         }
       )
     }
+  }
+
+  editDocumento(documento: any): void {
+    if (!documento) return; // Si el documento es null o undefined, salir del método
+
+    this.selectedDocumento = { ...documento };
+
+    // Transforma el archivo actual para `shared-upload-file`
+    if (this.selectedDocumento?.contenido) {
+      this.transformedArchivo = [
+        {
+          name: this.selectedDocumento.nombreArchivo ?? "Archivo sin nombre",
+          type: this.selectedDocumento.contenido.split(";")[0]?.split(":")[1] ?? "application/octet-stream",
+          content: this.selectedDocumento.contenido,
+        },
+      ];
+      console.log('archivo: ', this.transformedArchivo);
+    } else {
+      this.transformedArchivo = [];
+    }
+
+    this.displayEditModalDocumento = true;
+  }
+
+  updateDocumento(): void {
+    if (this.selectedDocumento) {
+      this.documentosService.updateDocumento(this.selectedDocumento.documentoId, this.selectedDocumento).subscribe({
+        next: (response) => {
+          console.log(response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Documento Actualizado',
+            detail: 'El documento ha sido actualizado correctamente.',
+          });
+          this.displayEditModalDocumento = false;
+          this.loadDocumentos(); // Recargar la lista de documentos actualizada
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al actualizar el documento.',
+          });
+          console.error(err);
+        },
+      });
+    }
+  }
+
+  closeEditModalDocumento() {
+    this.displayEditModalDocumento = false;
   }
 
   filterCasos() {
@@ -236,7 +305,8 @@ export class AbogadosComponent implements OnInit{
         caso.asunto.toLowerCase().includes(searchTextLower) ||
         caso.nombreCliente.toLowerCase().includes(searchTextLower) ||
         caso.nombreAbogado.toLowerCase().includes(searchTextLower) ||
-        caso.estado.toLowerCase().includes(searchTextLower)
+        caso.estado.toLowerCase().includes(searchTextLower) ||
+        caso.tipoCaso?.toLowerCase().includes(searchTextLower)
       )
     })
   }
@@ -252,6 +322,19 @@ export class AbogadosComponent implements OnInit{
         console.log('error');
       }
     })
+  }
+
+  showSeguimientos(caso: CasoDTO): void {
+    if (caso.seguimientos && caso.seguimientos.length > 0) {
+      this.seguimientos = caso.seguimientos;
+      this.displaySeguimientosModal = true; // Variable para mostrar el modal
+    } else {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Sin Seguimientos',
+        detail: 'Este caso no tiene seguimientos registrados.',
+      });
+    }
   }
 
   guardarDocumento(event: Event) {
@@ -448,21 +531,15 @@ export class AbogadosComponent implements OnInit{
   downloadPDF() {
     if (this.selectedCaso) {
         const doc = new jsPDF();
-        let cursorY = 20; // Margen inicial superior
+        let cursorY = 20;
 
-        // Agregar logo del consultorio
+        // Logo del consultorio
         const logoPath = 'assets/image/logo.png';
-        const logoX = 15; // Coordenada X del logo
-        const logoWidth = 50; // Ancho del logo
-        const logoHeight = 20; // Alto del logo
-        doc.addImage(logoPath, 'PNG', logoX, cursorY, logoWidth, logoHeight);
-
-        // Título alineado al logo
+        doc.addImage(logoPath, 'PNG', 15, cursorY, 50, 20);
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
-        const titleX = logoX + logoWidth + 10; // Alinear el título a la derecha del logo
-        doc.text('Consultorio Jurídico', titleX, cursorY + 15); // Alineación vertical ajustada
-        cursorY += logoHeight + 10;
+        doc.text('Consultorio Jurídico', 80, cursorY + 15);
+        cursorY += 35;
 
         // Fecha de registro
         doc.setFontSize(12);
@@ -477,11 +554,11 @@ export class AbogadosComponent implements OnInit{
         doc.setFont("helvetica", "bold");
         doc.text('Detalles del Caso', 15, cursorY);
         cursorY += 10;
-        doc.setFont("helvetica", "normal");
+
         const details = [
             { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
             { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
-            { label: 'Tipo de Caso', value: this.selectedCaso.asunto || "No especificado." },
+            { label: 'Tipo de Caso', value: this.selectedCaso.tipoCaso || "No especificado." },
             { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
             { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
                 ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -490,37 +567,10 @@ export class AbogadosComponent implements OnInit{
 
         details.forEach(({ label, value }) => {
             doc.setFont("helvetica", "bold");
-            doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
-            const textWidth = doc.getTextWidth(`• ${label}: `); // Calcular el ancho de la etiqueta
-            doc.setFont("helvetica", "normal");
-            doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
-            cursorY += 10;
-
-            // Verificar si es necesario agregar una nueva página
-            if (cursorY > doc.internal.pageSize.height - 20) {
-                doc.addPage();
-                cursorY = 20;
-            }
-        });
-
-        // Información de la cita judicial
-        doc.setFont("helvetica", "bold");
-        doc.text('Información de la Cita Judicial', 15, cursorY);
-        cursorY += 10;
-        doc.setFont("helvetica", "normal");
-        const citaDetails = [
-            { label: 'Fecha de la Cita Judicial', value: this.selectedCaso.fechaCita
-                ? new Date(this.selectedCaso.fechaCita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                : "No especificada." },
-            { label: 'Asunto de la Cita', value: this.selectedCaso.asunto || "No especificado." },
-        ];
-
-        citaDetails.forEach(({ label, value }) => {
-            doc.setFont("helvetica", "bold");
-            doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
+            doc.text(`• ${label}:`, 15, cursorY);
             const textWidth = doc.getTextWidth(`• ${label}: `);
             doc.setFont("helvetica", "normal");
-            doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
+            doc.text(value, 15 + textWidth, cursorY);
             cursorY += 10;
 
             if (cursorY > doc.internal.pageSize.height - 20) {
@@ -537,6 +587,34 @@ export class AbogadosComponent implements OnInit{
         const descripcion = this.selectedCaso.descripcion || "No especificada.";
         doc.text(descripcion, 15, cursorY, { maxWidth: 180 });
         cursorY += 20;
+
+        // Observaciones
+        if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
+            doc.setFont("helvetica", "bold");
+            doc.text('Observaciones', 15, cursorY);
+            cursorY += 10;
+
+            this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
+                doc.setFont("helvetica", "normal");
+                const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
+                const progreso = `Progreso: ${seguimiento.progreso}%`;
+                const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+                doc.text(observacion, 15, cursorY);
+                cursorY += 7;
+                doc.text(progreso, 15, cursorY);
+                cursorY += 7;
+                doc.text(fechaRegistro, 15, cursorY);
+                cursorY += 10;
+
+                if (cursorY > doc.internal.pageSize.height - 20) {
+                    doc.addPage();
+                    cursorY = 20;
+                }
+            });
+        } else {
+            doc.text('No hay observaciones registradas.', 15, cursorY);
+            cursorY += 20;
+        }
 
         // Imágenes adjuntas
         if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
@@ -565,6 +643,127 @@ export class AbogadosComponent implements OnInit{
         doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
     }
   }
+
+  // downloadPDF() {
+  //   if (this.selectedCaso) {
+  //       const doc = new jsPDF();
+  //       let cursorY = 20; // Margen inicial superior
+
+  //       // Agregar logo del consultorio
+  //       const logoPath = 'assets/image/logo.png';
+  //       const logoX = 15; // Coordenada X del logo
+  //       const logoWidth = 50; // Ancho del logo
+  //       const logoHeight = 20; // Alto del logo
+  //       doc.addImage(logoPath, 'PNG', logoX, cursorY, logoWidth, logoHeight);
+
+  //       // Título alineado al logo
+  //       doc.setFontSize(16);
+  //       doc.setFont("helvetica", "bold");
+  //       const titleX = logoX + logoWidth + 10; // Alinear el título a la derecha del logo
+  //       doc.text('Consultorio Jurídico', titleX, cursorY + 15); // Alineación vertical ajustada
+  //       cursorY += logoHeight + 10;
+
+  //       // Fecha de registro
+  //       doc.setFontSize(12);
+  //       doc.setFont("helvetica", "normal");
+  //       const fechaRegistro = this.selectedCaso.fechaRegistro
+  //           ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  //           : "No especificada.";
+  //       doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
+  //       cursorY += 15;
+
+  //       // Detalles del caso
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Detalles del Caso', 15, cursorY);
+  //       cursorY += 10;
+  //       doc.setFont("helvetica", "normal");
+  //       const details = [
+  //           { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
+  //           { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
+  //           { label: 'Tipo de Caso', value: this.selectedCaso.asunto || "No especificado." },
+  //           { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
+  //           { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
+  //               ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  //               : "No especificada." },
+  //       ];
+
+  //       details.forEach(({ label, value }) => {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
+  //           const textWidth = doc.getTextWidth(`• ${label}: `); // Calcular el ancho de la etiqueta
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
+  //           cursorY += 10;
+
+  //           // Verificar si es necesario agregar una nueva página
+  //           if (cursorY > doc.internal.pageSize.height - 20) {
+  //               doc.addPage();
+  //               cursorY = 20;
+  //           }
+  //       });
+
+  //       // Información de la cita judicial
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Información de la Cita Judicial', 15, cursorY);
+  //       cursorY += 10;
+  //       doc.setFont("helvetica", "normal");
+  //       const citaDetails = [
+  //           { label: 'Fecha de la Cita Judicial', value: this.selectedCaso.fechaCita
+  //               ? new Date(this.selectedCaso.fechaCita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  //               : "No especificada." },
+  //           { label: 'Asunto de la Cita', value: this.selectedCaso.asunto || "No especificado." },
+  //       ];
+
+  //       citaDetails.forEach(({ label, value }) => {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
+  //           const textWidth = doc.getTextWidth(`• ${label}: `);
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
+  //           cursorY += 10;
+
+  //           if (cursorY > doc.internal.pageSize.height - 20) {
+  //               doc.addPage();
+  //               cursorY = 20;
+  //           }
+  //       });
+
+  //       // Descripción del caso
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Descripción del Caso', 15, cursorY);
+  //       cursorY += 10;
+  //       doc.setFont("helvetica", "normal");
+  //       const descripcion = this.selectedCaso.descripcion || "No especificada.";
+  //       doc.text(descripcion, 15, cursorY, { maxWidth: 180 });
+  //       cursorY += 20;
+
+  //       // Imágenes adjuntas
+  //       if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text('Imágenes Adjuntas', 15, cursorY);
+  //           cursorY += 10;
+
+  //           this.selectedCaso.imagenes.forEach((base64Image: string) => {
+  //               const imgWidth = 70;
+  //               const imgHeight = 70;
+
+  //               if (cursorY + imgHeight > doc.internal.pageSize.height) {
+  //                   doc.addPage();
+  //                   cursorY = 20;
+  //               }
+
+  //               doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
+  //               cursorY += imgHeight + 10;
+  //           });
+  //       } else {
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
+  //       }
+
+  //       // Guardar el PDF
+  //       doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
+  //   }
+  // }
 
   // downloadPDF() {
   //   if (this.selectedCaso) {
