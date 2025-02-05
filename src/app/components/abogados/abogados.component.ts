@@ -876,11 +876,18 @@ export class AbogadosComponent implements OnInit{
 
   handleFileChanges(event: { archivos: any[]; nombres: string[] }): void {
     // Actualiza `transformedArchivos` para reflejar cambios en la vista
-    this.transformedArchivos = event.archivos;
+    // this.transformedArchivos = event.archivos;
 
-    // Sincroniza los cambios con `selectedCasoUser.archivos`
-    this.selectedCasoUser.archivos = this.transformedArchivos.map((file) => file.content); // Base64
-    this.selectedCasoUser.nombreArchivo = this.transformedArchivos.map((file) => file.name); // Nombres de los archivos
+    // // Sincroniza los cambios con `selectedCasoUser.archivos`
+    // this.selectedCasoUser.archivos = this.transformedArchivos.map((file) => file.content); // Base64
+    // this.selectedCasoUser.nombreArchivo = this.transformedArchivos.map((file) => file.name); // Nombres de los archivos
+    if (event.archivos.length > 0) {
+      this.selectedDocumento.contenido = event.archivos[0]?.content || ""; // Base64 del archivo con valor predeterminado
+      this.selectedDocumento.nombreArchivo = event.archivos[0]?.name || "Archivo sin nombre"; // Nombre del archivo con valor predeterminado
+    } else {
+      this.selectedDocumento.contenido = ''; // Valores vacíos si no hay archivo
+      this.selectedDocumento.nombreArchivo = '';
+    }
   }
 
   editCaso(caso: CasoDTO) {
