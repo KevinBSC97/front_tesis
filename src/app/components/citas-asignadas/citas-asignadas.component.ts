@@ -42,7 +42,7 @@ export class CitasAsignadasComponent {
     if (userId) {
       this.citaService.getCitasAsignadas(userId).subscribe({
         next: (citas) => {
-
+          console.log(citas);
           this.citasPendientes = citas.filter(c => c.estado === 'Pendiente');
           this.citasAceptadas = citas.filter(c => c.estado === 'Aceptado');
           this.citasRechazadas = citas.filter(c => c.estado === 'Rechazada');

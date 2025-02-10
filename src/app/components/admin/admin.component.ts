@@ -113,6 +113,7 @@ export class AdminComponent implements OnInit {
     password: '',
     rolId: 0,
     especialidadId: 0,
+    especialidadIds: [],
     estado: 'A'
   };
 
@@ -292,7 +293,7 @@ export class AdminComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
       rolId: [3],
-      especialidadId: ['', [Validators.required]],
+      especialidadIds: [[], [Validators.required]],
     });
     this.formCliente = this.fb.group({
       identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
@@ -532,16 +533,16 @@ export class AdminComponent implements OnInit {
 
   canRegister(): boolean {
     // Asegura que todos los campos están completos y valida las combinaciones de rol y especialidad
-    const { nombre, apellido, email, nombreUsuario, password, rolId, especialidadId } = this.newUser;
-    if (!nombre || !apellido || !email || !nombreUsuario || !password || !rolId || especialidadId == null) {
+    const { nombre, apellido, email, nombreUsuario, password, rolId, especialidadIds } = this.newUser;
+    if (!nombre || !apellido || !email || !nombreUsuario || !password || !rolId || especialidadIds == null) {
       return false;  // Asegura que todos los campos están llenos
     }
 
-    if (rolId === 2 && especialidadId !== 1) { // Cliente no puede tener especialidad que no sea 'Ninguna'
+    if (rolId === 2 && especialidadIds.length !== 1) { // Cliente no puede tener especialidad que no sea 'Ninguna'
       return false;
     }
 
-    if (rolId === 3 && especialidadId === 1) { // Abogado no puede tener 'Ninguna' especialidad
+    if (rolId === 3 && especialidadIds.includes(1)) { // Abogado no puede tener 'Ninguna' especialidad
       return false;
     }
 
@@ -864,7 +865,8 @@ export class AdminComponent implements OnInit {
       const newUser: UsuarioRegistroDTO = {
         ...this.formAbogado.value,
         rolId: 3,
-        estado: 'A'
+        estado: 'A',
+        especialidadIds: this.formAbogado.value.especialidadIds
       };
       this.sendRegisterRequest(newUser, 'Abogado');
     } else {
@@ -1004,6 +1006,7 @@ export class AdminComponent implements OnInit {
         password: '',
         rolId: 0,
         especialidadId: 0,
+        especialidadIds: [],
         estado: 'A'
     };
   }

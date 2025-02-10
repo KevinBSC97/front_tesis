@@ -441,7 +441,7 @@
     [bottomLabelExtensionAllowed]="'png, jpeg, jpg'"
     [accept]="'image/*'"
     (eventUpload)="setFile($event)"
-    [initialImages]="selectedCasoUser?.imagenes ?? []"
+    [initialImages]="selectedCasoUser.imagenes"
   >
   </shared-upload-image>
   </div>

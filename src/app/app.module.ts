@@ -20,6 +20,7 @@ import { MenuModule} from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { SliderModule } from 'primeng/slider';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AdminComponent } from './components/admin/admin.component';
@@ -89,7 +90,8 @@ import { FileLoaderComponent } from './shared/file-loader/file-loader.component'
     MenuModule,
     BadgeModule,
     AvatarModule,
-    SliderModule
+    SliderModule,
+    MultiSelectModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]

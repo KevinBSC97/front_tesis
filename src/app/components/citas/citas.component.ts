@@ -111,7 +111,7 @@ export class CitasComponent implements OnInit {
           this.abogadosDTO = abogadosActivos;
 
           if (abogadosActivos.length > 0) {
-            this.citaForm.patchValue({ abogado: abogadosActivos[0].usuarioId });
+            //this.citaForm.patchValue({ abogado: abogadosActivos[0].usuarioId });
             this.citaForm.get('abogado')?.enable();
             this.abogadoDisabled = false;
           } else {
@@ -162,7 +162,7 @@ export class CitasComponent implements OnInit {
 
     // Buscar el nombre de la especialidad seleccionada
     const especialidadSeleccionada = this.especialidadesDTO.find(e => e.especialidadId === +this.citaForm.value.especialidadId);
-    const abogadoSeleccionado = this.abogadosDTO.find(a => a.usuarioId === this.citaForm.value.abogado);
+    const abogadoSeleccionado = this.abogadosDTO.find(a => a.usuarioId === +this.citaForm.value.abogado);
 
     // Obtener el usuario actual
     const usuarioActual = this.authService.getCurrentUser();
@@ -177,6 +177,8 @@ export class CitasComponent implements OnInit {
         especialidad: especialidadSeleccionada ? especialidadSeleccionada.descripcion : 'No especificada', // Asignar el nombre de la especialidad
         estado: 'Pendiente'
     };
+
+    console.log('datos cita: ', citaData);
 
     this.authService.createCita(citaData).subscribe({
         next: (response) => {

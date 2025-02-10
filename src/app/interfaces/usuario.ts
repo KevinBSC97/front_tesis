@@ -35,7 +35,8 @@ export interface UsuarioRegistroDTO {
   nombreUsuario: string;
   password: string;
   rolId: number;
-  especialidadId?: number;
+  especialidadId: number;
+  especialidadIds?: number[];
   estado: string;
 }
 
