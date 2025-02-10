@@ -179,8 +179,9 @@ export class CitasComponent implements OnInit {
     };
 
     this.authService.createCita(citaData).subscribe({
-        next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Cita creada exitosamente' });
+        next: (response) => {
+            //this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Cita creada exitosamente' });
+            this.citaCreada.emit(response);
             this.resetForm();
         },
         error: (error) => {

@@ -52,7 +52,7 @@
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Administradores</h5>
+                <h5><i class="pi pi-users me-3 fw-bold"></i>Total de Administradores</h5>
               </div>
               <div class="card-body text-center">
                 <p class="card-text">{{totalAdministradores}}</p>
@@ -62,7 +62,7 @@
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Abogados</h5>
+                <h5><i class="pi pi-briefcase me-3 fw-bold"></i>Total de Abogados</h5>
               </div>
               <div class="card-body text-center">
                 <p class="card-text">{{totalAbogados}}</p>
@@ -72,7 +72,7 @@
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Clientes</h5>
+                <h5><i class="pi pi-user me-3 fw-bold"></i>Total de Clientes</h5>
               </div>
               <div class="card-body text-center">
                 <p class="card-text">{{totalClientes}}</p>
@@ -87,7 +87,7 @@
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Citas Creadas</h5>
+                <h5><i class="pi pi-calendar me-3 fw-bold"></i>Total de Citas Creadas</h5>
               </div>
               <div class="card-body text-center">
                 <p class="card-text">{{totalCitas}}</p>
@@ -97,7 +97,7 @@
           <div class="col-md-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Casos</h5>
+                <h5><i class="pi pi-briefcase me-3 fw-bold"></i>Total de Casos</h5>
               </div>
               <div class="card-body text-center">
                 <p class="card-text">{{totalCasos}}</p>
@@ -161,7 +161,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserAdmin(admin.usuarioId)" title="Editar Administrador">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(admin.usuarioId)" title="Eliminar Administrador">
+                <button *ngIf="admin.usuarioId !== currentUserId" class="btn btn-danger btn-sm" (click)="eliminarUsuario(admin.usuarioId)" title="Eliminar Administrador">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -315,6 +315,7 @@
                 class="btn btn-primary me-3"
                 title="Editar cita"
                 (click)="editCita(cita)"
+
               >
                 <i class="pi pi-pencil"></i>
               </button>
@@ -477,10 +478,16 @@
     </table>
   </div>
   <div class="group-images">
-    <div *ngFor="let imagen of selectedCaso?.imagenes">
-      <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
-      </shared-image-loader>
+    <h4>Imágenes Adjuntas</h4>
+    <div *ngIf="(selectedCaso?.imagenes?.length ?? 0) > 0; else noImagenes">
+      <div *ngFor="let imagen of selectedCaso?.imagenes">
+        <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
+        </shared-image-loader>
+      </div>
     </div>
+    <ng-template #noImagenes>
+      <p>No hay imágenes adjuntas</p>
+    </ng-template>
   </div>
   <div class="detalles-archivos">
     <h4>Archivos Adjuntos</h4>
@@ -527,8 +534,6 @@
     </p-footer>
   </form>
 </p-dialog>
-
-
 
 <p-dialog header="Editar Cita" [(visible)]="displayEditModalCita" [style]="{width: '50vw'}" [modal]="true">
   <div class="form-group mb-3">
@@ -579,11 +584,12 @@
 </p-dialog>
 
 <p-toast></p-toast>
-<p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true">
+<p-dialog header="Registro de Administrador" [(visible)]="displayModalAdmin" [style]="{width: '50vw'}" [modal]="true" (onHide)="cerrarDialogoAdmin()">
   <form [formGroup]="formAdmin">
     <div class="form-group mb-3">
       <label for="identificacion">Identificación</label>
-      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10" (keydown)="permitirSoloNumeros($event)">
+      <small class="text-danger">{{ mensajeErrorIdentificacionAdmin }}</small>
     </div>
     <div class="form-group mb-3">
       <label for="nombreUsuario">Nombre de Usuario</label>
@@ -591,35 +597,48 @@
     </div>
     <div class="form-group mb-3">
       <label for="nombre">Nombre</label>
-      <input type="text" pInputText formControlName="nombre" class="form-control">
+      <input type="text" pInputText formControlName="nombre" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formAdmin.get('nombre')?.invalid && formAdmin.get('nombre')?.touched">
+        El nombre solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="apellido">Apellido</label>
-      <input type="text" pInputText formControlName="apellido" class="form-control">
+      <input type="text" pInputText formControlName="apellido" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formAdmin.get('apellido')?.invalid && formAdmin.get('apellido')?.touched">
+        El apellido solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="email">Email</label>
       <input type="email" pInputText formControlName="email" class="form-control">
+      <small class="text-danger" *ngIf="formAdmin.get('email')?.invalid && formAdmin.get('email')?.touched">
+        Ingrese un correo válido.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="password">Contraseña</label>
       <input type="password" pInputText formControlName="password" class="form-control">
+      <small class="text-muted">
+        La contraseña debe tener entre 8 y 12 caracteres, caracteres especiales como .-_*?¡?
+      </small>
     </div>
   </form>
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Registrar" icon="pi pi-check"
-
+        [disabled]="!formAdmin.valid"
         (click)="registerAdmin()" class="btn btn-success">
         </button>
     </div>
 </p-dialog>
 
 <p-toast></p-toast>
-<p-dialog header="Registro de Cliente" [(visible)]="displayModalCliente" [style]="{width: '50vw'}" [modal]="true">
+<p-dialog header="Registro de Cliente" [(visible)]="displayModalCliente" [style]="{width: '50vw'}" [modal]="true" (onHide)="cerrarDialogoCliente()">
   <form [formGroup]="formCliente">
     <div class="form-group mb-3">
       <label for="identificacion">Identificación</label>
-      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10" (keydown)="permitirSoloNumeros($event)">
+      <small class="text-danger">{{ mensajeErrorIdentificacionCliente }}</small>
     </div>
     <div class="form-group mb-3">
       <label for="nombreUsuario">Nombre de Usuario</label>
@@ -627,35 +646,48 @@
     </div>
     <div class="form-group mb-3">
       <label for="nombre">Nombre</label>
-      <input type="text" pInputText formControlName="nombre" class="form-control">
+      <input type="text" pInputText formControlName="nombre" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formCliente.get('nombre')?.invalid && formCliente.get('nombre')?.touched">
+        El nombre solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="apellido">Apellido</label>
-      <input type="text" pInputText formControlName="apellido" class="form-control">
+      <input type="text" pInputText formControlName="apellido" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formCliente.get('apellido')?.invalid && formCliente.get('apellido')?.touched">
+        El apellido solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="email">Email</label>
       <input type="email" pInputText formControlName="email" class="form-control">
+      <small class="text-danger" *ngIf="formAdmin.get('email')?.invalid && formAdmin.get('email')?.touched">
+        Ingrese un correo válido.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="password">Contraseña</label>
       <input type="password" pInputText formControlName="password" class="form-control">
+      <small class="text-muted">
+        La contraseña debe tener entre 8 y 12 caracteres, caracteres especiales como .-_*?¡?
+      </small>
     </div>
   </form>
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Registrar" icon="pi pi-check"
-
+        [disabled]="!formCliente.valid"
         (click)="registerCliente()" class="btn btn-success">
         </button>
     </div>
 </p-dialog>
 
 <p-toast></p-toast>
-<p-dialog header="Registro de Abogado" [(visible)]="displayModalAbogado" [style]="{width: '50vw'}" [modal]="true">
+<p-dialog header="Registro de Abogado" [(visible)]="displayModalAbogado" [style]="{width: '50vw'}" [modal]="true" (onHide)="cerrarDialogoAdbogado()">
   <form [formGroup]="formAbogado">
     <div class="form-group mb-3">
       <label for="identificacion">Identificación</label>
-      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10">
+      <input type="text" pInputText formControlName="identificacion" class="form-control" maxlength="10" (keydown)="permitirSoloNumeros($event)">
+      <small class="text-danger">{{ mensajeErrorIdentificacionAbogado }}</small>
     </div>
     <div class="form-group mb-3">
       <label for="nombreUsuario">Nombre de Usuario</label>
@@ -663,15 +695,24 @@
     </div>
     <div class="form-group mb-3">
       <label for="nombre">Nombre</label>
-      <input type="text" pInputText formControlName="nombre" class="form-control">
+      <input type="text" pInputText formControlName="nombre" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formAbogado.get('nombre')?.invalid && formAbogado.get('nombre')?.touched">
+        El nombre solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="apellido">Apellido</label>
-      <input type="text" pInputText formControlName="apellido" class="form-control">
+      <input type="text" pInputText formControlName="apellido" class="form-control" (keypress)="permitirSoloLetras($event)">
+      <small class="text-danger" *ngIf="formAbogado.get('apellido')?.invalid && formAbogado.get('apellido')?.touched">
+        El apellido solo puede contener letras.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="email">Email</label>
       <input type="email" pInputText formControlName="email" class="form-control">
+      <small class="text-danger" *ngIf="formAbogado.get('email')?.invalid && formAbogado.get('email')?.touched">
+        Ingrese un correo válido.
+      </small>
     </div>
     <div class="form-group mb-3">
       <label for="especialidad">Especialidad</label>
@@ -681,11 +722,14 @@
     <div class="form-group mb-3">
       <label for="password">Contraseña</label>
       <input type="password" pInputText formControlName="password" class="form-control">
+      <small class="text-muted">
+        La contraseña debe tener entre 8 y 12 caracteres, caracteres especiales como .-_*?¡?
+      </small>
     </div>
   </form>
     <div class="d-flex justify-content-end">
         <button type="button" pButton label="Registrar" icon="pi pi-check"
-
+        [disabled]="!formAbogado.valid"
         (click)="registerAbogado()" class="btn btn-success">
         </button>
     </div>

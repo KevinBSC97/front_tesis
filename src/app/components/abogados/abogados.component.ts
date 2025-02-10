@@ -357,6 +357,7 @@ export class AbogadosComponent implements OnInit{
           });
           this.displayModalCargarDocumento = false;
           this.documentForm.reset();
+          this.loadDocumentos();
         },
         error: (error) => {
           this.messageService.add({
@@ -515,8 +516,18 @@ export class AbogadosComponent implements OnInit{
 
   showCaseDetails(caso: CasoDTO) {
     console.log('caso:', caso);
-    this.selectedCaso = caso;
+    console.log('Archivos adjuntos:', this.selectedCaso?.archivos);
+    //this.selectedCaso = caso;
+    this.selectedCaso = {
+      ...caso,
+      imagenes: caso.imagenes?.filter(imagen => imagen.trim() !== '') ?? [],
+      archivos: caso.archivos?.filter(archivo => archivo.trim() !== '') ?? []
+    };
     this.displayModal = true;
+  }
+
+  tieneArchivosAdjuntos(): boolean {
+    return !!this.selectedCaso?.archivos && this.selectedCaso.archivos.length > 0;
   }
 
   downloadExcel() {

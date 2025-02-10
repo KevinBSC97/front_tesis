@@ -352,10 +352,16 @@
     </table>
   </div>
   <div class="group-images">
-    <div *ngFor="let imagen of selectedCaso?.imagenes">
-      <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
-      </shared-image-loader>
+    <h4>Imágenes Adjuntas</h4>
+    <div *ngIf="(selectedCaso?.imagenes?.length ?? 0) > 0; else noImagenes">
+      <div *ngFor="let imagen of selectedCaso?.imagenes">
+        <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
+        </shared-image-loader>
+      </div>
     </div>
+    <ng-template #noImagenes>
+      <p>No hay imágenes adjuntas</p>
+    </ng-template>
   </div>
   <div class="detalles-archivos">
     <h4>Archivos Adjuntos</h4>

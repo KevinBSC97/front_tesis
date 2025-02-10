@@ -4,7 +4,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { EspecialidadDTO, UsuarioDTO, UsuarioRegistroDTO } from 'src/app/interfaces/usuario';
 import { AuthService } from 'src/app/services/auth.service';
 import { UsuarioService } from 'src/app/services/usuario.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { CitasService } from 'src/app/services/citas.service';
 import { CasosService } from 'src/app/services/casos.service';
@@ -174,6 +174,12 @@ export class AdminComponent implements OnInit {
     { label: 'Cliente', value: 2 }
   ];
 
+  mensajeErrorIdentificacionAdmin: string = '';
+  mensajeErrorIdentificacionAbogado: string = '';
+  mensajeErrorIdentificacionCliente: string = '';
+
+  currentUserId: number | null = null;
+
   // especialidades = [
   //   { label: 'Ninguna', value: 1 },
   //   { label: 'Derecho familiar', value: 2 },
@@ -193,6 +199,7 @@ export class AdminComponent implements OnInit {
     private usuarioService: UsuarioService) {}
 
   ngOnInit() {
+    this.currentUserId = this.authService.getCurrentUser()?.usuarioId ?? null;
     this.loadUsers();
     this.loadEspecialidades();
     this.obtenerTotales();
@@ -204,6 +211,7 @@ export class AdminComponent implements OnInit {
       observacion: ['', Validators.required],
       progreso: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
     });
+    this.suscribirValidacionIdentificacion();
 
     this.items = [
       {
@@ -243,15 +251,34 @@ export class AdminComponent implements OnInit {
       {
           separator: true
       }
-  ];
+    ];
   }
+
+  // crearFormulario(rolId: number, especialidadId: number = 1): FormGroup {
+  //   return this.fb.group({
+  //     identificacion: ['', [Validators.required, Validators.pattern(/^\d{10}$/), this.validarCedulaEcuatoriana]],
+  //     nombreUsuario: ['', [Validators.required]],
+  //     nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
+  //     apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
+  //     email: ['', [Validators.required, Validators.email]],
+  //     password: ['', [Validators.required]],
+  //     rolId: [rolId],
+  //     especialidadId: [especialidadId, rolId === 3 ? [Validators.required] : []] // Solo se valida para "Abogado".
+  //   });
+  // }
+
+  // crearFormularios(): void {
+  //   this.formAdmin = this.crearFormulario(1); // Rol Administrador
+  //   this.formAbogado = this.crearFormulario(3); // Rol Abogado
+  //   this.formCliente = this.crearFormulario(2); // Rol Cliente
+  // }
 
   crearFormulario(): void{
     this.formAdmin = this.fb.group({
       identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       nombreUsuario: ['', [Validators.required]],
-      nombre: ['', [Validators.required]],
-      apellido: ['', [Validators.required]],
+      nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
+      apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
       rolId: [1],
@@ -260,8 +287,8 @@ export class AdminComponent implements OnInit {
     this.formAbogado = this.fb.group({
       identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       nombreUsuario: ['', [Validators.required]],
-      nombre: ['', [Validators.required]],
-      apellido: ['', [Validators.required]],
+      nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
+      apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
       rolId: [3],
@@ -270,13 +297,178 @@ export class AdminComponent implements OnInit {
     this.formCliente = this.fb.group({
       identificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       nombreUsuario: ['', [Validators.required]],
-      nombre: ['', [Validators.required]],
-      apellido: ['', [Validators.required]],
+      nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
+      apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
       rolId: [2],
       especialidad: [1],
     });
+  }
+
+  permitirSoloNumeros(event: KeyboardEvent): void {
+    const teclaPresionada = event.key;
+
+    // Permitir teclas de control como Backspace, Delete, Tab, Escape, Flechas, etc.
+    if (
+      [
+        'Backspace',
+        'Delete',
+        'Tab',
+        'ArrowLeft',
+        'ArrowRight',
+        'Home',
+        'End',
+      ].includes(teclaPresionada)
+    ) {
+      return;
+    }
+
+    // Permitir solo números (0-9)
+    if (!/^\d$/.test(teclaPresionada)) {
+      event.preventDefault();
+    }
+  }
+
+  permitirSoloLetras(event: KeyboardEvent): void {
+    const charCode = event.charCode || event.keyCode;
+    const charStr = String.fromCharCode(charCode);
+
+    // Verifica que el carácter sea una letra (incluye caracteres acentuados y espacio)
+    const regex = /^[a-zA-ZÀ-ÿ\s]+$/;
+    if (!regex.test(charStr)) {
+      event.preventDefault();
+    }
+  }
+
+  cerrarDialogoAdmin(): void {
+    this.displayModalAdmin = false;
+    this.formAdmin.reset(); // Resetea el formulario
+    this.mensajeErrorIdentificacionAdmin = ''; // Limpia los mensajes de error personalizados
+  }
+
+  cerrarDialogoCliente(): void {
+    this.displayModalAdmin = false;
+    this.formCliente.reset(); // Resetea el formulario
+    this.mensajeErrorIdentificacionCliente = ''; // Limpia los mensajes de error personalizados
+  }
+
+  cerrarDialogoAdbogado(): void {
+    this.displayModalAbogado = false;
+    this.formAbogado.reset(); // Resetea el formulario
+    this.mensajeErrorIdentificacionAbogado = ''; // Limpia los mensajes de error personalizados
+  }
+
+  validarCedulaEcuatoriana(cedula: string): boolean {
+    if (!cedula || cedula.length !== 10) {
+      return false;
+    }
+
+    // Verificar que los dos primeros dígitos correspondan a provincias válidas
+    const provincia = parseInt(cedula.substring(0, 2), 10);
+    if (provincia < 1 || provincia > 24) {
+      return false;
+    }
+
+    // Verificar el dígito verificador
+    const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    let suma = 0;
+
+    for (let i = 0; i < 9; i++) {
+      let valor = parseInt(cedula[i], 10) * coeficientes[i];
+      if (valor > 9) {
+        valor -= 9;
+      }
+      suma += valor;
+    }
+
+    const digitoVerificador = (10 - (suma % 10)) % 10;
+    return digitoVerificador === parseInt(cedula[9], 10);
+  }
+
+  // validarCedulaEcuatoriana(control: AbstractControl): { [key: string]: boolean } | null {
+  //   const cedula = control.value;
+  //   if (!cedula) return null;
+
+  //   // Validar longitud (10 dígitos)
+  //   if (cedula.length !== 10) return { cedulaInvalida: true };
+
+  //   // Extraer los primeros dos dígitos (provincia)
+  //   const provincia = parseInt(cedula.substring(0, 2), 10);
+  //   if (provincia < 1 || provincia > 24) return { cedulaInvalida: true };
+
+  //   // El tercer dígito debe estar entre 0 y 6
+  //   const tercerDigito = parseInt(cedula[2], 10);
+  //   if (tercerDigito < 0 || tercerDigito > 6) return { cedulaInvalida: true };
+
+  //   // Validar el dígito verificador con el algoritmo de módulo 10
+  //   let suma = 0;
+  //   const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+  //   for (let i = 0; i < 9; i++) {
+  //     let valor = parseInt(cedula[i], 10) * coeficientes[i];
+  //     if (valor > 9) valor -= 9;
+  //     suma += valor;
+  //   }
+
+  //   const digitoVerificador = (10 - (suma % 10)) % 10;
+  //   if (digitoVerificador !== parseInt(cedula[9], 10)) return { cedulaInvalida: true };
+
+  //   return null; // La cédula es válida
+  // }
+
+  suscribirValidacionIdentificacion(): void {
+    this.formAdmin.get('identificacion')?.valueChanges.subscribe((valor: string) => {
+      if (!valor) {
+        this.mensajeErrorIdentificacionAdmin = 'El campo es obligatorio.';
+      } else if (!/^\d+$/.test(valor)) {
+        this.mensajeErrorIdentificacionAdmin = 'Solo se permiten números.';
+      } else if (valor.length < 10) {
+        this.mensajeErrorIdentificacionAdmin = 'La identificación debe tener 10 dígitos.';
+      } else if (!this.validarCedulaEcuatoriana(valor)) {
+        this.mensajeErrorIdentificacionAdmin = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      } else {
+        this.mensajeErrorIdentificacionAdmin = ''; // No hay errores
+      }
+    });
+
+    // Repite el mismo patrón para los otros formularios
+    this.formCliente.get('identificacion')?.valueChanges.subscribe((valor: string) => {
+      if (!valor) {
+        this.mensajeErrorIdentificacionCliente = 'El campo es obligatorio.';
+      } else if (!/^\d+$/.test(valor)) {
+        this.mensajeErrorIdentificacionCliente = 'Solo se permiten números.';
+      } else if (valor.length < 10) {
+        this.mensajeErrorIdentificacionCliente = 'La identificación debe tener 10 dígitos.';
+      } else if (!this.validarCedulaEcuatoriana(valor)) {
+        this.mensajeErrorIdentificacionCliente = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      } else {
+        this.mensajeErrorIdentificacionCliente = ''; // No hay errores
+      }
+    });
+
+    this.formAbogado.get('identificacion')?.valueChanges.subscribe((valor: string) => {
+      if (!valor) {
+        this.mensajeErrorIdentificacionAbogado = 'El campo es obligatorio.';
+      } else if (!/^\d+$/.test(valor)) {
+        this.mensajeErrorIdentificacionAbogado = 'Solo se permiten números.';
+      } else if (valor.length < 10) {
+        this.mensajeErrorIdentificacionAbogado = 'La identificación debe tener 10 dígitos.';
+      } else if (!this.validarCedulaEcuatoriana(valor)) {
+        this.mensajeErrorIdentificacionAbogado = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      } else {
+        this.mensajeErrorIdentificacionAbogado = ''; // No hay errores
+      }
+    });
+  }
+
+  obtenerMensajeError(control: any): string {
+    if (control?.hasError('required')) {
+      return 'El campo es obligatorio.';
+    }
+    if (control?.hasError('pattern')) {
+      return 'La identificación debe ser numérica y tener 10 dígitos.';
+    }
+    return '';
   }
 
   exportarExcel(): void {
@@ -449,7 +641,8 @@ export class AdminComponent implements OnInit {
     // Llama al servicio para cargar abogados según la especialidad
     this.especialidadService.getAbogadosPorEspecialidad(this.selectedEspecialidad.especialidadId).subscribe({
       next: (response) => {
-        this.listaAbogados = response.map((abogado) => ({
+        const abogadosActivos = response.filter((abogado) => abogado.estado === 'A');
+        this.listaAbogados = abogadosActivos.map((abogado) => ({
           label: `${abogado.nombre} ${abogado.apellido}`, // Nombre completo
           value: abogado.usuarioId, // ID único
         }));
@@ -716,6 +909,14 @@ export class AdminComponent implements OnInit {
 
   editCita(cita: CitaDTO){
     console.log('cita seleccionada: ', cita);
+    if(cita.estado !== 'Rechazado'){
+      this.messageService.add({
+        severity:'warn',
+        summary:'No permitido',
+        detail:'Solo se pueden editar citas que han sido rechazadas'
+      });
+      return;
+    }
     this.selectCitaUser = { ...cita };
     this.selectCitaUser.abogadoId = null;
     if (cita.especialidadId) {
@@ -1050,7 +1251,12 @@ export class AdminComponent implements OnInit {
 
   showCaseDetails(caso: CasoDTO) {
     console.log('caso:', caso);
-    this.selectedCaso = caso;
+    //this.selectedCaso = caso;
+    this.selectedCaso = {
+      ...caso,
+      imagenes: caso.imagenes?.filter(imagen => imagen.trim() !== '') ?? [],
+      archivos: caso.archivos?.filter(archivo => archivo.trim() !== '') ?? []
+    }
     this.displayModal = true;
   }
 
@@ -1211,31 +1417,47 @@ export class AdminComponent implements OnInit {
 
         // Observaciones
         if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
-            doc.setFont("helvetica", "bold");
-            doc.text('Observaciones', 15, cursorY);
-            cursorY += 10;
+          doc.setFont("helvetica", "bold");
+          doc.text('Observaciones', 15, cursorY);
+          cursorY += 10; // Espacio después del título
 
-            this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
-                doc.setFont("helvetica", "normal");
-                const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
-                const progreso = `Progreso: ${seguimiento.progreso}%`;
-                const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
-                doc.text(observacion, 15, cursorY);
-                cursorY += 7;
-                doc.text(progreso, 15, cursorY);
-                cursorY += 7;
-                doc.text(fechaRegistro, 15, cursorY);
-                cursorY += 10;
+          this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
+            doc.setFont("helvetica", "normal");
 
-                if (cursorY > doc.internal.pageSize.height - 20) {
-                    doc.addPage();
-                    cursorY = 20;
-                }
-            });
-        } else {
-            doc.text('No hay observaciones registradas.', 15, cursorY);
-            cursorY += 20;
-        }
+            const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
+            const progreso = `Progreso: ${seguimiento.progreso}%`;
+            const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+
+            // Verificar espacio disponible
+            if (cursorY + 25 > doc.internal.pageSize.height - 20) {
+                doc.addPage();
+                cursorY = 20;
+            }
+
+            doc.text(observacion, 15, cursorY, { maxWidth: 180 });
+            cursorY += 7;
+
+            doc.text(progreso, 15, cursorY, { maxWidth: 180 });
+            cursorY += 7;
+
+            doc.text(fechaRegistro, 15, cursorY, { maxWidth: 180 });
+            cursorY += 10; // Espaciado final
+        });
+      } else {
+          // Sin observaciones
+          if (cursorY + 10 > doc.internal.pageSize.height - 20) {
+              doc.addPage();
+              cursorY = 20; // Reiniciar cursor en la nueva página
+          }
+
+          doc.setFont("helvetica", "bold");
+          doc.text('Observaciones', 15, cursorY);
+          cursorY += 10;
+
+          doc.setFont("helvetica", "normal");
+          doc.text('No hay observaciones registradas.', 15, cursorY);
+          cursorY += 20; // Espacio después del mensaje
+      }
 
         // Imágenes adjuntas
         if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
@@ -1244,17 +1466,17 @@ export class AdminComponent implements OnInit {
             cursorY += 10;
 
             this.selectedCaso.imagenes.forEach((base64Image: string) => {
-                const imgWidth = 70;
-                const imgHeight = 70;
+              const imgWidth = 70;
+              const imgHeight = 70;
 
-                if (cursorY + imgHeight > doc.internal.pageSize.height) {
-                    doc.addPage();
-                    cursorY = 20;
-                }
+              if (cursorY + imgHeight > doc.internal.pageSize.height - 20) {
+                  doc.addPage();
+                  cursorY = 20;
+              }
 
-                doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
-                cursorY += imgHeight + 10;
-            });
+              doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
+              cursorY += imgHeight + 10;
+          });
         } else {
             doc.setFont("helvetica", "normal");
             doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);

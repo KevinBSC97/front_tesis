@@ -9,7 +9,7 @@
         <div class="empty-state centered-content">
           <i class="pi pi-file icon"></i>
           <span class="text-label">Subir archivos</span>
-          <span class="text-label description">Formatos permitidos (pdf, docx, txt)</span>
+          <span class="text-label description">Formatos permitidos (pdf)</span>
         </div>
       </ng-container>
 
@@ -28,5 +28,5 @@
       </div>
     </div>
   </div>
-  <input #fileInput class="form-control" type="file" style="display: none" [accept]="'.pdf,.docx,.txt'" (change)="selectFiles($event)" multiple />
+  <input #fileInput class="form-control" type="file" style="display: none" [accept]="'.pdf'" (change)="selectFiles($event)" multiple />
 </div>

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { FileUpload } from 'src/app/interfaces/file';
 
 @Component({
@@ -16,6 +17,8 @@ export class UploadFileComponent {
   @Output() deleteFileEvent = new EventEmitter<boolean>();
   @Input() disabled: boolean = false;
   @Input() initialFiles: { name: string; type: string; content: string}[] = [];
+
+  constructor(private messageService: MessageService){}
 
   ngOnInit(){
     // if(this.initialFiles && this.initialFiles.length > 0){
@@ -72,6 +75,14 @@ export class UploadFileComponent {
 
     if (input.files && input.files.length > 0) {
       Array.from(input.files).forEach((file) => {
+        if(file.type !== 'application/pdf'){
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Formato no válido',
+            detail: `El archivo ${file.name} no es válido. Solo se permiten archivos PDF.`
+          })
+          return;
+        }
         this.convertToBase64(file).then((base64: string) => {
           const fileObject = {
             name: file.name,

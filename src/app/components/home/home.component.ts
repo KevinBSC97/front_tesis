@@ -206,6 +206,8 @@ export class HomeComponent implements OnInit {
 
   crearCita(nuevaCita: CitaDTO){
     this.citas.push(nuevaCita);
+    this.filteredCitas.push(nuevaCita);
+    this.messageService.add({severity:'success', summary:'Éxito', detail:'Cita creada exitosamente'})
     this.displayModalCrearCita = false;
   }
 
@@ -220,7 +222,12 @@ export class HomeComponent implements OnInit {
   }
 
   showCaseDetails(caso: CasoDTO){
-    this.selectedCaso = caso;
+    //this.selectedCaso = caso;
+    this.selectedCaso = {
+      ...caso,
+      imagenes: caso.imagenes?.filter(imagen => imagen.trim() !== '') ?? [],
+      archivos: caso.archivos?.filter(archivo => archivo.trim() !== '') ?? []
+    }
     this.displayModal = true;
   }
 

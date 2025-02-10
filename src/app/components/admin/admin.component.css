@@ -47,3 +47,23 @@
 .navbar .btn-outline-light {
   margin-right: 1rem;
 }
+
+/* .group-images{
+  display: flex;
+  gap: .5rem;
+}
+
+img {
+  width: 100px;
+}
+
+.archivo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.archivo-item {
+  text-align: center;
+  width: 150px;
+} */
