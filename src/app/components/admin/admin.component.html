@@ -380,6 +380,9 @@
               >
                 <i class="pi pi-list"></i>
               </button>
+              <button class="btn btn-primary me-3" title="Editar Caso" (click)="validarEdicion(caso)">
+                <i class="pi pi-pencil"></i>
+              </button>
               <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
               </button></td>
@@ -580,6 +583,79 @@
   <p-footer>
     <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCita()"></button>
     <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModal()"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Editar Caso" [(visible)]="displayEditModalCaso" [style]="{width: '50vw'}" [modal]="true">
+  <div class="form-group mb-3">
+    <label for="asunto">Asunto</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.asunto" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="descripcion">Descripción</label>
+    <textarea pInputTextarea [(ngModel)]="selectedCasoUser.descripcion" class="form-control" rows="4" disabled></textarea>
+  </div>
+  <div class="form-group mb-3">
+    <label for="cliente">Cliente</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreCliente" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="abogado">Abogado</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.nombreAbogado" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaCita">Fecha de Registro del caso</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaRegistro" class="form-control" disabled>
+  </div>
+  <div class="form-group mb-3">
+    <label for="duracion">Duracion del caso</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.duracion" class="form-control" (ngModelChange)="calcularNuevaFechaFinalizacion()" min="1">
+  </div>
+  <div class="form-group mb-3">
+    <label for="fechaFinalizacion">Fecha de finalizacion</label>
+    <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaFinalizacion" class="form-control" disabled>
+  </div>
+  <!-- <div class="form-group mb-3">
+    <label for="progreso" class="form-label">Progreso del Caso</label>
+    <p-slider
+      [(ngModel)]="selectedCasoUser.progreso"
+      [min]="0"
+      [max]="100"
+      [step]="1"
+      style="width: 100%"
+    ></p-slider>
+    <p class="text-center">{{ selectedCasoUser.progreso }}%</p>
+  </div> -->
+  <div class="form-group mb-3">
+    <label for="estado">Estado</label>
+    <select disabled class="form-select" [(ngModel)]="selectedCasoUser.estado" required>
+      <option value="Abierto">Abierto</option>
+      <option value="En proceso">En Proceso</option>
+      <option value="cerrado">Cerrado</option>
+    </select>
+  </div>
+  <div class="my-4">
+    <shared-upload-image
+    [required]="true"
+    [label]="'Cargar imágenes'"
+    (deletePictureEvent)="resetFile($event)"
+    [bottomLabel]="'Formatos permitidos'"
+    [bottomLabelExtensionAllowed]="'png, jpeg, jpg'"
+    [accept]="'image/*'"
+    (eventUpload)="setFile($event)"
+    [initialImages]="selectedCasoUser.imagenes"
+  >
+  </shared-upload-image>
+  </div>
+  <div class="my-4">
+    <shared-upload-file
+      [initialFiles]="transformedArchivos"
+      (uploadComplete)="handleFileChanges($event)"
+    ></shared-upload-file>
+  </div>
+  <p-footer>
+    <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateCaso()"></button>
+    <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModalCaso()"></button>
   </p-footer>
 </p-dialog>
 

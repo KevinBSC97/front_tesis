@@ -241,9 +241,12 @@
               >
                 <i class="pi pi-list"></i>
               </button>
-              <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
+              <button class="btn btn-secondary me-3" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
-              </button></td>
+              </button>
+            <button class="btn btn-success" title="Solicitar prórroga del caso" (click)="abrirModalProrroga(caso)">
+              <i class="pi pi-calendar"></i>
+            </button></td>
             </tr>
           </ng-template>
         </p-table>
@@ -307,6 +310,7 @@
     </div>
   </div>
 </div>
+
 <p-toast></p-toast>
 <p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
   <div *ngIf="selectedCaso">
@@ -557,9 +561,20 @@
     <label for="nombre">Nombre del Documento</label>
     <input type="text" pInputText [(ngModel)]="selectedDocumento.nombre" class="form-control" />
   </div>
-  <div class="form-group mb-3">
+  <!-- <div class="form-group mb-3">
     <label for="tipo">Tipo del Documento</label>
     <input type="text" pInputText [(ngModel)]="selectedDocumento.tipo" class="form-control" />
+  </div> -->
+  <div class="form-group mb-3">
+    <label for="tipo">Tipo del Documento</label>
+    <p-dropdown
+      [options]="tiposDocumentos"
+      [(ngModel)]="selectedDocumento.tipo"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Seleccione un tipo"
+      class="form-control">
+    </p-dropdown>
   </div>
   <div class="form-group mb-3">
     <label for="archivo">Archivo</label>
@@ -572,6 +587,19 @@
     <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="updateDocumento()"></button>
     <button type="button" pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="closeEditModalDocumento()"></button>
   </p-footer>
+</p-dialog>
+
+<p-dialog header="Solicitar Prórroga para el Caso" [(visible)]="displayModalProrroga" [modal]="true" [style]="{ width: '50vw' }">
+  <form [formGroup]="prorrogaForm">
+    <div class="form-group mb-3">
+      <label for="observacion">Solicitud</label>
+      <textarea id="observacion" class="form-control" rows="4" formControlName="observacion"></textarea>
+    </div>
+    <p-footer>
+      <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarProrroga()"></button>
+      <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="displayModalProrroga = false"></button>
+    </p-footer>
+  </form>
 </p-dialog>
 <!-- <div class="container mt-4">
     <h2 class="text-center mb-4">Panel de Abogado</h2>

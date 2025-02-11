@@ -1219,6 +1219,105 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  displayEditModalCaso: boolean = false;
+  transformedArchivos: { name: string; type: string; content: string }[] = [];
+
+  editCaso(caso: CasoDTO) {
+    this.selectedCasoUser = { ...caso }; // Crear una copia del caso para evitar modificaciones no intencionales
+    if (this.selectedCasoUser.archivos && this.selectedCasoUser.archivos.length > 0) {
+      this.transformedArchivos = this.selectedCasoUser.archivos.map((archivo, index) => {
+        return {
+          name: this.selectedCasoUser.nombreArchivo[index] || `Archivo_${index + 1}`, // Usa el nombre si está disponible
+          type: archivo.split(';')[0].split(':')[1], // Extrae el tipo MIME del archivo
+          content: archivo, // El contenido base64 original
+        };
+      });
+    } else {
+      this.transformedArchivos = []; // Inicializa como arreglo vacío si no hay archivos
+    }
+    this.displayEditModalCaso = true;
+  }
+
+  resetFile(event: boolean){
+
+  }
+
+  setFile(listB64: string[]) {
+    console.log("aqui si entra",listB64)
+    this.selectedCasoUser.imagenes = listB64;
+  }
+
+  updateCaso() {
+    console.log('caso:', this.selectedCasoUser);
+    if (!this.selectedCasoUser.duracion || this.selectedCasoUser.duracion <= 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'La duración debe ser mayor a 0 días.',
+      });
+      return;
+    }
+    if (this.selectedCasoUser) {
+      this.casosService.updateCaso(this.selectedCasoUser).subscribe(
+        () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Caso actualizado',
+            detail: 'La fecha de finalización ha sido actualizada.',
+          });
+          this.displayEditModalCaso = false;
+          this.loadCasos(); // Recargar la lista de casos después de la actualización
+        },
+        error => {
+          console.error('Error al actualizar el caso:', error);
+        }
+      );
+    }
+  }
+
+  closeEditModalCaso(){
+    this.displayEditModalCaso = false;
+  }
+
+  calcularNuevaFechaFinalizacion() {
+    if (!this.selectedCasoUser.fechaFinalizacion || !this.selectedCasoUser.duracion) {
+      return;
+    }
+
+    // Convertir la fecha de finalización actual en objeto Date
+    let fechaFinalizacionActual = new Date(this.selectedCasoUser.fechaFinalizacion);
+
+    // Sumar la nueva duración en días
+    fechaFinalizacionActual.setDate(fechaFinalizacionActual.getDate() + Number(this.selectedCasoUser.duracion));
+
+    // Actualizar el campo con el nuevo valor
+    this.selectedCasoUser.fechaFinalizacion = fechaFinalizacionActual; // Formato estándar
+  }
+
+  esEditable(fechaFinalizacion: string | Date, estado: string): boolean {
+    if (!fechaFinalizacion) return false; // Si no hay fecha de finalización, no se puede editar
+    if (estado.toLowerCase() === 'cerrado') return false; // Si el caso está cerrado, no se puede editar
+
+    let fechaFin = new Date(fechaFinalizacion); // Convertir la fecha de finalización a Date
+    let hoy = new Date(); // Obtener la fecha actual
+
+    // El caso solo es editable si la fecha de finalización es anterior o igual a hoy
+    return fechaFin <= hoy;
+  }
+
+  validarEdicion(caso: any) {
+    if (!this.esEditable(caso.fechaFinalizacion, caso.estado)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Editable',
+        detail: 'Solo se puede editar si la fecha de finalización ya ha pasado y el caso no está cerrado.',
+      });
+      return;
+    }
+
+    // Si la validación pasa, permitir la edición
+    this.editCaso(caso);
+  }
 
   closeEditModalDocumento() {
     this.displayEditModalDocumento = false;

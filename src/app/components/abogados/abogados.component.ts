@@ -35,6 +35,7 @@ export class AbogadosComponent implements OnInit{
   displaySeguimientoModal = false;
   displaySeguimientosModal = false;
   displayEditModalDocumento: boolean = false;
+  displayModalProrroga: boolean = false;
 
   seguimientos: SeguimientoDTO[] = [];
 
@@ -69,6 +70,7 @@ export class AbogadosComponent implements OnInit{
 
   documentForm!: FormGroup;
   seguimientoForm!: FormGroup;
+  prorrogaForm!: FormGroup;
 
   defaultCaso: CasoDTO = {
     casoId: 0,
@@ -119,6 +121,9 @@ export class AbogadosComponent implements OnInit{
     this.documentForm = this.fb.group({
       nombreDocumento: ['', [Validators.required, Validators.minLength(3)]],
       tipoDocumento: ['', Validators.required]
+    });
+    this.prorrogaForm = this.fb.group({
+      observacion: ['', Validators.required]
     });
     this.loadCasos();
     this.loadCitas();
@@ -430,6 +435,61 @@ export class AbogadosComponent implements OnInit{
       progreso: this.progreso,
     });
     this.displaySeguimientoModal = true;
+  }
+
+  abrirModalProrroga(caso: any) {
+    this.selectedCasoUser = caso;
+    this.prorrogaForm.patchValue({
+      observacion: '',
+    });
+    this.displayModalProrroga = true;
+  }
+
+  guardarProrroga(){
+    if(this.prorrogaForm.valid){
+      const prorrogaData = {
+        casoId: this.selectedCasoUser?.casoId,
+        observacion: this.prorrogaForm.value.observacion
+      };
+
+      if(!prorrogaData.casoId){
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se puede identificar el caso.'
+        });
+        return;
+      }
+
+      const mensaje = `El caso '${this.selectedCasoUser?.asunto}' ya ha cumplido con su fecha de cierre, por tal motivo ${prorrogaData.observacion}`;
+
+      if(!mensaje || mensaje.trim() === ''){
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'El mensaje no se generó correctamente'
+        });
+        return;
+      }
+
+      this.seguimientoService.notificarProrroga(prorrogaData.casoId, mensaje).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Solicitud Enviada',
+            detail: 'Se notificó al administrador sobre la solicitud de prórroga para el caso.',
+          });
+          this.displayModalProrroga = false;
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al enviar la notificación',
+          });
+        }
+      })
+    }
   }
 
 

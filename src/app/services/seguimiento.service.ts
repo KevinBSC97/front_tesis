@@ -22,4 +22,8 @@ export class SeguimientoService{
   notificarRetraso(casoId: number, mensaje: string): Observable<any>{
     return this.http.post(`${this.api}/casos/notificar-retraso/${casoId}`, JSON.stringify(mensaje), { headers: { 'Content-Type': 'application/json'}})
   }
+
+  notificarProrroga(casoId: number, mensaje: string): Observable<any>{
+    return this.http.post(`${this.api}/casos/notificar-prorroga/${casoId}`, JSON.stringify(mensaje), { headers: { 'Content-Type': 'application/json'}})
+  }
 }
