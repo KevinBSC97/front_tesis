@@ -171,7 +171,7 @@
 </div>
 
 <p-toast></p-toast>
-<p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
+<p-dialog header="Detalles del Caso" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw', maxHeight: '80vh'}" [contentStyle]="{'overflow-y':'auto'}" class="custom-modal-header">
   <div *ngIf="selectedCaso">
     <table class="table table-striped">
       <tbody>
@@ -214,10 +214,10 @@
       </tbody>
     </table>
   </div>
-  <div class="group-images">
+  <div>
     <h4>Imágenes Adjuntas</h4>
-    <div *ngIf="(selectedCaso?.imagenes?.length ?? 0) > 0; else noImagenes">
-      <div *ngFor="let imagen of selectedCaso?.imagenes">
+    <div *ngIf="(selectedCaso?.imagenes?.length ?? 0) > 0; else noImagenes" class="image-container">
+      <div *ngFor="let imagen of selectedCaso?.imagenes" class="image-item">
         <shared-image-loader class="picture" [width]="120" [height]="120" [image]="imagen" [alt]="''">
         </shared-image-loader>
       </div>
@@ -226,10 +226,10 @@
       <p>No hay imágenes adjuntas</p>
     </ng-template>
   </div>
-  <div class="detalles-archivos">
+  <div>
     <h4>Archivos Adjuntos</h4>
-    <div *ngIf="(selectedCaso?.archivos?.length ?? 0) > 0; else noArchivos" class="archivo-grid">
-      <div *ngFor="let archivo of selectedCaso?.archivos; let i = index" class="archivo-item">
+    <div *ngIf="(selectedCaso?.archivos?.length ?? 0) > 0; else noArchivos" class="file-container">
+      <div *ngFor="let archivo of selectedCaso?.archivos; let i = index" class="file-item">
         <shared-file-loader
           [file]="archivo"
           [fileName]="selectedCaso?.nombreArchivo?.[i] ?? ''"
