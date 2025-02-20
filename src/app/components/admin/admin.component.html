@@ -161,7 +161,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserAdmin(admin.usuarioId)" title="Editar Administrador">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button *ngIf="admin.usuarioId !== currentUserId" class="btn btn-danger btn-sm" (click)="eliminarUsuario(admin.usuarioId)" title="Eliminar Administrador">
+                <button *ngIf="admin.usuarioId !== currentUserId" class="btn btn-danger btn-sm" (click)="desactivarUsuario(admin.usuarioId)" title="Eliminar Administrador">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -216,7 +216,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserAbogado(abogado.usuarioId)" title="Editar Abogado">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(abogado.usuarioId)" title="Eliminar Abogado">
+                <button class="btn btn-danger btn-sm" (click)="desactivarUsuario(abogado.usuarioId)" title="Eliminar Abogado">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -267,7 +267,7 @@
                 <button class="btn btn-primary btn-sm me-2" (click)="editUserCliente(cliente.usuarioId)" title="Editar Cliente">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(cliente.usuarioId)" title="Eliminar Cliente">
+                <button class="btn btn-danger btn-sm" (click)="desactivarUsuario(cliente.usuarioId)" title="Eliminar Cliente">
                   <i class="pi pi-trash"></i>
                 </button>
               </td>
@@ -319,7 +319,7 @@
               >
                 <i class="pi pi-pencil"></i>
               </button>
-              <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita.citaId)">
+              <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita)">
                 <i class="pi pi-trash"></i>
               </button></td>
             </tr>

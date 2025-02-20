@@ -952,9 +952,43 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  eliminarCita(citaId: number){
+  desactivarUsuario(usuarioId: number){
+    if(confirm('¿Está seguro de que desea inactivar este usuario?')){
+      this.usuarioService.desactivarUsuario(usuarioId).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Usuario inactivar',
+            detail: 'El usuario fue inactivado correctamente'
+          });
+          this.loadUsers();
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo inactivar el usuario'
+          })
+        }
+      })
+    }
+  }
+
+  eliminarCita(cita: CitaDTO){
+    const fechaCita = new Date(cita.fechaHora);
+    const ahora = new Date();
+
+    if((cita.estado !== 'Pendiente' && fechaCita > ahora) || cita.estado !== 'Rechazada'){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No permitido',
+        detail: 'Solo se pueden eliminar citas en estado Pendiente o Rechazada y su fecha ya ha vencido'
+      });
+      return;
+    }
+
     if(confirm('¿Está seguro de que desea eliminar esta cita?')){
-      this.citasService.eliminarCita(citaId).subscribe({
+      this.citasService.eliminarCita(cita.citaId).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
