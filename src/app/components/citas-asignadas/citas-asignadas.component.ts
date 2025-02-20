@@ -106,11 +106,24 @@ export class CitasAsignadasComponent {
 
     const citaToUpdate = this.citasPendientes.find(c => c.citaId === citaId);  // Ensure this searches the correct array
     if (citaToUpdate) {
+      if(nuevoEstado === 'Rechazada' && !citaToUpdate.motivo){
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Atención',
+          detail: 'Por favor ingrese un motivo para rechazar la cita.'
+        });
+        return;
+      }
       console.log('cita actualiza: ', citaToUpdate);
       citaToUpdate.estado = nuevoEstado;  // Modify the local copy
       this.citaService.updateCita(citaToUpdate).subscribe({
         next: (response) => {
           console.log('Estado de la cita actualizado', response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cita actualizada',
+            detail: `La cita ha sido ${nuevoEstado}`
+          })
           this.loadCitas();  // Reload the citas to reflect changes
         },
         error: (error) => {

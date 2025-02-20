@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, NgForm, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CitaDTO, IDuracionCita } from 'src/app/interfaces/citas';
@@ -71,7 +71,7 @@ export class CitasComponent implements OnInit {
       especialidadId: ['', Validators.required],
       abogadoId: [''],
       abogado: [{ value: '', disabled: true}, Validators.required],
-      fechaHora: ['', Validators.required],
+      fechaHora: ['', [Validators.required, noWeekendsValidator()]],
       duracion: ['', Validators.required],
       clienteId: [currentUser ? currentUser.usuarioId : 0, Validators.required],
       nombreCliente: [currentUser ? `${currentUser.nombre} ${currentUser.apellido}` : '']
@@ -140,7 +140,18 @@ export class CitasComponent implements OnInit {
   createCita(): void {
     const selectedDate = new Date(this.citaForm.value.fechaHora);
     const now = new Date();
-    now.setMinutes(0, 0, 0); // Elimina minutos y segundos para comparación justa
+    //now.setMinutes(0, 0, 0); // Elimina minutos y segundos para comparación justa
+    now.setSeconds(0, 0);
+    const minAllowedTime = new Date(now.getTime() + 15 * 60 * 1000);
+
+    if(selectedDate < minAllowedTime){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Horario no válido',
+        detail: 'Debes seleccionar un horario con al menos 15 minutos de diferencia respecto a la hora actual.'
+      });
+      return;
+    }
 
     // Validación de horario
     if (selectedDate < now || selectedDate.getHours() < 9 || selectedDate.getHours() > 17) {
@@ -221,4 +232,18 @@ export class CitasComponent implements OnInit {
       });
     }
   }
+}
+
+export function noWeekendsValidator(): ValidatorFn {
+  return (control: AbstractControl) => {
+    if (!control.value) {
+      return null; // Si el campo está vacío, no validar aún.
+    }
+    const selectedDate = new Date(control.value);
+    const day = selectedDate.getDay(); // 0 = Domingo, 6 = Sábado
+
+    return day === 0 || day === 6
+      ? { weekendNotAllowed: true } // Devuelve un error si es sábado o domingo
+      : null;
+  };
 }

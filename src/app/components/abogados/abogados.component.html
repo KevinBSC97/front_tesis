@@ -150,13 +150,14 @@
               <td>{{ cita.fechaHora | date:'dd/MM/yyyy' }}</td>
               <td>{{ cita.duracion }} Minutos</td>
               <td>{{ cita.estado }}</td>
-              <td><button
+              <td>
+                <!-- <button
                 class="btn btn-primary me-3"
                 title="Editar cita"
 
               >
                 <i class="pi pi-pencil"></i>
-              </button>
+              </button> -->
               <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita.citaId)">
                 <i class="pi pi-trash"></i>
               </button></td>
@@ -221,27 +222,27 @@
               <td>{{ caso.tipoCaso }}</td>
               <td>{{ caso.progreso }} % </td>
               <td><button
-                class="btn btn-warning me-3"
+                class="btn btn-warning me-1 mb-1"
                 title="Ver Caso"
                 (click)="showCaseDetails(caso)"
               >
                 <i class="pi pi-eye"></i>
               </button>
               <button
-                class="btn btn-primary me-3"
+                class="btn btn-primary me-1"
                 title="Editar Caso"
                 (click)="editCaso(caso)"
               >
                 <i class="pi pi-pencil"></i>
               </button>
               <button
-                class="btn btn-info me-3"
+                class="btn btn-info me-1"
                 title="Ver Seguimientos"
                 (click)="showSeguimientos(caso)"
               >
                 <i class="pi pi-list"></i>
               </button>
-              <button class="btn btn-secondary me-3" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
+              <button class="btn btn-secondary me-1" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
               </button>
             <button class="btn btn-success" title="Solicitar prórroga del caso" (click)="abrirModalProrroga(caso)">
@@ -512,7 +513,7 @@
 <p-dialog header="Visualizar documento" [(visible)]="displayModalDocumento" [modal]="true" [style]="{width: '30vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
   <div class="detalles-archivos">
     <h4>Archivos Adjuntos</h4>
-    <div>
+    <div *ngIf="(selectedDocumento?.contenido?.length ?? 0) > 0; else noArchivos" class="file-container">
       <div>
         <shared-file-loader *ngIf="selectedDocumento"
           [file]="selectedDocumento.contenido"
@@ -580,7 +581,7 @@
     <label for="archivo">Archivo</label>
     <shared-upload-file
       [initialFiles]="transformedArchivo"
-      (uploadComplete)="handleFileChanges($event)"
+      (uploadComplete)="handleFileChangesDoc($event)"
     ></shared-upload-file>
   </div>
   <p-footer>

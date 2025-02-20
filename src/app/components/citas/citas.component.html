@@ -65,6 +65,9 @@
           [min]="minDate"
           required
         />
+        <small *ngIf="citaForm.get('fechaHora')?.hasError('weekendNotAllowed')" class="text-danger">
+          No se pueden agendar citas los sábados y domingos.
+        </small>
         <button
           class="btn btn-primary flex-shrink-0 ms-4"
           type="button"

@@ -1187,7 +1187,7 @@ export class AdminComponent implements OnInit {
     // Actualiza el archivo en el formulario
     if (event.archivos.length > 0) {
       this.selectedDocumento.contenido = event.archivos[0]?.content || ""; // Base64 del archivo con valor predeterminado
-      this.selectedDocumento.nombreArchivo = event.archivos[0]?.name || "Archivo sin nombre"; // Nombre del archivo con valor predeterminado
+      this.selectedDocumento.nombreArchivo = event.archivos[0]?.name; // Nombre del archivo con valor predeterminado
     } else {
       this.selectedDocumento.contenido = ''; // Valores vacíos si no hay archivo
       this.selectedDocumento.nombreArchivo = '';

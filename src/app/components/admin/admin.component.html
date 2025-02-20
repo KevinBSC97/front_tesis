@@ -367,23 +367,23 @@
               <td>{{ caso.progreso }}%</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
               <td><button
-                class="btn btn-warning me-3"
+                class="btn btn-warning me-2"
                 title="Ver Caso"
                 (click)="showCaseDetails(caso)"
               >
                 <i class="pi pi-eye"></i>
               </button>
               <button
-                class="btn btn-info me-3"
+                class="btn btn-info me-2"
                 title="Ver Seguimientos"
                 (click)="showSeguimientos(caso)"
               >
                 <i class="pi pi-list"></i>
               </button>
-              <button class="btn btn-primary me-3" title="Editar Caso" (click)="validarEdicion(caso)">
+              <!-- <button class="btn btn-primary me-3" title="Editar Caso" (click)="validarEdicion(caso)">
                 <i class="pi pi-pencil"></i>
-              </button>
-              <button class="btn btn-secondary" title="Seguimiento del Caso" (click)="abrirModalSeguimiento(caso)">
+              </button> -->
+              <button class="btn btn-secondary" title="Observación del Caso" (click)="abrirModalSeguimiento(caso)">
                 <i class="pi pi-key"></i>
               </button></td>
             </tr>
@@ -513,14 +513,14 @@
   </p-footer>
 </p-dialog>
 
-<p-dialog header="Seguimiento del Caso" [(visible)]="displaySeguimientoModal" [modal]="true" [style]="{ width: '50vw' }">
+<p-dialog header="Observación del Caso" [(visible)]="displaySeguimientoModal" [modal]="true" [style]="{ width: '50vw' }">
   <form [formGroup]="seguimientoForm">
     <div class="form-group mb-3">
       <label for="observacion">Observación</label>
       <textarea id="observacion" class="form-control" rows="4" formControlName="observacion"></textarea>
     </div>
 
-    <div class="form-group mb-3">
+    <!-- <div class="form-group mb-3">
       <label for="progreso" class="form-label">Progreso del Caso</label>
       <p-slider
         formControlName="progreso"
@@ -529,7 +529,7 @@
         [max]="100"
       ></p-slider>
       <p>{{ progreso }}%</p>
-    </div>
+    </div> -->
 
     <p-footer>
       <button type="button" pButton label="Guardar" icon="pi pi-check" class="p-button-success" (click)="guardarSeguimiento()"></button>
@@ -979,7 +979,7 @@
           <td>{{ i + 1 }}</td>
           <td>{{ seguimiento.observacion }}</td>
           <td>{{ seguimiento.progreso }}%</td>
-          <td>{{ seguimiento.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ seguimiento.fechaRegistro | date: 'dd/MM/yyyy' }}</td>
         </tr>
       </tbody>
     </table>

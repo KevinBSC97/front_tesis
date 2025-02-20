@@ -438,6 +438,14 @@ export class AbogadosComponent implements OnInit{
   }
 
   abrirModalProrroga(caso: any) {
+    if (!this.isFechaFinalizacionHoy(caso.fechaFinalizacion ?? null) || caso.estado === 'Cerrado') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No se puede solicitar prórroga',
+        detail: 'Solo puedes solicitar prórroga si el caso no ha sido cerrado en la fecha de finalización.',
+      });
+      return;
+    }
     this.selectedCasoUser = caso;
     this.prorrogaForm.patchValue({
       observacion: '',
@@ -571,6 +579,7 @@ export class AbogadosComponent implements OnInit{
 
   crearCaso(nuevoCaso: CasoDTO){
     this.casos.push(nuevoCaso);
+    this.filteredCasos.push(nuevoCaso);
     this.displayModalCrearCaso = false;
   }
 
@@ -1076,6 +1085,16 @@ export class AbogadosComponent implements OnInit{
 
   transformedArchivos: { name: string; type: string; content: string }[] = [];
 
+  handleFileChangesDoc(event: { archivos: any[]; nombres: string[] }): void{
+    if (event.archivos.length > 0) {
+      this.selectedDocumento.contenido = event.archivos[0]?.content || ""; // Base64 del archivo con valor predeterminado
+      this.selectedDocumento.nombreArchivo = event.archivos[0]?.name; // Nombre del archivo con valor predeterminado
+    } else {
+      this.selectedDocumento.contenido = ''; // Valores vacíos si no hay archivo
+      this.selectedDocumento.nombreArchivo = '';
+    }
+  }
+
   handleFileChanges(event: { archivos: any[]; nombres: string[] }): void {
     // Actualiza `transformedArchivos` para reflejar cambios en la vista
     // this.transformedArchivos = event.archivos;
@@ -1097,6 +1116,14 @@ export class AbogadosComponent implements OnInit{
   }
 
   editCaso(caso: CasoDTO) {
+    if(this.isFechaFinalizacionHoy(caso.fechaFinalizacion ?? null)){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Edición no permitida',
+        detail: 'No puedes editar un caso si ya se ha cumplido con la fecha de finalización.',
+      });
+      return;
+    }
     this.selectedCasoUser = { ...caso }; // Crear una copia del caso para evitar modificaciones no intencionales
     if (this.selectedCasoUser.archivos && this.selectedCasoUser.archivos.length > 0) {
       this.transformedArchivos = this.selectedCasoUser.archivos.map((archivo, index) => {
@@ -1110,6 +1137,20 @@ export class AbogadosComponent implements OnInit{
       this.transformedArchivos = []; // Inicializa como arreglo vacío si no hay archivos
     }
     this.displayEditModal = true;
+  }
+
+  isFechaFinalizacionHoy(fechaFinalizacion: Date | null): boolean {
+    if (!fechaFinalizacion) return false; // Si la fecha es nula, permitir edición
+
+    const fechaFin = new Date(fechaFinalizacion);
+    const hoy = new Date();
+
+    // Comparar solo día, mes y año (ignorando horas)
+    return (
+      fechaFin.getFullYear() === hoy.getFullYear() &&
+      fechaFin.getMonth() === hoy.getMonth() &&
+      fechaFin.getDate() === hoy.getDate()
+    );
   }
 
   updateCaso() {
