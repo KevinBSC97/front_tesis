@@ -104,6 +104,8 @@ export class HomeComponent implements OnInit {
 
   updateCaso(){
     if(this.selectedCasoUser){
+      this.selectedCasoUser.archivos = this.selectedCasoUser.archivos || [];
+        this.selectedCasoUser.nombreArchivo = this.selectedCasoUser.nombreArchivo || [];
       this.casosService.updateCaso(this.selectedCasoUser).subscribe(
         () => {
           console.log(this.selectedCasoUser);

@@ -1531,19 +1531,23 @@ export class AdminComponent implements OnInit {
                 const progreso = `Progreso: ${seguimiento.progreso}%`;
                 const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
+                // Verificar espacio disponible antes de agregar la observación
                 if (cursorY + 25 > doc.internal.pageSize.height - 20) {
                     doc.addPage();
                     cursorY = 20;
                 }
 
+                // Agregar observación
                 doc.text(observacion, 15, cursorY, { maxWidth: 180 });
-                cursorY += 7;
+                cursorY += 10; // Espacio después de la observación
 
+                // Agregar progreso
                 doc.text(progreso, 15, cursorY, { maxWidth: 180 });
-                cursorY += 7;
+                cursorY += 10; // Espacio después del progreso
 
+                // Agregar fecha
                 doc.text(fechaRegistro, 15, cursorY, { maxWidth: 180 });
-                cursorY += 10;
+                cursorY += 15; // Espacio después de la fecha
             });
         } else {
             if (cursorY + 10 > doc.internal.pageSize.height - 20) {
@@ -1587,6 +1591,137 @@ export class AdminComponent implements OnInit {
         doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
     }
   }
+
+  // downloadPDF() {
+  //   if (this.selectedCaso) {
+  //       const doc = new jsPDF();
+  //       let cursorY = 20;
+
+  //       // Logo del consultorio
+  //       const logoPath = 'assets/image/logo.png';
+  //       doc.addImage(logoPath, 'PNG', 15, cursorY, 50, 20);
+  //       doc.setFontSize(16);
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Consultorio Jurídico', 80, cursorY + 15);
+  //       cursorY += 35;
+
+  //       // Fecha de registro
+  //       doc.setFontSize(12);
+  //       doc.setFont("helvetica", "normal");
+  //       const fechaRegistro = this.selectedCaso.fechaRegistro
+  //           ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  //           : "No especificada.";
+  //       doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
+  //       cursorY += 15;
+
+  //       // Detalles del caso
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Detalles del Caso', 15, cursorY);
+  //       cursorY += 10;
+
+  //       const details = [
+  //           { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
+  //           { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
+  //           { label: 'Tipo de Caso', value: this.selectedCaso.tipoCaso || "No especificado." },
+  //           { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
+  //           { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
+  //               ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  //               : "No especificada." },
+  //       ];
+
+  //       details.forEach(({ label, value }) => {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text(`• ${label}:`, 15, cursorY);
+  //           const textWidth = doc.getTextWidth(`• ${label}: `);
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text(value, 15 + textWidth, cursorY);
+  //           cursorY += 10;
+
+  //           if (cursorY > doc.internal.pageSize.height - 20) {
+  //               doc.addPage();
+  //               cursorY = 20;
+  //           }
+  //       });
+
+  //       // Descripción del caso
+  //       doc.setFont("helvetica", "bold");
+  //       doc.text('Descripción del Caso', 15, cursorY);
+  //       cursorY += 10;
+  //       doc.setFont("helvetica", "normal");
+  //       const descripcion = this.selectedCaso.descripcion || "No especificada.";
+  //       const splitDescripcion = doc.splitTextToSize(descripcion, 180);
+  //       doc.text(splitDescripcion, 15, cursorY);
+  //       cursorY += splitDescripcion.length * 7 + 10;
+
+  //       // Observaciones
+  //       if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text('Observaciones', 15, cursorY);
+  //           cursorY += 10;
+
+  //           this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
+  //               doc.setFont("helvetica", "normal");
+
+  //               const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
+  //               const progreso = `Progreso: ${seguimiento.progreso}%`;
+  //               const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+
+  //               if (cursorY + 25 > doc.internal.pageSize.height - 20) {
+  //                   doc.addPage();
+  //                   cursorY = 20;
+  //               }
+
+  //               doc.text(observacion, 15, cursorY, { maxWidth: 180 });
+  //               cursorY += 7;
+
+  //               doc.text(progreso, 15, cursorY, { maxWidth: 180 });
+  //               cursorY += 7;
+
+  //               doc.text(fechaRegistro, 15, cursorY, { maxWidth: 180 });
+  //               cursorY += 10;
+  //           });
+  //       } else {
+  //           if (cursorY + 10 > doc.internal.pageSize.height - 20) {
+  //               doc.addPage();
+  //               cursorY = 20;
+  //           }
+
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text('Observaciones', 15, cursorY);
+  //           cursorY += 10;
+
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text('No hay observaciones registradas.', 15, cursorY);
+  //           cursorY += 20;
+  //       }
+
+  //       // Imágenes adjuntas
+  //       if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
+  //           doc.setFont("helvetica", "bold");
+  //           doc.text('Imágenes Adjuntas', 15, cursorY);
+  //           cursorY += 10;
+
+  //           this.selectedCaso.imagenes.forEach((base64Image: string) => {
+  //               const imgWidth = 70;
+  //               const imgHeight = 70;
+
+  //               if (cursorY + imgHeight > doc.internal.pageSize.height - 20) {
+  //                   doc.addPage();
+  //                   cursorY = 20;
+  //               }
+
+  //               doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
+  //               cursorY += imgHeight + 10;
+  //           });
+  //       } else {
+  //           doc.setFont("helvetica", "normal");
+  //           doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
+  //       }
+
+  //       // Guardar el PDF
+  //       doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
+  //   }
+  // }
 
   // downloadPDF() {
   //   if (this.selectedCaso) {

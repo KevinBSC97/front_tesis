@@ -183,7 +183,9 @@ export class CrearCasoComponent {
         },
         error: (error) => {
           console.error("Error al crear caso", error)
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear el caso' })
+          const mensajeError = error.error?.mensaje || 'Error al crear el caso';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: mensajeError })
+          this.showLoading = false;
         },
         complete: () => {
           this.showLoading = false;

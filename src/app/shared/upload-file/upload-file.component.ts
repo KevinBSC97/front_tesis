@@ -74,15 +74,27 @@ export class UploadFileComponent {
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
-      Array.from(input.files).forEach((file) => {
-        if(file.type !== 'application/pdf'){
+      const filesToUpload = Array.from(input.files);
+      filesToUpload.forEach((file) => {
+        if (file.type !== 'application/pdf') {
           this.messageService.add({
             severity: 'error',
             summary: 'Formato no válido',
             detail: `El archivo ${file.name} no es válido. Solo se permiten archivos PDF.`
-          })
+          });
           return;
         }
+
+        // Verificar si el archivo ya está agregado para evitar duplicados
+        if (this.fileNames.includes(file.name)) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Archivo duplicado',
+            detail: `El archivo ${file.name} ya ha sido agregado.`
+          });
+          return;
+        }
+
         this.convertToBase64(file).then((base64: string) => {
           const fileObject = {
             name: file.name,
@@ -90,8 +102,10 @@ export class UploadFileComponent {
             content: base64
           };
 
-          this.filesBase64.push(fileObject);
-          this.fileNames.push(file.name);
+          this.filesBase64 = [...this.filesBase64, fileObject];  // Asegurar que se acumulen archivos
+          this.fileNames = [...this.fileNames, file.name];
+
+          console.log('Archivos después de agregar:', this.filesBase64);  // Verificar que se acumulen
 
           // Emitimos un objeto completo con archivos y nombres
           this.uploadComplete.emit({
@@ -100,6 +114,33 @@ export class UploadFileComponent {
           });
         });
       });
+      input.value = '';
+      // Array.from(input.files).forEach((file) => {
+      //   if(file.type !== 'application/pdf'){
+      //     this.messageService.add({
+      //       severity: 'error',
+      //       summary: 'Formato no válido',
+      //       detail: `El archivo ${file.name} no es válido. Solo se permiten archivos PDF.`
+      //     })
+      //     return;
+      //   }
+      //   this.convertToBase64(file).then((base64: string) => {
+      //     const fileObject = {
+      //       name: file.name,
+      //       type: file.type,
+      //       content: base64
+      //     };
+
+      //     this.filesBase64.push(fileObject);
+      //     this.fileNames.push(file.name);
+
+      //     // Emitimos un objeto completo con archivos y nombres
+      //     this.uploadComplete.emit({
+      //       archivos: this.filesBase64,
+      //       nombres: this.fileNames
+      //     });
+      //   });
+      // });
     }
   }
 
