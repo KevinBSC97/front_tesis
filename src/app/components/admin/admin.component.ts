@@ -280,7 +280,7 @@ export class AdminComponent implements OnInit {
       nombreUsuario: ['', [Validators.required]],
       nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       password: ['', [Validators.required]],
       rolId: [1],
       especialidad: [1],
@@ -290,7 +290,7 @@ export class AdminComponent implements OnInit {
       nombreUsuario: ['', [Validators.required]],
       nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       password: ['', [Validators.required]],
       rolId: [3],
       especialidadIds: [[], [Validators.required]],
@@ -300,7 +300,7 @@ export class AdminComponent implements OnInit {
       nombreUsuario: ['', [Validators.required]],
       nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
       apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZÀ-ÿ\\s]+$')]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       password: ['', [Validators.required]],
       rolId: [2],
       especialidad: [1],
@@ -833,6 +833,13 @@ export class AdminComponent implements OnInit {
   }
 
   registerAdmin(): void{
+    const identificacion = this.formAdmin.get('identificacion')?.value;
+
+    if (!this.validarCedulaEcuatoriana(identificacion)) {
+      this.mensajeErrorIdentificacionAdmin = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      return;
+    }
+
     if(this.formAdmin.valid){
       const newUser: UsuarioRegistroDTO = {
         ...this.formAdmin.value,
@@ -847,6 +854,13 @@ export class AdminComponent implements OnInit {
   }
 
   registerCliente() {
+    const identificacion = this.formCliente.get('identificacion')?.value;
+
+    if (!this.validarCedulaEcuatoriana(identificacion)) {
+      this.mensajeErrorIdentificacionAdmin = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      return;
+    }
+
     if(this.formCliente.valid){
       const newUser: UsuarioRegistroDTO = {
         ...this.formCliente.value,
@@ -861,6 +875,13 @@ export class AdminComponent implements OnInit {
   }
 
   registerAbogado() {
+    const identificacion = this.formAbogado.get('identificacion')?.value;
+
+    if (!this.validarCedulaEcuatoriana(identificacion)) {
+      this.mensajeErrorIdentificacionAdmin = 'El número ingresado no corresponde a una cédula ecuatoriana válida.';
+      return;
+    }
+
     if(this.formAbogado.valid){
       const newUser: UsuarioRegistroDTO = {
         ...this.formAbogado.value,
