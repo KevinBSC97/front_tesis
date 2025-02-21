@@ -926,7 +926,7 @@
 <p-dialog header="Visualizar documento" [(visible)]="displayModalDocumento" [modal]="true" [style]="{width: '30vw'}" [contentStyle]="{'overflow':'visible'}" class="custom-modal-header">
   <div class="detalles-archivos">
     <h4>Archivos Adjuntos</h4>
-    <div>
+    <div *ngIf="(selectedDocumento?.contenido?.length ?? 0) > 0; else noArchivos" class="file-container">
       <div>
         <shared-file-loader *ngIf="selectedDocumento"
           [file]="selectedDocumento.contenido"

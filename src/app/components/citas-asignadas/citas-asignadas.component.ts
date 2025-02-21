@@ -112,6 +112,7 @@ export class CitasAsignadasComponent {
           summary: 'Atención',
           detail: 'Por favor ingrese un motivo para rechazar la cita.'
         });
+        this.showLoading = false;
         return;
       }
       console.log('cita actualiza: ', citaToUpdate);
