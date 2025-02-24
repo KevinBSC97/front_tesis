@@ -123,17 +123,6 @@ export class CitasComponent implements OnInit {
   }
 
   canCreateCita(): boolean {
-    // Asegúrate de que todos los campos necesarios están completos
-    // if (!this.newCita.descripcion || !this.newCita.fechaHora || this.selectedEspecialidad === null || this.selectedAbogado === null) {
-    //   return false;
-    // }
-
-    // Condiciones específicas para la creación de la cita
-    //if (this.selectedEspecialidad === 1) {
-      //return false;  // No permitir crear citas con 'Ninguna' especialidad
-    //}
-
-    //return true;
     return this.citaForm.valid;
   }
 

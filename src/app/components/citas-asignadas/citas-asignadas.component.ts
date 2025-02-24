@@ -59,48 +59,6 @@ export class CitasAsignadasComponent {
     }
   }
 
-  // updateEstado(citaId: number, fechaHora: string, nuevoEstado: string): void {
-  //   let updatedDate = new Date(fechaHora);
-
-  //   // Verifica que updatedDate sea un objeto Date válido antes de llamar a getHours()
-  //   if (!(updatedDate instanceof Date && !isNaN(updatedDate.getTime()))) {
-  //     this.messageService.add({
-  //       severity: 'error', summary: 'Error', detail: 'Formato de fecha y hora inválido.'
-  //     });
-  //     return;
-  //   }
-
-  //   if (updatedDate < new Date() || updatedDate.getHours() < 9 || updatedDate.getHours() > 17) {
-  //     this.messageService.add({
-  //       severity: 'error', summary: 'Error', detail: 'La fecha y hora seleccionadas no son válidas. Elija un horario entre las 9:00 AM y las 5:00 PM.'
-  //     });
-  //     return;
-  //   }
-
-  //   const citaToUpdate = this.citasPendientes.find(c => c.citaId === citaId);
-  //   if (citaToUpdate) {
-  //     citaToUpdate.estado = nuevoEstado;
-  //     citaToUpdate.fechaHora = updatedDate;
-  //     this.citaService.updateCita(citaToUpdate).subscribe({
-  //       next: (response) => {
-  //         this.messageService.add({
-  //           severity: 'success', summary: 'Éxito', detail: 'Cita actualizada correctamente.'
-  //         });
-  //         this.loadCitas();
-  //       },
-  //       error: (error) => {
-  //         this.messageService.add({
-  //           severity: 'error', summary: 'Error', detail: 'Error al actualizar el estado de la cita.'
-  //         });
-  //       }
-  //     });
-  //   } else {
-  //     this.messageService.add({
-  //       severity: 'error', summary: 'Error', detail: 'Cita no encontrada para actualizar.'
-  //     });
-  //   }
-  // }
-
   updateEstado(citaId: number, nuevoEstado: string): void {
     this.showLoading = true;
 

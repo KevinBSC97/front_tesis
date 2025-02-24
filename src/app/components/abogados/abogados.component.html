@@ -87,28 +87,6 @@
               </div>
             </div>
           </div>
-          <!-- <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-              <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Casos en curso</h5>
-              </div>
-              <div class="card-body text-center">
-                <p class="card-text">0</p>
-              </div>
-            </div>
-          </div> -->
-        </div>
-        <div class="row justify-content-center mt-4">
-          <!-- <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-              <div class="card-header bg-primary text-white text-center">
-                <h5>Total de Casos cerrados</h5>
-              </div>
-              <div class="card-body text-center">
-                <p class="card-text">0</p>
-              </div>
-            </div>
-          </div> -->
         </div>
       </div>
       <div *ngIf="currentSection === 'citas'">
@@ -151,14 +129,7 @@
               <td>{{ cita.duracion }} Minutos</td>
               <td>{{ cita.estado }}</td>
               <td>
-                <!-- <button
-                class="btn btn-primary me-3"
-                title="Editar cita"
-
-              >
-                <i class="pi pi-pencil"></i>
-              </button> -->
-              <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita.citaId)">
+              <button class="btn btn-danger" title="Eliminar cita" (click)="eliminarCita(cita)">
                 <i class="pi pi-trash"></i>
               </button></td>
             </tr>
@@ -200,7 +171,6 @@
             <tr>
               <th>Asunto</th>
               <th>Cliente</th>
-              <!-- <th>Abogado</th> -->
               <th>Fecha de registro del caso</th>
               <th>Duracion del caso</th>
               <th>Fecha de Finalizacion del caso</th>
@@ -214,7 +184,6 @@
             <tr>
               <td>{{ caso.asunto }}</td>
               <td>{{ caso.nombreCliente }}</td>
-              <!-- <td>{{ caso.nombreAbogado }}</td> -->
               <td>{{ caso.fechaRegistro | date:'dd/MM/yyyy' }}</td>
               <td>{{ caso.duracion }} Días</td>
               <td>{{ caso.fechaFinalizacion | date:'dd/MM/yyyy' }}</td>
@@ -261,7 +230,6 @@
             <button class="btn btn-danger" (click)="displayModalCrearCaso = false">Cerrar</button>
           </ng-template>
         </p-dialog>
-        <!-- <app-casos-realizados></app-casos-realizados> -->
       </div>
       <div *ngIf="currentSection === 'documentos'">
         <h2 class="mb-3">Gestión de Documentos</h2>
@@ -562,10 +530,6 @@
     <label for="nombre">Nombre del Documento</label>
     <input type="text" pInputText [(ngModel)]="selectedDocumento.nombre" class="form-control" />
   </div>
-  <!-- <div class="form-group mb-3">
-    <label for="tipo">Tipo del Documento</label>
-    <input type="text" pInputText [(ngModel)]="selectedDocumento.tipo" class="form-control" />
-  </div> -->
   <div class="form-group mb-3">
     <label for="tipo">Tipo del Documento</label>
     <p-dropdown
@@ -602,44 +566,3 @@
     </p-footer>
   </form>
 </p-dialog>
-<!-- <div class="container mt-4">
-    <h2 class="text-center mb-4">Panel de Abogado</h2>
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-calendar-check mr-2"></i> Citas Asignadas
-                    </h5>
-                    <p class="card-text">Accede a la lista de citas que te han sido asignadas.</p>
-                    <button class="btn btn-primary" routerLink="/citas-asignadas">Administrar Citas</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-briefcase mr-2"></i> Casos Realizados
-                    </h5>
-                    <p class="card-text">Revisa los casos que has manejado hasta ahora.</p>
-                    <button class="btn btn-primary" routerLink="/casos-realizados">Ver Casos</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-plus-circle mr-2"></i> Crear Caso
-                    </h5>
-                    <p class="card-text">Inicia un nuevo caso para tu gestión.</p>
-                    <button class="btn btn-primary" routerLink="/crear-caso">Crear Caso</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->

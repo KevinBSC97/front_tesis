@@ -22,10 +22,10 @@ export interface CasoDTO{
 }
 
 export interface SeguimientoDTO {
-  seguimientoId: number;  // ID del seguimiento
-  casoId: number;         // ID del caso asociado
-  usuarioId: number;      // ID del usuario que creó el seguimiento
-  observacion: string;    // Observación realizada
-  progreso: number;       // Porcentaje de progreso
-  fechaRegistro: Date;    // Fecha del seguimiento
+  seguimientoId: number;
+  casoId: number;
+  usuarioId: number;
+  observacion: string;
+  progreso: number;
+  fechaRegistro: Date;
 }

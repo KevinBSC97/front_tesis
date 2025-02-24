@@ -615,17 +615,6 @@
     <label for="fechaFinalizacion">Fecha de finalizacion</label>
     <input type="text" pInputText [(ngModel)]="selectedCasoUser.fechaFinalizacion" class="form-control" disabled>
   </div>
-  <!-- <div class="form-group mb-3">
-    <label for="progreso" class="form-label">Progreso del Caso</label>
-    <p-slider
-      [(ngModel)]="selectedCasoUser.progreso"
-      [min]="0"
-      [max]="100"
-      [step]="1"
-      style="width: 100%"
-    ></p-slider>
-    <p class="text-center">{{ selectedCasoUser.progreso }}%</p>
-  </div> -->
   <div class="form-group mb-3">
     <label for="estado">Estado</label>
     <select disabled class="form-select" [(ngModel)]="selectedCasoUser.estado" required>
@@ -991,42 +980,3 @@
     <button type="button" pButton label="Cerrar" icon="pi pi-times" class="p-button-danger" (click)="displaySeguimientosModal = false"></button>
   </p-footer>
 </p-dialog>
-
-<!-- <p-toast></p-toast>
-<p-dialog header="Editar Estado del Usuario" [(visible)]="displayEditModal" [style]="{width: '50vw'}" [modal]="true">
-    <div class="form-group mb-3">
-        <label for="identificacion">Identificación</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.identificacion" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="nombreUsuario">Nombre de Usuario</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.nombreUsuario" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="nombre">Nombre</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.nombre" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="apellido">Apellido</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.apellido" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="email">Email</label>
-        <input type="email" pInputText [(ngModel)]="selectedUser.email" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="rol">Rol</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.rolDescripcion" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="especialidad">Especialidad</label>
-        <input type="text" pInputText [(ngModel)]="selectedUser.especialidadDescripcion" class="form-control" disabled>
-    </div>
-    <div class="form-group mb-3">
-        <label for="estado">Estado</label>
-        <p-dropdown [options]="estados" [(ngModel)]="selectedUser.estado" optionLabel="label" optionValue="value" placeholder="Selecciona un estado"></p-dropdown>
-    </div>
-    <div class="d-flex justify-content-end">
-        <button type="button" pButton label="Actualizar" icon="pi pi-check" (click)="updateUser()" class="btn btn-success"></button>
-    </div>
-</p-dialog> -->

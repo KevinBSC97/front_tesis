@@ -188,9 +188,20 @@ export class AbogadosComponent implements OnInit{
     }
   }
 
-  eliminarCita(citaId: number){
+  eliminarCita(cita: CitaDTO){
+    const fechaCita = new Date(cita.fechaHora);
+    const ahora = new Date();
+
+    if((cita.estado !== 'Pendiente' && fechaCita > ahora) || cita.estado !== 'Rechazada'){
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No permitido',
+        detail: 'Solo se pueden eliminar citas en estado Pendiente o Rechazada y su fecha ya ha vencido'
+      });
+      return;
+    }
     if(confirm('¿Está seguro de que desea eliminar esta cita?')){
-      this.citasService.eliminarCita(citaId).subscribe({
+      this.citasService.eliminarCita(cita.citaId).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -543,29 +554,6 @@ export class AbogadosComponent implements OnInit{
         summary: 'Formulario inválido',
         detail: 'Por favor, complete los campos requeridos antes de guardar el seguimiento.',
       });
-      // const seguimientoData = {
-      //   casoId: this.selectedCasoUser.casoId,
-      //   usuarioId: this.authService.getCurrentUser()?.usuarioId,
-      //   observacion: this.seguimientoForm.value.observacion,
-      //   progreso: this.seguimientoForm.value.progreso
-      // };
-      // this.seguimientoService.agregarSeguimiento(seguimientoData).subscribe({
-      //   next: (response) => {
-      //     this.messageService.add({
-      //       severity: 'success',
-      //       summary: 'Seguimiento Guardado',
-      //       detail: 'El seguimiento fue guardado exitosamente',
-      //     });
-      //     this.displaySeguimientoModal = false;
-      //   },
-      //   error: (error) => {
-      //     this.messageService.add({
-      //       severity: 'error',
-      //       summary: 'Error',
-      //       detail: 'Hubo un problema al guardar el seguimiento',
-      //     })
-      //   }
-      // })
     }
   }
 
@@ -609,475 +597,135 @@ export class AbogadosComponent implements OnInit{
   }
 
   downloadPDF() {
-      if (this.selectedCaso) {
-          const doc = new jsPDF();
-          let cursorY = 20;
+    if (this.selectedCaso) {
+        const doc = new jsPDF();
+        let cursorY = 20;
 
-          // Logo del consultorio
-          const logoPath = 'assets/image/logo.png';
-          doc.addImage(logoPath, 'PNG', 15, cursorY, 50, 20);
-          doc.setFontSize(16);
-          doc.setFont("helvetica", "bold");
-          doc.text('Consultorio Jurídico', 80, cursorY + 15);
-          cursorY += 35;
+        // Logo del consultorio
+        const logoPath = 'assets/image/logo.png';
+        doc.addImage(logoPath, 'PNG', 15, cursorY, 50, 20);
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text('Consultorio Jurídico', 80, cursorY + 15);
+        cursorY += 35;
 
-          // Fecha de registro
-          doc.setFontSize(12);
-          doc.setFont("helvetica", "normal");
-          const fechaRegistro = this.selectedCaso.fechaRegistro
-              ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-              : "No especificada.";
-          doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
-          cursorY += 15;
+        // Fecha de registro
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        const fechaRegistro = this.selectedCaso.fechaRegistro
+            ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : "No especificada.";
+        doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
+        cursorY += 15;
 
-          // Detalles del caso
-          doc.setFont("helvetica", "bold");
-          doc.text('Detalles del Caso', 15, cursorY);
-          cursorY += 10;
+        // Detalles del caso
+        doc.setFont("helvetica", "bold");
+        doc.text('Detalles del Caso', 15, cursorY);
+        cursorY += 10;
 
-          const details = [
-              { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
-              { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
-              { label: 'Tipo de Caso', value: this.selectedCaso.tipoCaso || "No especificado." },
-              { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
-              { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
-                  ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                  : "No especificada." },
-          ];
+        const details = [
+            { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
+            { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
+            { label: 'Tipo de Caso', value: this.selectedCaso.tipoCaso || "No especificado." },
+            { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
+            { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
+                ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                : "No especificada." },
+        ];
 
-          details.forEach(({ label, value }) => {
-              doc.setFont("helvetica", "bold");
-              doc.text(`• ${label}:`, 15, cursorY);
-              const textWidth = doc.getTextWidth(`• ${label}: `);
-              doc.setFont("helvetica", "normal");
-              doc.text(value, 15 + textWidth, cursorY);
-              cursorY += 10;
+        details.forEach(({ label, value }) => {
+            doc.setFont("helvetica", "bold");
+            doc.text(`• ${label}:`, 15, cursorY);
+            const textWidth = doc.getTextWidth(`• ${label}: `);
+            doc.setFont("helvetica", "normal");
+            doc.text(value, 15 + textWidth, cursorY);
+            cursorY += 10;
 
-              if (cursorY > doc.internal.pageSize.height - 20) {
-                  doc.addPage();
-                  cursorY = 20;
-              }
-          });
+            if (cursorY > doc.internal.pageSize.height - 20) {
+                doc.addPage();
+                cursorY = 20;
+            }
+        });
 
-          // Descripción del caso
-          doc.setFont("helvetica", "bold");
-          doc.text('Descripción del Caso', 15, cursorY);
-          cursorY += 10;
-          doc.setFont("helvetica", "normal");
-          const descripcion = this.selectedCaso.descripcion || "No especificada.";
-          const splitDescripcion = doc.splitTextToSize(descripcion, 180);
-          doc.text(splitDescripcion, 15, cursorY);
-          cursorY += splitDescripcion.length * 7 + 10;
+        // Descripción del caso
+        doc.setFont("helvetica", "bold");
+        doc.text('Descripción del Caso', 15, cursorY);
+        cursorY += 10;
+        doc.setFont("helvetica", "normal");
+        const descripcion = this.selectedCaso.descripcion || "No especificada.";
+        const splitDescripcion = doc.splitTextToSize(descripcion, 180);
+        doc.text(splitDescripcion, 15, cursorY);
+        cursorY += splitDescripcion.length * 7 + 10;
 
-          // Observaciones
-          if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
-              doc.setFont("helvetica", "bold");
-              doc.text('Observaciones', 15, cursorY);
-              cursorY += 10;
+        // Observaciones
+        if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
+            doc.setFont("helvetica", "bold");
+            doc.text('Observaciones', 15, cursorY);
+            cursorY += 10;
 
-              this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
-                  doc.setFont("helvetica", "normal");
+            this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
+                doc.setFont("helvetica", "normal");
 
-                  const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
-                  const progreso = `Progreso: ${seguimiento.progreso}%`;
-                  const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+                const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
+                const progreso = `Progreso: ${seguimiento.progreso}%`;
+                const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-                  if (cursorY + 25 > doc.internal.pageSize.height - 20) {
-                      doc.addPage();
-                      cursorY = 20;
-                  }
+                if (cursorY + 25 > doc.internal.pageSize.height - 20) {
+                    doc.addPage();
+                    cursorY = 20;
+                }
 
-                  doc.text(observacion, 15, cursorY, { maxWidth: 180 });
-                  cursorY += 7;
+                doc.text(observacion, 15, cursorY, { maxWidth: 180 });
+                cursorY += 7;
 
-                  doc.text(progreso, 15, cursorY, { maxWidth: 180 });
-                  cursorY += 7;
+                doc.text(progreso, 15, cursorY, { maxWidth: 180 });
+                cursorY += 7;
 
-                  doc.text(fechaRegistro, 15, cursorY, { maxWidth: 180 });
-                  cursorY += 10;
-              });
-          } else {
-              if (cursorY + 10 > doc.internal.pageSize.height - 20) {
-                  doc.addPage();
-                  cursorY = 20;
-              }
+                doc.text(fechaRegistro, 15, cursorY, { maxWidth: 180 });
+                cursorY += 10;
+            });
+        } else {
+            if (cursorY + 10 > doc.internal.pageSize.height - 20) {
+                doc.addPage();
+                cursorY = 20;
+            }
 
-              doc.setFont("helvetica", "bold");
-              doc.text('Observaciones', 15, cursorY);
-              cursorY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text('Observaciones', 15, cursorY);
+            cursorY += 10;
 
-              doc.setFont("helvetica", "normal");
-              doc.text('No hay observaciones registradas.', 15, cursorY);
-              cursorY += 20;
-          }
+            doc.setFont("helvetica", "normal");
+            doc.text('No hay observaciones registradas.', 15, cursorY);
+            cursorY += 20;
+        }
 
-          // Imágenes adjuntas
-          if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
-              doc.setFont("helvetica", "bold");
-              doc.text('Imágenes Adjuntas', 15, cursorY);
-              cursorY += 10;
+        // Imágenes adjuntas
+        if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
+            doc.setFont("helvetica", "bold");
+            doc.text('Imágenes Adjuntas', 15, cursorY);
+            cursorY += 10;
 
-              this.selectedCaso.imagenes.forEach((base64Image: string) => {
-                  const imgWidth = 70;
-                  const imgHeight = 70;
+            this.selectedCaso.imagenes.forEach((base64Image: string) => {
+                const imgWidth = 70;
+                const imgHeight = 70;
 
-                  if (cursorY + imgHeight > doc.internal.pageSize.height - 20) {
-                      doc.addPage();
-                      cursorY = 20;
-                  }
+                if (cursorY + imgHeight > doc.internal.pageSize.height - 20) {
+                    doc.addPage();
+                    cursorY = 20;
+                }
 
-                  doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
-                  cursorY += imgHeight + 10;
-              });
-          } else {
-              doc.setFont("helvetica", "normal");
-              doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
-          }
+                doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
+                cursorY += imgHeight + 10;
+            });
+        } else {
+            doc.setFont("helvetica", "normal");
+            doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
+        }
 
-          // Guardar el PDF
-          doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
-      }
+        // Guardar el PDF
+        doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
     }
-
-  // downloadPDF() {
-  //   if (this.selectedCaso) {
-  //       const doc = new jsPDF();
-  //       let cursorY = 20;
-
-  //       // Logo del consultorio
-  //       const logoPath = 'assets/image/logo.png';
-  //       doc.addImage(logoPath, 'PNG', 15, cursorY, 50, 20);
-  //       doc.setFontSize(16);
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Consultorio Jurídico', 80, cursorY + 15);
-  //       cursorY += 35;
-
-  //       // Fecha de registro
-  //       doc.setFontSize(12);
-  //       doc.setFont("helvetica", "normal");
-  //       const fechaRegistro = this.selectedCaso.fechaRegistro
-  //           ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  //           : "No especificada.";
-  //       doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
-  //       cursorY += 15;
-
-  //       // Detalles del caso
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Detalles del Caso', 15, cursorY);
-  //       cursorY += 10;
-
-  //       const details = [
-  //           { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
-  //           { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
-  //           { label: 'Tipo de Caso', value: this.selectedCaso.tipoCaso || "No especificado." },
-  //           { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
-  //           { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
-  //               ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  //               : "No especificada." },
-  //       ];
-
-  //       details.forEach(({ label, value }) => {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text(`• ${label}:`, 15, cursorY);
-  //           const textWidth = doc.getTextWidth(`• ${label}: `);
-  //           doc.setFont("helvetica", "normal");
-  //           doc.text(value, 15 + textWidth, cursorY);
-  //           cursorY += 10;
-
-  //           if (cursorY > doc.internal.pageSize.height - 20) {
-  //               doc.addPage();
-  //               cursorY = 20;
-  //           }
-  //       });
-
-  //       // Descripción del caso
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Descripción del Caso', 15, cursorY);
-  //       cursorY += 10;
-  //       doc.setFont("helvetica", "normal");
-  //       const descripcion = this.selectedCaso.descripcion || "No especificada.";
-  //       doc.text(descripcion, 15, cursorY, { maxWidth: 180 });
-  //       cursorY += 20;
-
-  //       // Observaciones
-  //       if (this.selectedCaso.seguimientos && this.selectedCaso.seguimientos.length > 0) {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text('Observaciones', 15, cursorY);
-  //           cursorY += 10;
-
-  //           this.selectedCaso.seguimientos.forEach((seguimiento: any, index: number) => {
-  //               doc.setFont("helvetica", "normal");
-  //               const observacion = `Observación ${index + 1}: ${seguimiento.observacion}`;
-  //               const progreso = `Progreso: ${seguimiento.progreso}%`;
-  //               const fechaRegistro = `Fecha: ${new Date(seguimiento.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
-  //               doc.text(observacion, 15, cursorY);
-  //               cursorY += 7;
-  //               doc.text(progreso, 15, cursorY);
-  //               cursorY += 7;
-  //               doc.text(fechaRegistro, 15, cursorY);
-  //               cursorY += 10;
-
-  //               if (cursorY > doc.internal.pageSize.height - 20) {
-  //                   doc.addPage();
-  //                   cursorY = 20;
-  //               }
-  //           });
-  //       } else {
-  //           doc.text('No hay observaciones registradas.', 15, cursorY);
-  //           cursorY += 20;
-  //       }
-
-  //       // Imágenes adjuntas
-  //       if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text('Imágenes Adjuntas', 15, cursorY);
-  //           cursorY += 10;
-
-  //           this.selectedCaso.imagenes.forEach((base64Image: string) => {
-  //               const imgWidth = 70;
-  //               const imgHeight = 70;
-
-  //               if (cursorY + imgHeight > doc.internal.pageSize.height) {
-  //                   doc.addPage();
-  //                   cursorY = 20;
-  //               }
-
-  //               doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
-  //               cursorY += imgHeight + 10;
-  //           });
-  //       } else {
-  //           doc.setFont("helvetica", "normal");
-  //           doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
-  //       }
-
-  //       // Guardar el PDF
-  //       doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
-  //   }
-  // }
-
-  // downloadPDF() {
-  //   if (this.selectedCaso) {
-  //       const doc = new jsPDF();
-  //       let cursorY = 20; // Margen inicial superior
-
-  //       // Agregar logo del consultorio
-  //       const logoPath = 'assets/image/logo.png';
-  //       const logoX = 15; // Coordenada X del logo
-  //       const logoWidth = 50; // Ancho del logo
-  //       const logoHeight = 20; // Alto del logo
-  //       doc.addImage(logoPath, 'PNG', logoX, cursorY, logoWidth, logoHeight);
-
-  //       // Título alineado al logo
-  //       doc.setFontSize(16);
-  //       doc.setFont("helvetica", "bold");
-  //       const titleX = logoX + logoWidth + 10; // Alinear el título a la derecha del logo
-  //       doc.text('Consultorio Jurídico', titleX, cursorY + 15); // Alineación vertical ajustada
-  //       cursorY += logoHeight + 10;
-
-  //       // Fecha de registro
-  //       doc.setFontSize(12);
-  //       doc.setFont("helvetica", "normal");
-  //       const fechaRegistro = this.selectedCaso.fechaRegistro
-  //           ? new Date(this.selectedCaso.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  //           : "No especificada.";
-  //       doc.text(`Fecha Registro: ${fechaRegistro}`, 15, cursorY);
-  //       cursorY += 15;
-
-  //       // Detalles del caso
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Detalles del Caso', 15, cursorY);
-  //       cursorY += 10;
-  //       doc.setFont("helvetica", "normal");
-  //       const details = [
-  //           { label: 'Nombre del Cliente', value: this.selectedCaso.nombreCliente || "No especificado." },
-  //           { label: 'Nombre del Abogado a Cargo', value: this.selectedCaso.nombreAbogado || "No especificado." },
-  //           { label: 'Tipo de Caso', value: this.selectedCaso.asunto || "No especificado." },
-  //           { label: 'Duración del Caso', value: `${this.selectedCaso.duracion || "No especificada."} días` },
-  //           { label: 'Fecha de Finalización del Caso', value: this.selectedCaso.fechaFinalizacion
-  //               ? new Date(this.selectedCaso.fechaFinalizacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  //               : "No especificada." },
-  //       ];
-
-  //       details.forEach(({ label, value }) => {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
-  //           const textWidth = doc.getTextWidth(`• ${label}: `); // Calcular el ancho de la etiqueta
-  //           doc.setFont("helvetica", "normal");
-  //           doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
-  //           cursorY += 10;
-
-  //           // Verificar si es necesario agregar una nueva página
-  //           if (cursorY > doc.internal.pageSize.height - 20) {
-  //               doc.addPage();
-  //               cursorY = 20;
-  //           }
-  //       });
-
-  //       // Información de la cita judicial
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Información de la Cita Judicial', 15, cursorY);
-  //       cursorY += 10;
-  //       doc.setFont("helvetica", "normal");
-  //       const citaDetails = [
-  //           { label: 'Fecha de la Cita Judicial', value: this.selectedCaso.fechaCita
-  //               ? new Date(this.selectedCaso.fechaCita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  //               : "No especificada." },
-  //           { label: 'Asunto de la Cita', value: this.selectedCaso.asunto || "No especificado." },
-  //       ];
-
-  //       citaDetails.forEach(({ label, value }) => {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text(`• ${label}:`, 15, cursorY); // Agregar viñeta y texto en negrita
-  //           const textWidth = doc.getTextWidth(`• ${label}: `);
-  //           doc.setFont("helvetica", "normal");
-  //           doc.text(value, 15 + textWidth, cursorY); // Texto del valor alineado
-  //           cursorY += 10;
-
-  //           if (cursorY > doc.internal.pageSize.height - 20) {
-  //               doc.addPage();
-  //               cursorY = 20;
-  //           }
-  //       });
-
-  //       // Descripción del caso
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Descripción del Caso', 15, cursorY);
-  //       cursorY += 10;
-  //       doc.setFont("helvetica", "normal");
-  //       const descripcion = this.selectedCaso.descripcion || "No especificada.";
-  //       doc.text(descripcion, 15, cursorY, { maxWidth: 180 });
-  //       cursorY += 20;
-
-  //       // Imágenes adjuntas
-  //       if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
-  //           doc.setFont("helvetica", "bold");
-  //           doc.text('Imágenes Adjuntas', 15, cursorY);
-  //           cursorY += 10;
-
-  //           this.selectedCaso.imagenes.forEach((base64Image: string) => {
-  //               const imgWidth = 70;
-  //               const imgHeight = 70;
-
-  //               if (cursorY + imgHeight > doc.internal.pageSize.height) {
-  //                   doc.addPage();
-  //                   cursorY = 20;
-  //               }
-
-  //               doc.addImage(base64Image, 'JPEG', 15, cursorY, imgWidth, imgHeight);
-  //               cursorY += imgHeight + 10;
-  //           });
-  //       } else {
-  //           doc.setFont("helvetica", "normal");
-  //           doc.text('No hay imágenes adjuntas para este caso.', 15, cursorY);
-  //       }
-
-  //       // Guardar el PDF
-  //       doc.save(`Informe_Caso_${this.selectedCaso.casoId}.pdf`);
-  //   }
-  // }
-
-  // downloadPDF() {
-  //   if (this.selectedCaso) {
-  //       const doc = new jsPDF();
-  //       let finalY = 30; // Posición inicial después del título
-
-  //       // Título del Documento
-  //       doc.setFontSize(20);
-  //       doc.setFont("helvetica", "bold");
-  //       doc.text('Detalles del Caso', 105, 15, { align: "center" });
-
-  //       // Datos a excluir (como IDs y otros innecesarios)
-  //       const excludedFields = ['casoId', 'abogadoId', 'clienteId', 'citaId', 'imagenes', 'archivos', 'especialidadDescripcion', 'fechaCita', 'nombreArchivo'];
-
-  //       const fieldMapping: { [key: string]: string } = {
-  //           asunto: 'Asunto',
-  //           descripcion: 'Descripción',
-  //           nombreCliente: 'Cliente',
-  //           nombreAbogado: 'Abogado',
-  //           fechaRegistro: 'Fecha del Caso',
-  //           estado: 'Estado',
-  //           duracion: 'Duracion',
-  //           fechaFinalizacion: 'Fecha de finalizacion del caso',
-  //           progreso: 'Progreso'
-  //       };
-
-  //       // Formateo y mapeo de los datos
-  //       const data = this.selectedCaso
-  //         ? Object.keys(this.selectedCaso)
-  //             .filter(key => !excludedFields.includes(key))
-  //             .map(key => [
-  //               fieldMapping[key] || key, // Mapea el nombre del campo
-  //               (() => {
-  //                 const value = this.selectedCaso?.[key as keyof CasoDTO];
-  //                 if (key === 'fechaRegistro') {
-  //                   // Manejo específico para el campo fechaRegistro
-  //                   if (value instanceof Date) {
-  //                     return value.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  //                   }
-  //                   if (typeof value === 'string') {
-  //                     try {
-  //                       return new Date(value).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  //                     } catch {
-  //                       return value; // Devuelve el valor como está si no se puede convertir
-  //                     }
-  //                   }
-  //                   return ''; // Valor por defecto si no es ni Date ni string
-  //                 }
-  //                 // Manejo genérico para otros campos
-  //                 if (Array.isArray(value)) {
-  //                   return value.join(', ');
-  //                 }
-  //                 return value?.toString() ?? '';
-  //               })()
-  //             ])
-  //         : [];
-
-  //       // Generar tabla con los datos
-  //       autoTable(doc, {
-  //           startY: finalY,
-  //           head: [['Campo', 'Valor']],
-  //           body: data,
-  //           styles: {
-  //               fontSize: 11,
-  //               cellPadding: 3,
-  //               minCellHeight: 10
-  //           },
-  //           headStyles: {
-  //               fillColor: [41, 128, 185],
-  //               textColor: 255,
-  //               fontStyle: 'bold'
-  //           },
-  //           alternateRowStyles: {
-  //               fillColor: [245, 245, 245]
-  //           },
-  //           margin: { top: 25, left: 15, right: 15 },
-  //           didDrawPage: (data) => {
-  //             finalY = data.cursor?.y ?? 30; // Actualizamos la posición final de la tabla
-  //           }
-  //       });
-
-  //       // Agregar imágenes
-  //       if (this.selectedCaso?.imagenes && this.selectedCaso.imagenes.length > 0) {
-  //         let imgY = finalY + 10; // Espacio después de la tabla
-  //         this.selectedCaso.imagenes.forEach((base64Image: string) => {
-  //           const imgWidth = 50; // Ancho de la imagen
-  //           const imgHeight = 50; // Alto de la imagen
-
-  //           // Verificar si la imagen cabe en la página actual
-  //           if (imgY + imgHeight > doc.internal.pageSize.height) {
-  //             doc.addPage(); // Crear nueva página
-  //             imgY = 10; // Reiniciar posición en la nueva página
-  //           }
-
-  //           doc.addImage(base64Image, 'JPEG', 15, imgY, imgWidth, imgHeight);
-  //           imgY += imgHeight + 10; // Incrementar posición para la siguiente imagen
-  //         });
-  //       }
-
-  //       // Guardar el PDF con un nombre dinámico
-  //       doc.save(`Detalles_Caso_${this.selectedCaso.casoId}.pdf`);
-  //   }
-  // }
+  }
 
   closeModal() {
     this.displayModal = false;
@@ -1096,20 +744,10 @@ export class AbogadosComponent implements OnInit{
   }
 
   handleFileChanges(event: { archivos: any[]; nombres: string[] }): void {
-    // Actualiza `transformedArchivos` para reflejar cambios en la vista
-    // this.transformedArchivos = event.archivos;
-
-    // // Sincroniza los cambios con `selectedCasoUser.archivos`
-    // this.selectedCasoUser.archivos = this.transformedArchivos.map((file) => file.content); // Base64
-    // this.selectedCasoUser.nombreArchivo = this.transformedArchivos.map((file) => file.name); // Nombres de los archivos
     if (event.archivos.length > 0) {
-      //this.selectedDocumento.contenido = event.archivos[0]?.content || ""; // Base64 del archivo con valor predeterminado
-      //this.selectedDocumento.nombreArchivo = event.archivos[0]?.name || "Archivo sin nombre"; // Nombre del archivo con valor predeterminado
       this.selectedCasoUser.archivos = event.archivos.map(file => file.content);
       this.selectedCasoUser.nombreArchivo = event.nombres
     } else {
-      // this.selectedDocumento.contenido = ''; // Valores vacíos si no hay archivo
-      // this.selectedDocumento.nombreArchivo = '';
       this.selectedCasoUser.archivos = [];
       this.selectedCasoUser.nombreArchivo = [];
     }
@@ -1128,7 +766,7 @@ export class AbogadosComponent implements OnInit{
     if (this.selectedCasoUser.archivos && this.selectedCasoUser.archivos.length > 0) {
       this.transformedArchivos = this.selectedCasoUser.archivos.map((archivo, index) => {
         return {
-          name: this.selectedCasoUser.nombreArchivo[index] || `Archivo_${index + 1}`, // Usa el nombre si está disponible
+          name: this.selectedCasoUser.nombreArchivo[index], // Usa el nombre si está disponible
           type: archivo.split(';')[0].split(':')[1], // Extrae el tipo MIME del archivo
           content: archivo, // El contenido base64 original
         };

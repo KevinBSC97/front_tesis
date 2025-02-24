@@ -80,14 +80,6 @@ export class CrearCasoComponent {
       const fechaFinalizacion = this.calcularFechaLaboral(parseInt(duracion, 10));
 
       this.form.patchValue({ fechaFinalizacion })
-      // const fechaFinalizacion = new Date(fechaRegistro);
-      // fechaFinalizacion.setDate(fechaRegistro.getDate() + parseInt(duracion, 10));
-
-      // // Formatea la fecha al formato 'yyyy-MM-dd' requerido por el input de tipo date
-      // const fechaFinalizacionISO = fechaFinalizacion.toISOString().split('T')[0];
-
-      // // Actualiza el valor del campo en el formulario
-      // this.form.patchValue({ fechaFinalizacion: fechaFinalizacionISO });
     }
   }
 

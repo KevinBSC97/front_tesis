@@ -32,22 +32,4 @@ export class AuthGuard implements CanActivate {
       }
     });
   }
-  // canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-  //   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  //   if (currentUser) {
-  //     return true;
-  //   } else {
-  //     this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-  //     return false;
-  //   }
-  // }
-  // canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean{
-  //   if(localStorage.getItem('currentUser')){
-  //     return true;
-  //   }
-
-  //   this.router.navigate(['/login']);
-  //   return false;
-  // }
-  
 }

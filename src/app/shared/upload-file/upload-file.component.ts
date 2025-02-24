@@ -21,16 +21,6 @@ export class UploadFileComponent {
   constructor(private messageService: MessageService){}
 
   ngOnInit(){
-    // if(this.initialFiles && this.initialFiles.length > 0){
-    //   this.filesBase64 = [...this.initialFiles];
-    //   this.fileNames = this.initialFiles.map(file => file.name);
-
-    //   // Emitimos los archivos al inicializar el componente
-    //   this.uploadComplete.emit({
-    //     archivos: this.filesBase64,
-    //     nombres: this.fileNames
-    //   });
-    // }
     if (this.initialFiles && this.initialFiles.length > 0) {
       this.filesBase64 = [...this.initialFiles];
       this.fileNames = this.initialFiles.map(file => file.name);
@@ -47,14 +37,6 @@ export class UploadFileComponent {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (changes["initialFiles"] && changes["initialFiles"].currentValue) {
-    //   this.filesBase64 = [...changes["initialFiles"].currentValue];
-    //   this.fileNames = this.initialFiles.map(file => file.name);
-    //   this.uploadComplete.emit({
-    //     archivos: this.filesBase64,
-    //     nombres: this.fileNames
-    //   });
-    // }
     if (changes["initialFiles"] && changes["initialFiles"].currentValue) {
       this.filesBase64 = [...changes["initialFiles"].currentValue];
       this.fileNames = this.initialFiles.map(file => file.name);
@@ -115,32 +97,6 @@ export class UploadFileComponent {
         });
       });
       input.value = '';
-      // Array.from(input.files).forEach((file) => {
-      //   if(file.type !== 'application/pdf'){
-      //     this.messageService.add({
-      //       severity: 'error',
-      //       summary: 'Formato no válido',
-      //       detail: `El archivo ${file.name} no es válido. Solo se permiten archivos PDF.`
-      //     })
-      //     return;
-      //   }
-      //   this.convertToBase64(file).then((base64: string) => {
-      //     const fileObject = {
-      //       name: file.name,
-      //       type: file.type,
-      //       content: base64
-      //     };
-
-      //     this.filesBase64.push(fileObject);
-      //     this.fileNames.push(file.name);
-
-      //     // Emitimos un objeto completo con archivos y nombres
-      //     this.uploadComplete.emit({
-      //       archivos: this.filesBase64,
-      //       nombres: this.fileNames
-      //     });
-      //   });
-      // });
     }
   }
 
